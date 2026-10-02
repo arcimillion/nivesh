@@ -123,8 +123,10 @@ function getFallbackDemoAnalysis(
   }))
 
   const hasMoneyMultiplier =
-    /(give|send|invest|pay|deposite?)\s*\d+.*(take|get|receive|return)\s*\d+/i.test(text) ||
-    /double.*money|triple.*money|money.*double/i.test(text)
+    /(give|giving|send|sending|invest|investing|pay|paying|deposit\w*)\s*\d+.*(take|taking|get|getting|receive|receiving|return\w*)\s*\d+/i.test(text) ||
+    /(take|taking|get|getting|receive|receiving|return\w*)\s*\d+.*(give|giving|send|sending|invest|investing|pay|paying|deposit\w*)\s*\d+/i.test(text) ||
+    /double.*money|triple.*money|money.*double|multipl(y|ier)/i.test(text) ||
+    /(give|giving|take|taking)\s*\d+.*(give|giving|take|taking)\s*\d+/i.test(text)
 
   const isHighRisk =
     hasMoneyMultiplier ||
@@ -848,6 +850,7 @@ async function startServer() {
       server: {
         middlewareMode: true,
         hmr: false,
+        allowedHosts: true,
       },
       appType: 'spa',
     })

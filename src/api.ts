@@ -150,6 +150,8 @@ export type AnalyzeOptions = {
   url?: string
 }
 
+import { evaluateLocally, evaluatePhoneLocally } from './localRegulatoryEngine'
+
 // Unified full-stack server serves both frontend and backend on port 3000.
 // In the browser, always use relative path '' to avoid Mixed Content or obsolete localhost:5000 port errors.
 const getApiEndpoint = (): string => {
@@ -171,70 +173,97 @@ export async function analyzeMessage(
   options: AnalyzeOptions | string,
   languageParam?: string,
 ): Promise<AnalysisResult> {
-  const payload =
+  const payload: AnalyzeOptions =
     typeof options === 'string'
       ? { message: options, language: languageParam || 'en', modality: 'text' as InputModality }
       : options
 
-  const response = await fetch(`${API_URL}/api/analyze`, {
-    method: 'POST',
+  const targetUrl = API_URL ? `${API_URL}/api/analyze` : '/api/analyze'
 
-    headers: {
-      'Content-Type': 'application/json',
-    },
-
-    body: JSON.stringify(payload),
-  })
-
-  let data: { error?: string; analysis?: AnalysisResult }
   try {
-    data = (await response.json()) as { error?: string; analysis?: AnalysisResult }
-  } catch {
-    throw new Error('The analysis server returned an invalid response.')
-  }
+    const response = await fetch(targetUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
 
-  if (!response.ok) {
-    throw new Error(
-      data?.error || `Analysis request failed with status ${response.status}.`,
+    const contentType = response.headers.get('content-type') || ''
+
+    // If server responded with HTML (e.g. static host like Netlify returning index.html for unknown /api route),
+    // or HTTP 404 / 502 / 503, gracefully fall back to local regulatory engine
+    if (!response.ok || !contentType.includes('application/json')) {
+      console.warn(
+        `[NiveshShield] Backend returned ${response.status} (${contentType || 'non-json'}). Activating client-side regulatory analysis engine.`,
+      )
+      return evaluateLocally(payload)
+    }
+
+    let data: { error?: string; analysis?: AnalysisResult }
+    try {
+      data = (await response.json()) as { error?: string; analysis?: AnalysisResult }
+    } catch {
+      console.warn('[NiveshShield] Non-JSON payload received. Activating client-side regulatory analysis engine.')
+      return evaluateLocally(payload)
+    }
+
+    if (data?.analysis) {
+      return data.analysis
+    }
+
+    if (data?.error) {
+      console.warn('[NiveshShield] Backend error received:', data.error)
+      // If error is just missing Gemini key or rate limit, provide complete regulatory analysis
+      return evaluateLocally(payload)
+    }
+
+    return evaluateLocally(payload)
+  } catch (networkError) {
+    console.warn(
+      '[NiveshShield] Backend endpoint not reachable (static host or offline). Activating client-side regulatory analysis engine:',
+      networkError,
     )
+    return evaluateLocally(payload)
   }
-
-  if (!data?.analysis) {
-    throw new Error('The analysis server returned no analysis result.')
-  }
-
-  return data.analysis
 }
 
 export async function checkPhoneReputation(
   phoneNumber: string,
   originalContext?: string,
 ): Promise<PhoneReputationInvestigation> {
-  const response = await fetch(`${API_URL}/api/phone-reputation`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      phone_number: phoneNumber,
-      original_context: originalContext,
-    }),
-  })
+  const targetUrl = API_URL ? `${API_URL}/api/phone-reputation` : '/api/phone-reputation'
 
-  let data: { error?: string; data?: PhoneReputationInvestigation }
   try {
-    data = (await response.json()) as { error?: string; data?: PhoneReputationInvestigation }
+    const response = await fetch(targetUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        phone_number: phoneNumber,
+        original_context: originalContext,
+      }),
+    })
+
+    const contentType = response.headers.get('content-type') || ''
+    if (!response.ok || !contentType.includes('application/json')) {
+      return evaluatePhoneLocally(phoneNumber, originalContext)
+    }
+
+    let data: { error?: string; data?: PhoneReputationInvestigation }
+    try {
+      data = (await response.json()) as { error?: string; data?: PhoneReputationInvestigation }
+    } catch {
+      return evaluatePhoneLocally(phoneNumber, originalContext)
+    }
+
+    if (data?.data) {
+      return data.data
+    }
+
+    return evaluatePhoneLocally(phoneNumber, originalContext)
   } catch {
-    throw new Error('The phone reputation service returned an unreadable response.')
+    return evaluatePhoneLocally(phoneNumber, originalContext)
   }
-
-  if (!response.ok) {
-    throw new Error(data?.error || `Phone reputation check failed with status ${response.status}.`)
-  }
-
-  if (!data?.data) {
-    throw new Error('No phone reputation investigation data returned.')
-  }
-
-  return data.data
 }

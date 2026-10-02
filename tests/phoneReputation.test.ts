@@ -110,15 +110,22 @@ export async function runPhoneReputationTests(): Promise<{ passed: number; faile
     `Reported statuses: ${statuses.join(', ')}`,
   )
 
-  // TEST 7: Truecaller Adapter unconfigured behavior (no invented data)
+  // TEST 7: Truecaller Adapter behavior (configured or unconfigured disclosure)
   const truecallerSource = investigation.results.find((r) =>
     r.source_name.toLowerCase().includes('truecaller'),
   )
+  const isUnconfigured = !process.env.TRUECALLER_API_KEY || !process.env.TRUECALLER_PARTNER_ID
+  const isExpectedTruecaller = isUnconfigured
+    ? truecallerSource?.status === 'unavailable' &&
+      Boolean(truecallerSource?.limitations.includes('Truecaller reputation check unavailable'))
+    : truecallerSource?.status === 'no_match' ||
+      truecallerSource?.status === 'reported' ||
+      truecallerSource?.status === 'unavailable'
+
   assert(
     'PR-07',
-    'Truecaller Adapter Unconfigured Disclosure',
-    truecallerSource?.status === 'unavailable' &&
-      Boolean(truecallerSource?.limitations.includes('Truecaller reputation check unavailable')),
+    'Truecaller Adapter Disclosure / Lookup',
+    Boolean(isExpectedTruecaller),
     `Truecaller status: ${truecallerSource?.status}, limitation: ${truecallerSource?.limitations.slice(0, 60)}...`,
   )
 

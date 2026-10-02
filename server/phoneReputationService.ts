@@ -5,7 +5,7 @@
  */
 
 import { z } from 'zod'
-import { maskPhoneNumber, normalizeIndianNumber, normalizeInternationalNumber } from './phoneExtractor.js'
+import { maskPhoneNumber, normalizeIndianNumber, normalizeInternationalNumber } from './phoneExtractor.ts'
 
 export type PhoneReputationStatus =
   | 'reported'

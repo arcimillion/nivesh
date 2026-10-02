@@ -270,6 +270,23 @@ const TEST_CASES: TestCase[] = [
       return { pass: isWarning, reason: 'Flagged money multiplication scheme as warning sign' }
     },
   },
+  {
+    id: 'TC-15',
+    name: 'Reverse Money Multiplication Scheme (take 10000 while giving 100)',
+    category: 'Scam Detection',
+    modality: 'text',
+    language: 'en',
+    payload: {
+      message: 'take 10000 while giving 100',
+      language: 'en',
+      modality: 'text',
+    },
+    expectedStatus: 200,
+    validate: (b) => {
+      const isWarning = b.analysis?.overall_status === 'warning_signs_found'
+      return { pass: isWarning, reason: 'Identified reverse-order money multiplication scheme' }
+    },
+  },
 ]
 
 async function runEvaluations() {
