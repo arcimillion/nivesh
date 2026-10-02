@@ -13,10 +13,19 @@ import { ScamJourneyMap } from './components/ScamJourneyMap'
 import { VoiceAssistant } from './components/VoiceAssistant'
 import { IncidentResponse } from './components/IncidentResponse'
 import { PhoneNumberReputation } from './components/PhoneNumberReputation'
+import { DematSafetyChecker } from './components/DematSafetyChecker'
+import { SebiValidator } from './components/SebiValidator'
+import { NiveshParivarCard } from './components/NiveshParivarCard'
+import { CoolingOffCalculator } from './components/CoolingOffCalculator'
+import { ComplaintDossierGenerator } from './components/ComplaintDossierGenerator'
+import { SpotTheScamSimulation } from './components/SpotTheScamSimulation'
+
+type ActiveFeatureTab = 'multimodal' | 'demat' | 'sebi' | 'cooling' | 'sandbox' | 'dossier'
 
 function App() {
   const { t, i18n } = useTranslation()
 
+  const [activeTab, setActiveTab] = useState<ActiveFeatureTab>('multimodal')
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -169,10 +178,15 @@ function App() {
       {/* Main Content */}
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
         {/* Hero Section */}
-        <section className="mb-8 max-w-3xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800 mb-3">
-            <span>🛡️</span>
-            <span>{t('hero.tag', 'Multimodal AI & Official Source Verification')}</span>
+        <section className="mb-6 max-w-3xl">
+          <div className="flex items-center gap-2 flex-wrap mb-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">
+              <span>🛡️</span>
+              <span>{t('hero.tag', 'Multimodal AI & Official Source Verification')}</span>
+            </div>
+            <span className="text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-full px-3 py-1 shadow-2xs">
+              {t('sangyanBadge', '🏛️ IIT (BHU) SANGYAN Hackathon • SEBI & NSDL Investor Protection')}
+            </span>
           </div>
 
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
@@ -187,8 +201,122 @@ function App() {
           </p>
         </section>
 
-        {/* Checker & Demo Grid */}
-        <section className="grid gap-8 lg:grid-cols-[1.4fr_0.6fr]">
+        {/* Feature Navigation Tabs */}
+        <nav className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-8 border-b border-slate-200" aria-label="Feature navigation">
+          <button
+            type="button"
+            onClick={() => setActiveTab('multimodal')}
+            className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-2 ${
+              activeTab === 'multimodal'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+            }`}
+          >
+            <span>🛡️</span>
+            <span>{t('nav.multimodal', 'Multimodal Scanner')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('demat')}
+            className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-2 ${
+              activeTab === 'demat'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+            }`}
+          >
+            <span>🏛️</span>
+            <span>{t('nav.demat', 'NSDL Demat Shield')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('sebi')}
+            className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-2 ${
+              activeTab === 'sebi'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+            }`}
+          >
+            <span>📜</span>
+            <span>{t('nav.sebi', 'SEBI Validator')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('cooling')}
+            className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-2 ${
+              activeTab === 'cooling'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+            }`}
+          >
+            <span>⏱️</span>
+            <span>{t('nav.cooling', 'Cooling-Off Shield')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('sandbox')}
+            className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-2 ${
+              activeTab === 'sandbox'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+            }`}
+          >
+            <span>🎯</span>
+            <span>{t('nav.sandbox', 'Spot-the-Scam Sandbox')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('dossier')}
+            className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-2 ${
+              activeTab === 'dossier'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+            }`}
+          >
+            <span>📋</span>
+            <span>{t('nav.dossier', '1930 / Chakshu Dossier')}</span>
+          </button>
+        </nav>
+
+        {/* Tab 2: NSDL Demat Shield */}
+        {activeTab === 'demat' && (
+          <div className="space-y-6">
+            <DematSafetyChecker />
+          </div>
+        )}
+
+        {/* Tab 3: SEBI Validator */}
+        {activeTab === 'sebi' && (
+          <div className="space-y-6">
+            <SebiValidator />
+          </div>
+        )}
+
+        {/* Tab 4: Cooling-Off Shield */}
+        {activeTab === 'cooling' && (
+          <div className="space-y-6">
+            <CoolingOffCalculator />
+          </div>
+        )}
+
+        {/* Tab 5: Spot-the-Scam Sandbox */}
+        {activeTab === 'sandbox' && (
+          <div className="space-y-6">
+            <SpotTheScamSimulation />
+          </div>
+        )}
+
+        {/* Tab 6: 1930 / Chakshu Dossier Generator */}
+        {activeTab === 'dossier' && (
+          <div className="space-y-6">
+            <ComplaintDossierGenerator analysis={analysis} extractedText={demoText} />
+          </div>
+        )}
+
+        {/* Tab 1: Multimodal Scanner Core Flow */}
+        {activeTab === 'multimodal' && (
+          <>
+            {/* Checker & Demo Grid */}
+            <section className="grid gap-8 lg:grid-cols-[1.4fr_0.6fr]">
           <div className="space-y-6">
             {/* Demo Examples Selector */}
             <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs">
@@ -480,6 +608,12 @@ function App() {
               {/* FEATURE 5: Personalized Incident Response */}
               <IncidentResponse />
 
+              {/* BHARAT-FIRST: Nivesh Parivar Family Warning Card & Vernacular Reader */}
+              <NiveshParivarCard analysis={analysis} extractedText={analysis.extracted_text} />
+
+              {/* ACTIONABLE: 1-Click Official Complaint Dossier Generator */}
+              <ComplaintDossierGenerator analysis={analysis} extractedText={analysis.extracted_text} />
+
               {/* Unknowns & Limitations */}
               <div className="grid gap-4 sm:grid-cols-2">
                 {analysis.unknowns && analysis.unknowns.length > 0 && (
@@ -546,6 +680,8 @@ function App() {
             </div>
           </section>
         )}
+      </>
+    )}
 
         {/* Privacy Principles */}
         <section className="mt-10 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">

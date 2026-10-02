@@ -15,6 +15,49 @@
   "badge": "INVESTOR RESILIENCE PLATFORM",
   "multimodalBadge": "Multimodal",
   "investorResilienceBadge": "🇮🇳 INVESTOR RESILIENCE PLATFORM",
+  "sangyanBadge": "🏛️ IIT (BHU) SANGYAN Hackathon • SEBI & NSDL Investor Protection",
+
+  "nav": {
+    "multimodal": "Multimodal Scanner",
+    "demat": "NSDL Demat Shield",
+    "sebi": "SEBI Validator",
+    "cooling": "Cooling-Off Shield",
+    "sandbox": "Spot-the-Scam Sandbox",
+    "dossier": "1930 / Chakshu Dossier"
+  },
+
+  "demat": {
+    "title": "NSDL & Demat Account Protection Shield",
+    "subtitle": "Verify share transfers, e-DIS OTP alerts, off-market Pre-IPO promises, and Consolidated Account Statement (CAS) notifications against NSDL & SEBI investor protection mandates.",
+    "testSamples": "Test Common Demat Scenarios",
+    "inputLabel": "Paste SMS Alert, WhatsApp Demat Pitch, or CAS Excerpt"
+  },
+
+  "sebiValidator": {
+    "title": "SEBI Intermediary License & Mandate Quick-Validator",
+    "subtitle": "Check whether claimed advisory or broker licenses match official SEBI formats (INA, INH, INZ) and cross-examine whether their actions violate statutory regulatory mandates.",
+    "quickExamples": "Try Sample License Formats"
+  },
+
+  "parivar": {
+    "title": "Nivesh Parivar: Family Warning Card & Vernacular Reader",
+    "subtitle": "Share instant vernacular warning cards with family members on WhatsApp before any savings are transferred. Built for Bharat and regional-language investors."
+  },
+
+  "cooling": {
+    "title": "The 24-Hour Cooling-Off Shield & Reality-Check Math",
+    "subtitle": "Scammers weaponize artificial urgency and mathematical illusions. Use mandatory cooling-off friction and compounding reality calculations to expose the fraud."
+  },
+
+  "sandbox": {
+    "title": "Spot-the-Scam Interactive Sandbox",
+    "subtitle": "Practice detecting subtle regulatory violations in real-world Bharat investor scenarios. Click on the suspicious text elements to uncover the underlying SEBI & NSDL rules."
+  },
+
+  "dossier": {
+    "title": "1-Click Official Complaint Dossier Generator",
+    "subtitle": "Auto-compiles verified evidence into pre-formatted submission dossiers for the National Cybercrime Portal (1930), DoT Sanchar Saathi (Chakshu), and SEBI SCORES 2.0."
+  },
 
   "hero": {
     "tag": "Multimodal AI & Official Source Verification",
