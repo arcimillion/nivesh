@@ -5,6 +5,7 @@ import {
   type AnalysisResult,
   type AnalyzeOptions,
 } from './api'
+import { evaluateLocally } from './localRegulatoryEngine'
 import { officialSources } from './officialSources'
 import { MultimodalInput } from './components/MultimodalInput'
 import { ClaimInvestigation } from './components/ClaimInvestigation'
@@ -20,11 +21,36 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [demoText, setDemoText] = useState('')
+  const [activeDemoKey, setActiveDemoKey] = useState<'ex1Text' | 'ex2Text' | 'ex3Text' | null>(null)
+  const [lastAnalyzeOptions, setLastAnalyzeOptions] = useState<AnalyzeOptions | null>(null)
+
+  const handleLanguageChange = (newLang: string) => {
+    i18n.changeLanguage(newLang)
+
+    if (activeDemoKey) {
+      const text = i18n.t(`demoExamples.${activeDemoKey}`, { lng: newLang })
+      setDemoText(text)
+    }
+
+    if (lastAnalyzeOptions && analysis) {
+      const updatedOptions: AnalyzeOptions = {
+        ...lastAnalyzeOptions,
+        language: newLang,
+        message: activeDemoKey
+          ? i18n.t(`demoExamples.${activeDemoKey}`, { lng: newLang })
+          : lastAnalyzeOptions.message,
+      }
+      setLastAnalyzeOptions(updatedOptions)
+      const updatedAnalysis = evaluateLocally(updatedOptions)
+      setAnalysis(updatedAnalysis)
+    }
+  }
 
   const handleAnalyze = async (options: AnalyzeOptions) => {
     setLoading(true)
     setError('')
     setAnalysis(null)
+    setLastAnalyzeOptions(options)
 
     try {
       const result = await analyzeMessage(options)
@@ -42,6 +68,7 @@ function App() {
   }
 
   const handleDemoSelect = (exampleKey: 'ex1Text' | 'ex2Text' | 'ex3Text') => {
+    setActiveDemoKey(exampleKey)
     const text = t(`demoExamples.${exampleKey}`)
     setDemoText(text)
     setError('')
@@ -49,6 +76,8 @@ function App() {
 
   const handleClear = () => {
     setDemoText('')
+    setActiveDemoKey(null)
+    setLastAnalyzeOptions(null)
     setError('')
     setAnalysis(null)
   }
@@ -68,12 +97,24 @@ function App() {
   const getUncertaintyBadge = (rating?: string) => {
     switch (rating) {
       case 'low':
-        return <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-900 border border-emerald-300">High Confidence Analysis</span>
+        return (
+          <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-900 border border-emerald-300">
+            {t('analysis.highConfidence', 'High Confidence Analysis')}
+          </span>
+        )
       case 'medium':
-        return <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-900 border border-amber-300">Moderate Uncertainty</span>
+        return (
+          <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-900 border border-amber-300">
+            {t('analysis.moderateUncertainty', 'Moderate Uncertainty')}
+          </span>
+        )
       case 'high':
       default:
-        return <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-bold text-slate-800 border border-slate-300">High Uncertainty / Limited Evidence</span>
+        return (
+          <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-bold text-slate-800 border border-slate-300">
+            {t('analysis.highUncertainty', 'High Uncertainty / Limited Evidence')}
+          </span>
+        )
     }
   }
 
@@ -93,7 +134,7 @@ function App() {
                   {t('brand', 'NiveshShield 2.0')}
                 </h1>
                 <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 border border-emerald-300">
-                  Multimodal
+                  {t('multimodalBadge', 'Multimodal')}
                 </span>
               </div>
 
@@ -105,12 +146,12 @@ function App() {
 
           <div className="flex items-center gap-3">
             <span className="hidden rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold tracking-wide text-emerald-800 md:inline-block">
-              🇮🇳 INVESTOR RESILIENCE PLATFORM
+              {t('investorResilienceBadge', '🇮🇳 INVESTOR RESILIENCE PLATFORM')}
             </span>
 
             <select
               value={i18n.language}
-              onChange={(e) => i18n.changeLanguage(e.target.value)}
+              onChange={(e) => handleLanguageChange(e.target.value)}
               className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
               aria-label={t('language', 'Language')}
             >
@@ -131,15 +172,18 @@ function App() {
         <section className="mb-8 max-w-3xl">
           <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800 mb-3">
             <span>🛡️</span>
-            <span>Multimodal AI & Official Source Verification</span>
+            <span>{t('hero.tag', 'Multimodal AI & Official Source Verification')}</span>
           </div>
 
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-            Verify investment claims with evidence, not assumptions.
+            {t('hero.title', 'Verify investment claims with evidence, not assumptions.')}
           </h2>
 
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
-            Analyze messages, uploaded screenshots, web links, or voice notes against official SEBI, RBI, and CyberCrime reporting guidelines.
+            {t(
+              'hero.description',
+              'Analyze messages, uploaded screenshots, web links, or voice notes against official SEBI, RBI, and CyberCrime reporting guidelines.',
+            )}
           </p>
         </section>
 
@@ -153,7 +197,10 @@ function App() {
                   <span>💡</span> {t('demoExamples.title', 'Try a Demo Case')}
                 </h3>
                 <p className="text-[11px] text-slate-500 mt-0.5">
-                  Click an example below to test multimodal analysis capability.
+                  {t(
+                    'demoExamples.subtitle',
+                    'Click an example below to test multimodal analysis capability.',
+                  )}
                 </p>
               </div>
 
@@ -165,10 +212,10 @@ function App() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-900">
-                      Guaranteed Returns
+                      {t('demoExamples.ex1Title', 'Guaranteed Returns')}
                     </span>
                     <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
-                      High Risk
+                      {t('demoExamples.ex1Badge', 'High Risk')}
                     </span>
                   </div>
                   <p className="mt-1 text-[11px] text-slate-600 line-clamp-2">
@@ -183,10 +230,10 @@ function App() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-900">
-                      Ambiguous Scheme
+                      {t('demoExamples.ex2Title', 'Ambiguous Scheme')}
                     </span>
                     <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-800">
-                      Needs Verification
+                      {t('demoExamples.ex2Badge', 'Needs Verification')}
                     </span>
                   </div>
                   <p className="mt-1 text-[11px] text-slate-600 line-clamp-2">
@@ -201,10 +248,10 @@ function App() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-900">
-                      Benign Educational
+                      {t('demoExamples.ex3Title', 'Benign Educational')}
                     </span>
                     <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                      Educational
+                      {t('demoExamples.ex3Badge', 'Educational')}
                     </span>
                   </div>
                   <p className="mt-1 text-[11px] text-slate-600 line-clamp-2">
@@ -225,7 +272,7 @@ function App() {
             {error && (
               <div className="rounded-xl border border-red-200 bg-red-50 p-4" role="alert">
                 <p className="text-sm font-bold text-red-900 flex items-center gap-1.5">
-                  <span>⚠️</span> Analysis Error
+                  <span>⚠️</span> {t('analysis.errorHeading', 'Analysis Error')}
                 </p>
                 <p className="mt-1 text-xs leading-5 text-red-800">{error}</p>
               </div>
@@ -240,45 +287,57 @@ function App() {
               </div>
 
               <h3 className="mt-4 text-base font-bold text-slate-900">
-                Core Safety & Principles
+                {t('sidebar.title', 'Core Safety & Principles')}
               </h3>
 
               <p className="mt-1 text-xs leading-relaxed text-slate-700">
-                NiveshShield 2.0 evaluates claims against official regulatory standards to protect retail investors from manipulation.
+                {t(
+                  'sidebar.subtitle',
+                  'NiveshShield 2.0 evaluates claims against official regulatory standards to protect retail investors from manipulation.',
+                )}
               </p>
 
               <div className="mt-5 space-y-2.5">
                 <div className="rounded-xl border border-emerald-100 bg-white p-3.5 shadow-2xs">
                   <p className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    <span>🔬</span> Evidence Grounding
+                    <span>🔬</span> {t('sidebar.evidenceGroundingTitle', 'Evidence Grounding')}
                   </p>
                   <p className="mt-0.5 text-[11px] leading-relaxed text-slate-600">
-                    Claims are mapped directly to quotes and verified against SEBI & RBI rules.
+                    {t(
+                      'sidebar.evidenceGroundingText',
+                      'Claims are mapped directly to quotes and verified against SEBI & RBI rules.',
+                    )}
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-emerald-100 bg-white p-3.5 shadow-2xs">
                   <p className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    <span>🗺️</span> Scam Journey Tactic Map
+                    <span>🗺️</span> {t('sidebar.scamJourneyTitle', 'Scam Journey Tactic Map')}
                   </p>
                   <p className="mt-0.5 text-[11px] leading-relaxed text-slate-600">
-                    Visualizes observed tactics vs future escalation risks.
+                    {t(
+                      'sidebar.scamJourneyText',
+                      'Visualizes observed tactics vs future escalation risks.',
+                    )}
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-emerald-100 bg-white p-3.5 shadow-2xs">
                   <p className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    <span>🔒</span> Data Minimization
+                    <span>🔒</span> {t('sidebar.dataMinimizationTitle', 'Data Minimization')}
                   </p>
                   <p className="mt-0.5 text-[11px] leading-relaxed text-slate-600">
-                    Uploaded screenshots and audio notes are processed in-memory and never stored.
+                    {t(
+                      'sidebar.dataMinimizationText',
+                      'Uploaded screenshots and audio notes are processed in-memory and never stored.',
+                    )}
                   </p>
                 </div>
               </div>
             </div>
 
             <div className="mt-6 border-t border-emerald-200/60 pt-4 text-xs text-emerald-900 font-semibold">
-              <span>Helpline 1930 • CyberCrime Portal</span>
+              <span>{t('sidebar.helpline', 'Helpline 1930 • CyberCrime Portal')}</span>
             </div>
           </div>
         </section>
@@ -309,11 +368,14 @@ function App() {
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs font-extrabold uppercase tracking-wider opacity-80">
-                          Analysis Assessment
+                          {t('analysis.assessment', 'Analysis Assessment')}
                         </span>
                         {getUncertaintyBadge(analysis.uncertainty_rating)}
                         <span className="rounded-full bg-white/80 px-2.5 py-0.5 text-[10px] font-bold text-slate-700 uppercase">
-                          Modality: {analysis.input_modality || 'Text'}
+                          {t('analysis.modalityLabel', {
+                            modality: analysis.input_modality || 'Text',
+                            defaultValue: `Modality: ${analysis.input_modality || 'Text'}`,
+                          })}
                         </span>
                       </div>
 
@@ -343,11 +405,14 @@ function App() {
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                      <span>📄</span> Content Analyzed
+                      <span>📄</span> {t('analysis.contentAnalyzed', 'Content Analyzed')}
                     </span>
                     {analysis.extraction_uncertainty?.has_uncertainty && (
                       <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded border border-amber-200">
-                        Extraction Note: {analysis.extraction_uncertainty.notes}
+                        {t('analysis.extractionNote', {
+                          notes: analysis.extraction_uncertainty.notes,
+                          defaultValue: `Extraction Note: ${analysis.extraction_uncertainty.notes}`,
+                        })}
                       </span>
                     )}
                   </div>
@@ -373,7 +438,7 @@ function App() {
               {analysis.findings && analysis.findings.length > 0 && (
                 <div>
                   <h4 className="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2 mb-4">
-                    <span>🔍</span> Specific Warning Indicators Identified
+                    <span>🔍</span> {t('analysis.specificWarnings', 'Specific Warning Indicators Identified')}
                   </h4>
 
                   <div className="grid gap-4">
@@ -390,10 +455,10 @@ function App() {
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center justify-between flex-wrap gap-2">
                               <h5 className="text-sm font-bold text-slate-900 capitalize">
-                                {finding.indicator.replace('_', ' ')}
+                                {t(`analysis.${finding.indicator}`, finding.indicator.replace(/_/g, ' '))}
                               </h5>
                               <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
-                                {finding.verification_status}
+                                {t(`analysis.${finding.verification_status}`, finding.verification_status.replace(/_/g, ' '))}
                               </span>
                             </div>
 
@@ -420,7 +485,7 @@ function App() {
                 {analysis.unknowns && analysis.unknowns.length > 0 && (
                   <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                     <h5 className="text-xs font-bold text-slate-900 flex items-center gap-1.5 mb-2">
-                      <span>❓</span> What Could Not Be Verified
+                      <span>❓</span> {t('analysis.whatCouldNotBeVerified', 'What Could Not Be Verified')}
                     </h5>
                     <ul className="space-y-1.5 text-xs text-slate-700 leading-relaxed">
                       {analysis.unknowns.map((item, idx) => (
@@ -436,7 +501,7 @@ function App() {
                 {analysis.limitations && analysis.limitations.length > 0 && (
                   <div className="rounded-xl border border-amber-200/80 bg-amber-50/50 p-4">
                     <h5 className="text-xs font-bold text-amber-950 flex items-center gap-1.5 mb-2">
-                      <span>⚠️</span> Analysis Limitations & Scope
+                      <span>⚠️</span> {t('analysis.limitationsAndScope', 'Analysis Limitations & Scope')}
                     </h5>
                     <ul className="space-y-1.5 text-xs text-amber-900 leading-relaxed">
                       {analysis.limitations.map((item, idx) => (
@@ -453,7 +518,10 @@ function App() {
               {/* Official Investor Resources List */}
               <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-5">
                 <h5 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">
-                  Official Regulatory Guidance & Verification Channels
+                  {t(
+                    'analysis.officialGuidanceHeading',
+                    'Official Regulatory Guidance & Verification Channels',
+                  )}
                 </h5>
 
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -466,10 +534,10 @@ function App() {
                       className="group block rounded-lg border border-slate-200 bg-white p-3 transition hover:border-emerald-400 hover:bg-emerald-50/40"
                     >
                       <p className="text-xs font-bold text-slate-900 group-hover:text-emerald-800">
-                        {source.title} ↗
+                        {t(`officialSources.${source.id}.title`, source.title)} ↗
                       </p>
                       <p className="mt-1 text-[11px] text-slate-500 leading-normal line-clamp-2">
-                        {source.description}
+                        {t(`officialSources.${source.id}.description`, source.description)}
                       </p>
                     </a>
                   ))}
@@ -488,10 +556,13 @@ function App() {
 
             <div>
               <h3 className="text-sm font-bold text-slate-900">
-                Privacy, Data Minimization & Security Principles
+                {t('privacy.title', 'Privacy, Data Minimization & Security Principles')}
               </h3>
               <p className="mt-0.5 text-xs text-slate-600">
-                Submitted text, screenshots, URLs, and voice recordings are processed in-memory solely for real-time analysis and are never persisted or shared.
+                {t(
+                  'privacy.short',
+                  'Submitted text, screenshots, URLs, and voice recordings are processed in-memory solely for real-time analysis and are never persisted or shared.',
+                )}
               </p>
             </div>
           </div>
@@ -508,7 +579,10 @@ function App() {
             )}
           </p>
           <p className="mt-2 text-[11px] text-slate-400 font-medium">
-            NiveshShield 2.0 — Multimodal AI Investor-Resilience Platform
+            {t(
+              'footer.platform',
+              'NiveshShield 2.0 — Multimodal AI Investor-Resilience Platform',
+            )}
           </p>
         </div>
       </footer>

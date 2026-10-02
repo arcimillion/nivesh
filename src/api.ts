@@ -150,17 +150,19 @@ export type AnalyzeOptions = {
   url?: string
 }
 
-import { evaluateLocally, evaluatePhoneLocally } from './localRegulatoryEngine'
+import { evaluateLocally, evaluatePhoneLocally } from './localRegulatoryEngine.ts'
 
 // Unified full-stack server serves both frontend and backend on port 3000.
 // In the browser, always use relative path '' to avoid Mixed Content or obsolete localhost:5000 port errors.
 const getApiEndpoint = (): string => {
-  const envUrl = String(import.meta.env.VITE_API_URL || '').trim()
+  const metaEnv = (import.meta as unknown as { env?: Record<string, string> }).env
+  const envUrl = String(metaEnv?.VITE_API_URL || '').trim()
+  const globalObj = globalThis as unknown as { location?: { protocol?: string } }
   if (
     !envUrl ||
     envUrl.includes('localhost:5000') ||
     envUrl.includes('localhost:3000') ||
-    (typeof window !== 'undefined' && window.location.protocol === 'https:' && envUrl.startsWith('http:'))
+    (globalObj.location?.protocol === 'https:' && envUrl.startsWith('http:'))
   ) {
     return ''
   }
@@ -231,6 +233,7 @@ export async function analyzeMessage(
 export async function checkPhoneReputation(
   phoneNumber: string,
   originalContext?: string,
+  language = 'en',
 ): Promise<PhoneReputationInvestigation> {
   const targetUrl = API_URL ? `${API_URL}/api/phone-reputation` : '/api/phone-reputation'
 
@@ -243,27 +246,28 @@ export async function checkPhoneReputation(
       body: JSON.stringify({
         phone_number: phoneNumber,
         original_context: originalContext,
+        language,
       }),
     })
 
     const contentType = response.headers.get('content-type') || ''
     if (!response.ok || !contentType.includes('application/json')) {
-      return evaluatePhoneLocally(phoneNumber, originalContext)
+      return evaluatePhoneLocally(phoneNumber, originalContext, language)
     }
 
     let data: { error?: string; data?: PhoneReputationInvestigation }
     try {
       data = (await response.json()) as { error?: string; data?: PhoneReputationInvestigation }
     } catch {
-      return evaluatePhoneLocally(phoneNumber, originalContext)
+      return evaluatePhoneLocally(phoneNumber, originalContext, language)
     }
 
     if (data?.data) {
       return data.data
     }
 
-    return evaluatePhoneLocally(phoneNumber, originalContext)
+    return evaluatePhoneLocally(phoneNumber, originalContext, language)
   } catch {
-    return evaluatePhoneLocally(phoneNumber, originalContext)
+    return evaluatePhoneLocally(phoneNumber, originalContext, language)
   }
 }

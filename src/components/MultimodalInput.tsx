@@ -271,7 +271,10 @@ export const MultimodalInput: React.FC<Props> = ({
             {t('checker.title', 'Investigate Suspicious Investment Content')}
           </h3>
           <p className="text-xs text-slate-500">
-            Select an input type below: Text message, Screenshot, URL, or Voice note.
+            {t(
+              'checker.subtitle',
+              'Select an input type below: Text message, Screenshot, URL, or Voice note.',
+            )}
           </p>
         </div>
 
@@ -298,7 +301,7 @@ export const MultimodalInput: React.FC<Props> = ({
           }`}
         >
           <span>📝</span>
-          <span className="hidden sm:inline">Text</span>
+          <span className="hidden sm:inline">{t('checker.tabText', 'Text')}</span>
         </button>
 
         <button
@@ -311,7 +314,7 @@ export const MultimodalInput: React.FC<Props> = ({
           }`}
         >
           <span>📷</span>
-          <span className="hidden sm:inline">Screenshot</span>
+          <span className="hidden sm:inline">{t('checker.tabImage', 'Screenshot')}</span>
         </button>
 
         <button
@@ -324,7 +327,7 @@ export const MultimodalInput: React.FC<Props> = ({
           }`}
         >
           <span>🔗</span>
-          <span className="hidden sm:inline">URL Link</span>
+          <span className="hidden sm:inline">{t('checker.tabUrl', 'URL Link')}</span>
         </button>
 
         <button
@@ -337,7 +340,7 @@ export const MultimodalInput: React.FC<Props> = ({
           }`}
         >
           <span>🎙️</span>
-          <span className="hidden sm:inline">Voice Note</span>
+          <span className="hidden sm:inline">{t('checker.tabVoice', 'Voice Note')}</span>
         </button>
       </div>
 
@@ -357,8 +360,13 @@ export const MultimodalInput: React.FC<Props> = ({
             className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100"
           />
           <div className="mt-2 flex items-center justify-between text-xs text-slate-400 font-medium">
-            <span>{textInput.length}/15,000 chars</span>
-            <span>Untrusted data sandbox active</span>
+            <span>
+              {t('checker.characters', {
+                count: textInput.length,
+                defaultValue: `${textInput.length}/15,000 chars`,
+              })}
+            </span>
+            <span>{t('checker.sandboxActive', 'Untrusted data sandbox active')}</span>
           </div>
         </div>
       )}
@@ -388,17 +396,20 @@ export const MultimodalInput: React.FC<Props> = ({
                   {selectedFile?.name} ({(selectedFile?.size || 0) / 1024 > 1024 ? `${((selectedFile?.size || 0) / 1048576).toFixed(1)} MB` : `${((selectedFile?.size || 0) / 1024).toFixed(0)} KB`})
                 </p>
                 <p className="text-[11px] text-emerald-700 font-medium mt-0.5">
-                  Click to change image
+                  {t('checker.clickToChange', 'Click to change image')}
                 </p>
               </div>
             ) : (
               <div>
                 <div className="text-3xl">📷</div>
                 <p className="mt-2 text-sm font-bold text-slate-800">
-                  Upload Screenshot or Trading Post Image
+                  {t('checker.uploadTitle', 'Upload Screenshot or Trading Post Image')}
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
-                  Supports PNG, JPG, WEBP. Text will be extracted via multimodal OCR.
+                  {t(
+                    'checker.uploadSubtitle',
+                    'Supports PNG, JPG, WEBP. Text will be extracted via multimodal OCR.',
+                  )}
                 </p>
               </div>
             )}
@@ -406,13 +417,16 @@ export const MultimodalInput: React.FC<Props> = ({
 
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
-              Optional Context or Additional Notes:
+              {t('checker.optionalContext', 'Optional Context or Additional Notes:')}
             </label>
             <input
               type="text"
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
-              placeholder="Add optional notes or message context..."
+              placeholder={t(
+                'checker.optionalContextPlaceholder',
+                'Add optional notes or message context...',
+              )}
               className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-slate-800 outline-none focus:border-emerald-500 focus:bg-white"
             />
           </div>
@@ -424,7 +438,7 @@ export const MultimodalInput: React.FC<Props> = ({
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
-              Suspicious Website URL / Web Link:
+              {t('checker.urlLabel', 'Suspicious Website URL / Web Link:')}
             </label>
             <div className="flex items-center gap-2">
               <span className="text-lg">🔗</span>
@@ -432,7 +446,10 @@ export const MultimodalInput: React.FC<Props> = ({
                 type="url"
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
-                placeholder="https://trade-fast-bonus.com or http://bit.ly/claim-returns"
+                placeholder={t(
+                  'checker.urlPlaceholder',
+                  'https://trade-fast-bonus.com or http://bit.ly/claim-returns',
+                )}
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100 font-mono"
               />
             </div>
@@ -441,7 +458,11 @@ export const MultimodalInput: React.FC<Props> = ({
           <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-3 text-xs text-blue-900 flex items-start gap-2">
             <span>🛡️</span>
             <span>
-              <strong>SSRF Protected:</strong> Target web pages are fetched through a isolated security proxy that blocks local IP ranges, private subnets, and malicious executable downloads.
+              <strong>{t('checker.ssrfProtectedTitle', 'SSRF Protected:')}</strong>{' '}
+              {t(
+                'checker.ssrfProtectedText',
+                'Target web pages are fetched through an isolated security proxy that blocks local IP ranges, private subnets, and malicious executable downloads.',
+              )}
             </span>
           </div>
         </div>
@@ -460,7 +481,7 @@ export const MultimodalInput: React.FC<Props> = ({
                   className="flex items-center gap-2 rounded-full bg-red-600 px-6 py-3.5 text-xs font-bold text-white shadow-md transition hover:bg-red-700 active:scale-95"
                 >
                   <span className="h-3 w-3 rounded-full bg-white animate-pulse" />
-                  <span>Start Recording Voice Note</span>
+                  <span>{t('checker.voiceStart', 'Start Recording Voice Note')}</span>
                 </button>
               ) : (
                 <button
@@ -469,7 +490,12 @@ export const MultimodalInput: React.FC<Props> = ({
                   className="flex items-center gap-2.5 rounded-full bg-slate-950 px-6 py-3.5 text-xs font-bold text-white shadow-md transition hover:bg-slate-900 animate-bounce active:scale-95"
                 >
                   <span className="h-3 w-3 rounded-xs bg-red-500 animate-ping" />
-                  <span>Stop Recording ({recordingTime}s)</span>
+                  <span>
+                    {t('checker.voiceStop', {
+                      time: recordingTime,
+                      defaultValue: `Stop Recording (${recordingTime}s)`,
+                    })}
+                  </span>
                 </button>
               )}
 
@@ -479,7 +505,7 @@ export const MultimodalInput: React.FC<Props> = ({
                 className="flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-4 py-3 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-100 hover:text-slate-900 transition"
               >
                 <span>🎧</span>
-                <span>Load Sample Voice Note</span>
+                <span>{t('checker.voiceLoadSample', 'Load Sample Voice Note')}</span>
               </button>
             </div>
 
@@ -489,10 +515,16 @@ export const MultimodalInput: React.FC<Props> = ({
                 <div className="flex items-start gap-2.5">
                   <span className="text-base">⚠️</span>
                   <div className="space-y-2 flex-1">
-                    <p className="font-bold text-amber-900">Microphone Access Notice</p>
+                    <p className="font-bold text-amber-900">
+                      {t('checker.micNoticeTitle', 'Microphone Access Notice')}
+                    </p>
                     <p className="leading-relaxed text-amber-900">{micError}</p>
                     <p className="text-[11px] text-amber-800">
-                      💡 <strong>Why this happens:</strong> The AI Studio preview is running inside a secure iframe, where browsers block direct hardware microphone access for safety.
+                      💡 <strong>Why this happens:</strong>{' '}
+                      {t(
+                        'checker.micNoticeReason',
+                        'The AI Studio preview is running inside a secure iframe, where browsers block direct hardware microphone access for safety.',
+                      )}
                     </p>
                     <div className="pt-1 flex flex-wrap gap-2">
                       <button
@@ -500,7 +532,7 @@ export const MultimodalInput: React.FC<Props> = ({
                         onClick={handleLoadSampleVoice}
                         className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-bold text-white shadow-2xs hover:bg-emerald-800 transition"
                       >
-                        <span>⚡ Load Demo Voice Note</span>
+                        <span>{t('checker.micNoticeDemoBtn', '⚡ Load Demo Voice Note')}</span>
                       </button>
                       <a
                         href={typeof window !== 'undefined' ? window.location.href : '#'}
@@ -508,7 +540,7 @@ export const MultimodalInput: React.FC<Props> = ({
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 rounded-lg border border-amber-400 bg-white px-3 py-1.5 text-xs font-bold text-amber-950 shadow-2xs hover:bg-amber-100 transition"
                       >
-                        <span>↗️ Open in New Tab for Real Microphone</span>
+                        <span>{t('checker.micNoticeTabBtn', '↗️ Open in New Tab for Real Microphone')}</span>
                       </a>
                     </div>
                   </div>
@@ -522,7 +554,9 @@ export const MultimodalInput: React.FC<Props> = ({
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                   <div className="flex items-center gap-2 text-xs font-bold text-emerald-950">
                     <span className="text-base">🎙️</span>
-                    <span>Ready for Analysis: {selectedFile?.name || 'Voice Note'}</span>
+                    <span>
+                      {t('checker.voiceReady', 'Ready for Analysis:')} {selectedFile?.name || 'Voice Note'}
+                    </span>
                   </div>
                   <button
                     type="button"
@@ -533,7 +567,7 @@ export const MultimodalInput: React.FC<Props> = ({
                     }}
                     className="text-[11px] font-semibold text-emerald-800 hover:underline"
                   >
-                    ✕ Remove & Record Again
+                    {t('checker.voiceRemoveRecord', '✕ Remove & Record Again')}
                   </button>
                 </div>
                 <div className="mt-3 flex justify-center">
@@ -543,7 +577,10 @@ export const MultimodalInput: React.FC<Props> = ({
             )}
 
             <p className="text-xs text-slate-500">
-              Or choose an audio recording from your device (.mp3, .wav, .m4a, .webm, .ogg):
+              {t(
+                'checker.voiceDevicePrompt',
+                'Or choose an audio recording from your device (.mp3, .wav, .m4a, .webm, .ogg):',
+              )}
             </p>
 
             <input
@@ -557,12 +594,15 @@ export const MultimodalInput: React.FC<Props> = ({
           {/* Optional Transcript / Context box */}
           <div>
             <label className="block text-xs font-bold text-slate-600 mb-1">
-              Optional Context / Voice Transcript Review:
+              {t('checker.voiceContextLabel', 'Optional Context / Voice Transcript Review:')}
             </label>
             <textarea
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
-              placeholder="If you already have a transcript or notes about the voice message, enter it here..."
+              placeholder={t(
+                'checker.voiceContextPlaceholder',
+                'If you already have a transcript or notes about the voice message, enter it here...',
+              )}
               rows={3}
               className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-slate-800 outline-none focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100"
             />
@@ -604,12 +644,12 @@ export const MultimodalInput: React.FC<Props> = ({
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            <span>Analyzing content with evidence grounding...</span>
+            <span>{t('checker.analyzing', 'Analyzing content with evidence grounding...')}</span>
           </>
         ) : (
           <>
             <span>🔍</span>
-            <span>Investigate & Verify Claims</span>
+            <span>{t('checker.button', 'Investigate & Verify Claims')}</span>
           </>
         )}
       </button>

@@ -4,8 +4,8 @@ import type {
   PhoneReputationInvestigation,
   PhoneReputationSourceResult,
   OfficialVerificationResource,
-} from './api'
-import { officialSources } from './officialSources'
+} from './api.ts'
+import { officialSources, type OfficialSource } from './officialSources.ts'
 
 interface ExtractedPhone {
   raw: string
@@ -77,10 +77,636 @@ export function maskPhoneLocally(phone: string): string {
   return `${cleaned.slice(0, 2)}*****${cleaned.slice(-2)}`
 }
 
+type LangKey = 'en' | 'hi' | 'mr' | 'bn' | 'ta' | 'gu'
+
+function resolveLang(lang?: string): LangKey {
+  if (lang && ['en', 'hi', 'mr', 'bn', 'ta', 'gu'].includes(lang)) {
+    return lang as LangKey
+  }
+  return 'en'
+}
+
+// Complete Multilingual Text Dictionary for Regulatory Verdicts
+const DICTIONARY: Record<
+  LangKey,
+  {
+    multiplierSummary: string
+    guaranteedSummary: string
+    ambiguousSummary: string
+    benignSummary: string
+    guaranteedReturnsExplanation: string
+    urgencyExplanation: string
+    upfrontExplanation: string
+    suspiciousLinkExplanation: string
+    highRiskContentEstablishes: string
+    ambiguousContentEstablishes: string
+    benignContentEstablishes: string
+    highRiskWhatRemainsUnknown: string
+    ambiguousWhatRemainsUnknown: string
+    benignWhatRemainsUnknown: string
+    highRiskVerificationStep: string
+    ambiguousVerificationStep: string
+    benignVerificationStep: string
+    journeyInitialOfferTitle: string
+    journeyInitialOfferExplanation: string
+    journeyUrgencyTitle: string
+    journeyUrgencyExplanation: string
+    journeyPaymentTitle: string
+    journeyPaymentExplanation: string
+    journeyAppTitle: string
+    journeyAppExplanation: string
+    journeyRecoveryTitle: string
+    journeyRecoveryExplanation: string
+    highRiskUnknowns: string[]
+    highRiskNextSteps: string[]
+    highRiskLimitations: string[]
+    ambiguousUnknowns: string[]
+    ambiguousNextSteps: string[]
+    ambiguousLimitations: string[]
+    benignUnknowns: string[]
+    benignNextSteps: string[]
+    benignLimitations: string[]
+    phoneSafetyAdvisories: string[]
+    phonePrivacyNotice: string
+    phoneOfficialStatus: string
+    phoneExternalRep: (masked: string) => string
+    phoneUnverifiedElements: string[]
+  }
+> = {
+  en: {
+    multiplierSummary:
+      'High Risk Alert: The solicitation promises unrealistic money multiplication (e.g. giving a small amount to receive an exponential return). This violates SEBI regulations prohibiting guaranteed return promises in securities transactions.',
+    guaranteedSummary:
+      'Warning Signs Found: Assured return promises and pressure tactics violate statutory SEBI and RBI investor protection regulations.',
+    ambiguousSummary:
+      'Caution: Solicitations via informal channels (WhatsApp/Telegram groups) require rigorous independent verification. Unregistered advisory services violate SEBI regulations.',
+    benignSummary:
+      'No obvious warning signs (such as guaranteed returns, exponential multiplier promises, or urgent payment demands) detected in this text.',
+    guaranteedReturnsExplanation:
+      'SEBI regulations explicitly prohibit any intermediary, broker, or financial advisor from guaranteeing or promising fixed profits on investments.',
+    urgencyExplanation:
+      'Artificial deadlines and limited seat pressure are common tactics used in investment scams to induce impulsive financial commitments before proper verification.',
+    upfrontExplanation:
+      'Demanding upfront registration, margin, or processing fees into personal accounts or unverified UPI IDs is a characteristic indicator of fraudulent solicitations.',
+    suspiciousLinkExplanation:
+      'Unsolicited invitation to private advisory channels without statutory SEBI Research Analyst registration disclosures.',
+    highRiskContentEstablishes:
+      'The solicitation offers exponential or assured financial returns without verifiable SEBI registration credentials.',
+    ambiguousContentEstablishes:
+      'Message invites participation in informal advisory channel without mandatory statutory risk disclaimers.',
+    benignContentEstablishes:
+      'Text describes standard financial or educational concepts without guaranteed returns or advance payment demands.',
+    highRiskWhatRemainsUnknown:
+      'Legal identity of sender, SEBI registration number, and official corporate registration on MCA portal.',
+    ambiguousWhatRemainsUnknown:
+      'Research Analyst Registration Number and SEBI authorization.',
+    benignWhatRemainsUnknown:
+      'Specific execution platform or intermediary used.',
+    highRiskVerificationStep:
+      'Search entity or advisor name on official SEBI registered intermediaries database at https://www.sebi.gov.in.',
+    ambiguousVerificationStep:
+      'Request SEBI RA registration number and check on sebi.gov.in.',
+    benignVerificationStep:
+      'Always verify that any broker, mutual fund distributor, or advisor is licensed with SEBI and AMFI.',
+    journeyInitialOfferTitle: 'Unsolicited High Return Scheme',
+    journeyInitialOfferExplanation:
+      'Solicitation promises assured high payouts or quick multiplication of capital.',
+    journeyUrgencyTitle: 'Artificial Time Pressure',
+    journeyUrgencyExplanation:
+      'Perpetrators create fake urgency or exclusivity to bypass the victim’s critical evaluation.',
+    journeyPaymentTitle: 'Transfer to Personal UPI or Private Account',
+    journeyPaymentExplanation:
+      'Common next step: asking target to transfer initial sum to individual UPI handles or mule accounts.',
+    journeyAppTitle: 'Custom APK / Unofficial Platform Link',
+    journeyAppExplanation:
+      'Victims are directed to unofficial apps showing fabricated gains on dashboard.',
+    journeyRecoveryTitle: 'Withdrawal Block & Bogus Tax Demands',
+    journeyRecoveryExplanation:
+      'When attempting withdrawal, victims are told to pay extra "taxes" or "release fees", losing additional funds.',
+    highRiskUnknowns: [
+      'SEBI registration ID not verifiable from submitted content alone.',
+      'Official company PAN / CIN and registered domain remain undisclosed.',
+    ],
+    highRiskNextSteps: [
+      'Do not send money or transfer funds to any personal UPI ID or unverified account.',
+      'Verify registered stockbrokers and investment advisors at https://www.sebi.gov.in.',
+      'Report fraudulent communications immediately on DoT Sanchar Saathi (Chakshu) portal or dial 1930.',
+    ],
+    highRiskLimitations: [
+      'Evaluated via NiveshShield client-side regulatory analysis engine based on official SEBI, RBI, and DoT statutory guidelines.',
+      'Always verify SEBI registration status directly on official regulator portals before making investment decisions.',
+    ],
+    ambiguousUnknowns: ['Authenticity and SEBI licensing of channel administrators.'],
+    ambiguousNextSteps: [
+      'Ask the advisor for their official SEBI Research Analyst (RA) registration number.',
+      'Verify RA credentials on https://www.sebi.gov.in.',
+      'Avoid investing through informal chat applications.',
+    ],
+    ambiguousLimitations: [
+      'Evaluated via NiveshShield client-side regulatory analysis engine.',
+      'Informal tips carry substantial capital loss risk without regulatory grievance redressal.',
+    ],
+    benignUnknowns: ['Entity or platform through which investment products are purchased.'],
+    benignNextSteps: [
+      'Maintain disciplined financial habits and asset diversification.',
+      'Check AMFI India (https://www.amfiindia.com) for mutual fund registrations.',
+    ],
+    benignLimitations: [
+      'Evaluated via NiveshShield client-side regulatory analysis engine. Does not substitute for personalized financial planning.',
+    ],
+    phoneSafetyAdvisories: [
+      'SEBI and RBI registered financial intermediaries NEVER contact investors via personal WhatsApp or mobile numbers to collect investment deposits.',
+      'Never send funds via UPI to personal names or unverified mobile numbers for stock trading.',
+      'If you suspect fraud, report immediately to DoT Chakshu portal or dial CyberCrime Helpline 1930.',
+    ],
+    phonePrivacyNotice:
+      'Phone numbers are processed transiently and masked (+91 XX*** ***XX) in accordance with privacy safeguards.',
+    phoneOfficialStatus:
+      'Absence of a public report does not guarantee safety. Legitimate financial institutions never conduct securities transactions from personal mobile numbers.',
+    phoneExternalRep: (masked) =>
+      `Investigation conducted for ${masked}. No automated community flags available without server credentials. Use official links below to verify directly on government portals.`,
+    phoneUnverifiedElements: [
+      'Caller identity and SEBI registration credentials not verified',
+      'Official telecom DLT header registration unverified',
+    ],
+  },
+
+  hi: {
+    multiplierSummary:
+      'उच्च जोखिम चेतावनी: यह प्रस्ताव अवास्तविक धन गुणन का वादा करता है (जैसे कम पैसे देकर कई गुना रिटर्न)। यह प्रतिभूति लेन-देन में गारंटीड रिटर्न पर रोक लगाने वाले सेबी नियमों का सीधा उल्लंघन है।',
+    guaranteedSummary:
+      'चेतावनी के संकेत मिले: निश्चित रिटर्न के वादे और जल्दबाज़ी का दबाव सेबी और आरबीआई के वैधानिक निवेशक सुरक्षा नियमों का उल्लंघन करते हैं।',
+    ambiguousSummary:
+      'सावधानी: अनौपचारिक चैनलों (व्हाट्सएप/टेलीग्राम ग्रुप) के माध्यम से किए गए प्रस्तावों की स्वतंत्र रूप से पुष्टि आवश्यक है। अपंजीकृत सलाहकार सेवाएं सेबी नियमों का उल्लंघन हैं।',
+    benignSummary:
+      'इस संदेश में कोई प्रत्यक्ष चेतावनी संकेत (जैसे गारंटीड रिटर्न, धन गुणन या अग्रिम भुगतान की मांग) नहीं पाए गए।',
+    guaranteedReturnsExplanation:
+      'सेबी के नियम स्पष्ट रूप से किसी भी मध्यस्थ, ब्रोकर या वित्तीय सलाहकार को निवेश पर निश्चित लाभ का वादा करने या गारंटी देने से रोकते हैं।',
+    urgencyExplanation:
+      'कृत्रिम समय-सीमा और सीमित सीटों का दबाव निवेश घोटालों में उचित सत्यापन से पहले जल्दबाज़ी में भुगतान कराने के लिए इस्तेमाल किए जाने वाले आम हथकंडे हैं।',
+    upfrontExplanation:
+      'व्यक्तिगत खातों या असत्यापित UPI आईडी में अग्रिम पंजीकरण शुल्क, मार्जिन या प्रोसेसिंग फीस की मांग करना धोखाधड़ी का एक प्रमुख संकेत है।',
+    suspiciousLinkExplanation:
+      'वैधानिक सेबी रिसर्च एनालिस्ट पंजीकरण विवरण के बिना निजी सलाहकार चैनलों में शामिल होने का अवांछित निमंत्रण।',
+    highRiskContentEstablishes:
+      'यह प्रस्ताव सत्यापन योग्य सेबी पंजीकरण क्रेडेंशियल्स के बिना अत्यधिक या निश्चित वित्तीय रिटर्न का वादा करता है।',
+    ambiguousContentEstablishes:
+      'संदेश अनिवार्य वैधानिक जोखिम अस्वीकरण के बिना अनौपचारिक सलाहकार चैनल में भागीदारी के लिए आमंत्रित करता है।',
+    benignContentEstablishes:
+      'संदेश में बिना किसी गारंटीड रिटर्न या अग्रिम भुगतान मांग के सामान्य वित्तीय या शैक्षणिक अवधारणाओं का वर्णन है।',
+    highRiskWhatRemainsUnknown:
+      'प्रेषक की कानूनी पहचान, सेबी पंजीकरण संख्या और एमसीए (MCA) पोर्टल पर आधिकारिक कॉर्पोरेट पंजीकरण।',
+    ambiguousWhatRemainsUnknown:
+      'रिसर्च एनालिस्ट पंजीकरण संख्या और सेबी प्राधिकरण।',
+    benignWhatRemainsUnknown:
+      'उपयोग किया जाने वाला विशिष्ट निष्पादन प्लेटफ़ॉर्म या मध्यस्थ।',
+    highRiskVerificationStep:
+      'https://www.sebi.gov.in पर आधिकारिक सेबी पंजीकृत मध्यस्थ डेटाबेस पर संस्था या सलाहकार का नाम खोजें।',
+    ambiguousVerificationStep:
+      'सेबी आरए (Research Analyst) पंजीकरण संख्या मांगें और sebi.gov.in पर सत्यापित करें।',
+    benignVerificationStep:
+      'हमेशा सत्यापित करें कि कोई भी ब्रोकर, म्यूचुअल फंड वितरक या सलाहकार सेबी और एएमएफआई (AMFI) के साथ पंजीकृत है।',
+    journeyInitialOfferTitle: 'अवांछित उच्च रिटर्न योजना',
+    journeyInitialOfferExplanation:
+      'प्रस्ताव में पूंजी के त्वरित गुणन या भारी मुनाफ़े का झूठा आश्वासन दिया जाता है।',
+    journeyUrgencyTitle: 'बनावटी समय का दबाव',
+    journeyUrgencyExplanation:
+      'पीड़ित को सोचने का मौका न मिले, इसलिए सीमित सीटों और तुरंत फ़ैसले का दबाव बनाया जाता है।',
+    journeyPaymentTitle: 'व्यक्तिगत UPI या निजी खाते में धन अंतरण',
+    journeyPaymentExplanation:
+      'अगला कदम: पीड़ित से किसी निजी व्यक्ति की UPI आईडी या खाते में राशि भेजने को कहा जाता है।',
+    journeyAppTitle: 'कस्टम APK या अनधिकृत प्लेटफ़ॉर्म लिंक',
+    journeyAppExplanation:
+      'पीड़ित को एक फ़र्ज़ी ऐप पर भेजा जाता है जहाँ स्क्रीन पर बनावटी मुनाफ़ा दिखाया जाता है।',
+    journeyRecoveryTitle: 'निकासी पर रोक और फ़र्ज़ी टैक्स मांग',
+    journeyRecoveryExplanation:
+      'रुपये निकालने के समय अतिरिक्त टैक्स या फ़ीस मांगी जाती है और पैसे कभी वापस नहीं मिलते।',
+    highRiskUnknowns: [
+      'प्रस्तुत सामग्री से सेबी पंजीकरण आईडी सत्यापित नहीं की जा सकती।',
+      'कंपनी का आधिकारिक पैन/सीआईएन और पंजीकृत डोमेन अज्ञात है।',
+    ],
+    highRiskNextSteps: [
+      'किसी भी व्यक्तिगत UPI आईडी या असत्यापित बैंक खाते में पैसे बिल्कुल न भेजें।',
+      'https://www.sebi.gov.in पर पंजीकृत स्टॉकब्रोकर्स और सलाहकारों की पुष्टि करें।',
+      'धोखाधड़ी की तुरंत संचार साथी (चक्षु) पोर्टल पर रिपोर्ट करें या 1930 डायल करें।',
+    ],
+    highRiskLimitations: [
+      'NiveshShield नियामक विश्लेषण इंजन द्वारा आधिकारिक सेबी और आरबीआई दिशानिर्देशों के आधार पर मूल्यांकित।',
+      'निवेश करने से पहले हमेशा नियामक पोर्टल्स पर पंजीकरण की स्वतंत्र रूप से पुष्टि करें।',
+    ],
+    ambiguousUnknowns: ['चैनल एडमिन की प्रामाणिकता और सेबी लाइसेंस की अनुपस्थिति।'],
+    ambiguousNextSteps: [
+      'सलाहकार से उनका आधिकारिक सेबी रिसर्च एनालिस्ट (RA) पंजीकरण नंबर मांगें।',
+      'https://www.sebi.gov.in पर क्रेडेंशियल्स सत्यापित करें।',
+      'अनौपचारिक चैट ग्रुप्स के ज़रिए कभी निवेश न करें।',
+    ],
+    ambiguousLimitations: [
+      'NiveshShield नियामक विश्लेषण इंजन द्वारा मूल्यांकित।',
+      'अनौपचारिक सुझावों पर निवेश करने से भारी आर्थिक नुकसान हो सकता है।',
+    ],
+    benignUnknowns: ['वह संस्था या प्लेटफ़ॉर्म जिसके माध्यम से निवेश खरीदा जा रहा है।'],
+    benignNextSteps: [
+      'अनुशासित वित्तीय आदतें और विविधीकरण बनाए रखें।',
+      'म्यूचुअल फंड पंजीकरण के लिए AMFI India (https://www.amfiindia.com) देखें।',
+    ],
+    benignLimitations: [
+      'NiveshShield शैक्षणिक नियामक इंजन द्वारा मूल्यांकित। यह व्यक्तिगत वित्तीय सलाह का विकल्प नहीं है।',
+    ],
+    phoneSafetyAdvisories: [
+      'सेबी या आरबीआई पंजीकृत संस्थाएं कभी भी निवेश जमा कराने के लिए व्यक्तिगत व्हाट्सएप या मोबाइल नंबर से संपर्क नहीं करती हैं।',
+      'शेयर ट्रेडिंग के लिए कभी भी व्यक्तिगत नाम या अनपेक्षित मोबाइल नंबरों पर यूपीआई से पैसे न भेजें।',
+      'संदिग्ध होने पर तुरंत संचार साथी चक्षु पोर्टल पर रिपोर्ट करें या राष्ट्रीय हेल्पलाइन 1930 पर कॉल करें।',
+    ],
+    phonePrivacyNotice:
+      'गोपनीयता सुरक्षा के तहत फ़ोन नंबर अस्थायी रूप से प्रोसेस होते हैं और मास्क (+91 XX*** ***XX) किए जाते हैं।',
+    phoneOfficialStatus:
+      'सार्वजनिक शिकायत न होना सुरक्षा का प्रमाण नहीं है। वैध वित्तीय संस्थान कभी भी व्यक्तिगत मोबाइल नंबर से प्रतिभूति लेन-देन नहीं करते हैं।',
+    phoneExternalRep: (masked) =>
+      `${masked} के लिए जाँच की गई। बिना सर्वर क्रेडेंशियल्स के कोई स्वचालित झंडा उपलब्ध नहीं है। सीधे सरकारी पोर्टल पर पुष्टि के लिए नीचे दिए गए लिंक का उपयोग करें।`,
+    phoneUnverifiedElements: [
+      'कॉलर की पहचान और सेबी पंजीकरण क्रेडेंशियल्स सत्यापित नहीं हैं',
+      'आधिकारिक टेलीकॉम DLT हेडर पंजीकरण असत्यापित है',
+    ],
+  },
+
+  mr: {
+    multiplierSummary:
+      'उच्च जोखीम इशारा: ही ऑफर अवास्तव पैसे वाढवण्याचे (उदा. कमी रक्कम देऊन अनेक पट परतावा) आश्वासन देते. रोखे बाजारात हमी परताव्यावर बंदी घालणाऱ्या सेबी नियमांचे हे थेट उल्लंघन आहे.',
+    guaranteedSummary:
+      'चेतावणी संकेत आढळले: खात्रीशीर परताव्याची आश्वासने आणि घाई करण्याची रणनीती सेबी आणि आरबीआयच्या गुंतवणूकदार सुरक्षा नियमांचे उल्लंघन करतात.',
+    ambiguousSummary:
+      'सावधान: अनौपचारिक माध्यमांतून (व्हॉट्सॲप/टेलिग्राम) मिळणाऱ्या ऑफर्सची कठोर पडताळणी आवश्यक आहे. विनानोंदणीकृत सल्लागार सेवा सेबी नियमांचे उल्लंघन करतात.',
+    benignSummary:
+      'या मजकुरात कोणतेही थेट चेतावणी संकेत (जसे हमी परतावा, पैसे वाढवण्याचे आमिष किंवा तातडीने पेमेंटची मागणी) आढळले नाहीत.',
+    guaranteedReturnsExplanation:
+      'सेबीचे नियम कोणत्याही मध्यस्थ, ब्रोकर किंवा वित्तीय सल्लागाराला गुंतवणुकीवर निश्चित नफ्याची हमी देण्यास स्पष्टपणे मनाई करतात.',
+    urgencyExplanation:
+      'योग्य पडताळणीपूर्वी घाईघाईत पैसे भरण्यास प्रवृत्त करण्यासाठी बनावट मुदत आणि मर्यादित जागांचे दबाव तंत्र वापरले जाते.',
+    upfrontExplanation:
+      'वैयक्तिक खात्यांवर किंवा असत्यापित UPI आयडीवर आगाऊ नोंदणी, मार्जिन किंवा प्रक्रिया शुल्क मागणे हे फसवणुकीचे मुख्य लक्षण आहे.',
+    suspiciousLinkExplanation:
+      'वैधानिक सेबी रिसर्च ॲनालिस्ट नोंदणी तपशीलांशिवाय खाजगी सल्लागार चॅनेलमध्ये सामील होण्याचे आमंत्रण.',
+    highRiskContentEstablishes:
+      'हा प्रस्ताव पडताळणीयोग्य सेबी नोंदणी क्रमांकाशिवाय अत्यधिक किंवा खात्रीशीर आर्थिक परताव्याची ऑफर देतो.',
+    ambiguousContentEstablishes:
+      'संदेश बंधनकारक वैधानिक जोखीम इशाऱ्यांशिवाय अनौपचारिक सल्लागार चॅनेलमध्ये सहभागी होण्यासाठी आमंत्रित करतो.',
+    benignContentEstablishes:
+      'मजकुरात हमी परतावा किंवा आगाऊ देयकाच्या मागणीशिवाय सामान्य वित्तीय किंवा शैक्षणिक संकल्पनांचे वर्णन आहे.',
+    highRiskWhatRemainsUnknown:
+      'प्रेषकाची कायदेशीर ओळख, सेबी नोंदणी क्रमांक आणि एमसीए (MCA) पोर्टलवरील अधिकृत नोंदणी.',
+    ambiguousWhatRemainsUnknown:
+      'रिसर्च ॲनालिस्ट नोंदणी क्रमांक आणि सेबी अधिकृतता.',
+    benignWhatRemainsUnknown: 'वापरलेले विशिष्ट प्लॅटफॉर्म किंवा मध्यस्थ.',
+    highRiskVerificationStep:
+      'https://www.sebi.gov.in वरील अधिकृत सेबी नोंदणीकृत मध्यस्थ डेटाबेसवर संस्था किंवा सल्लागाराचे नाव शोधा.',
+    ambiguousVerificationStep:
+      'सेबी आरए (Research Analyst) नोंदणी क्रमांक मागा आणि sebi.gov.in वर तपासा.',
+    benignVerificationStep:
+      'कोणताही ब्रोकर, म्युच्युअल फंड वितरक किंवा सल्लागार सेबी आणि ॲम्फीकडे (AMFI) नोंदणीकृत असल्याची खात्री करा.',
+    journeyInitialOfferTitle: 'अवास्तव परतावा योजना',
+    journeyInitialOfferExplanation:
+      'भांडवल वेगाने दुप्पट किंवा अनेक पट करण्याचे आमिष दाखवले जाते.',
+    journeyUrgencyTitle: 'बनावट वेळेचा दबाव',
+    journeyUrgencyExplanation:
+      'पडताळणी न करता लगेच निर्णय घेण्यासाठी मर्यादित जागांचा दबाव आणला जातो.',
+    journeyPaymentTitle: 'वैयक्तिक खात्यात पैसे भरण्याची मागणी',
+    journeyPaymentExplanation:
+      'पुढील पायरी: वैयक्तिक UPI आयडी किंवा खात्यावर पैसे पाठवण्यास सांगितले जाते.',
+    journeyAppTitle: 'बनावट ॲप किंवा APK लिंक',
+    journeyAppExplanation:
+      'अनधिकृत ॲप डाऊनलोड करायला लावून त्यावर बनावट नफा दाखवला जातो.',
+    journeyRecoveryTitle: 'पैसे काढण्यास नकार व अतिरिक्त कर मागणी',
+    journeyRecoveryExplanation:
+      'पैसे काढताना अतिरिक्त फी मागितली जाते आणि अखेर सर्व पैसे गमावले जातात.',
+    highRiskUnknowns: [
+      'प्रस्तुत मजकुरावरून सेबी नोंदणी आयडी पडताळता येत नाही.',
+      'संस्थेचा पॅन किंवा अधिकृत नोंदणीकृत डोमेन अज्ञात आहे.',
+    ],
+    highRiskNextSteps: [
+      'कोणत्याही वैयक्तिक UPI आयडीवर किंवा अनोळखी खात्यावर पैसे पाठवू नका.',
+      'https://www.sebi.gov.in वर सेबी नोंदणीकृत मध्यस्थांची खात्री करा.',
+      'फसव्या संभाषणांची त्वरित संचार साथी पोर्टलवर तक्रार नोंदवा किंवा १९३० वर कॉल करा.',
+    ],
+    highRiskLimitations: [
+      'NiveshShield नियामक विश्लेषण इंजिनद्वारे सेबी व आरबीआय नियमांनुसार मूल्यांकित.',
+      'गुंतवणूक करण्यापूर्वी नेहमी अधिकृत पोर्टलवर नोंदणी तपासा.',
+    ],
+    ambiguousUnknowns: ['चॅनेल प्रशासकांचे सेबी परवाना तपशील उपलब्ध नाहीत.'],
+    ambiguousNextSteps: [
+      'सल्लागाराकडे सेबी रिसर्च ॲनालिस्ट नोंदणी क्रमांक मागा.',
+      'sebi.gov.in वर नोंदणी तपासा.',
+      'अनौपचारिक ग्रुप्सद्वारे गुंतवणूक करणे टाळा.',
+    ],
+    ambiguousLimitations: [
+      'NiveshShield ग्राहक-स्तरीय नियामक इंजिनद्वारे तपासणी.',
+      'अनधिकृत सल्ल्यांमुळे मोठे आर्थिक नुकसान होऊ शकते.',
+    ],
+    benignUnknowns: ['गुंतवणूक कोणत्या प्लॅटफॉर्मवरून केली जात आहे ते अज्ञात.'],
+    benignNextSteps: [
+      'आर्थिक शिस्त आणि गुंतवणुकीचे विविधीकरण राखा.',
+      'AMFI India (https://www.amfiindia.com) वर म्युच्युअल फंड नोंदणी तपासा.',
+    ],
+    benignLimitations: ['NiveshShield शैक्षणिक नियामक विश्लेषण.'],
+    phoneSafetyAdvisories: [
+      'सेबी किंवा आरबीआय नोंदणीकृत मध्यस्थ कधीही वैयक्तिक व्हॉट्सॲपवरून ठेवी मागवत नाहीत.',
+      'ट्रेडिंगसाठी अनोळखी व्यक्तींच्या यूपीआयवर पैसे पाठवू नका.',
+      'संशय आल्यास लगेच संचार साथी पोर्टलवर किंवा १९३० वर तक्रार नोंदवा.',
+    ],
+    phonePrivacyNotice:
+      'गोपनीयतेसाठी फोन नंबर तात्पुरते तपासले जातात आणि मास्क (+91 XX*** ***XX) केले जातात.',
+    phoneOfficialStatus:
+      'तक्रार नसणे म्हणजे सुरक्षितता नव्हे. अधिकृत संस्था वैयक्तिक मोबाईलवरून व्यवहार करत नाहीत.',
+    phoneExternalRep: (masked) =>
+      `${masked} साठी तपासणी पूर्ण. थेट सरकारी पोर्टलवरून पडताळणी करण्यासाठी खालील लिंक्स वापरा.`,
+    phoneUnverifiedElements: [
+      'कॉलरची ओळख आणि सेबी नोंदणी असत्यापित',
+      'टेलिकॉम DLT हेडर नोंदणी तपासलेली नाही',
+    ],
+  },
+
+  bn: {
+    multiplierSummary:
+      'উচ্চ ঝুঁকির সতর্কতা: এই প্রস্তাবটি অবাস্তব অর্থ গুণের প্রতিশ্রুতি দেয় (যেমন অল্প টাকা দিয়ে বহুগুণ রিটার্ন)। এটি সিকিউরিটিজ লেনদেনে নিশ্চিত রিটার্নের প্রতিশ্রুতি নিষিদ্ধকারী সেবি বিধি লঙ্ঘন করে।',
+    guaranteedSummary:
+      'সতর্কতামূলক লক্ষণ পাওয়া গেছে: নিশ্চিত রিটার্নের প্রতিশ্রুতি এবং চাপের কৌশলগুলি সেবি এবং আরবিআইয়ের সংবিধিবদ্ধ বিনিয়োগকারী সুরক্ষা বিধি লঙ্ঘন করে।',
+    ambiguousSummary:
+      'সতর্কতা: অনানুষ্ঠানিক চ্যানেলের (হোয়াটসঅ্যাপ/টেলিগ্রাম গ্রুপ) মাধ্যমে প্রাপ্ত অফারগুলির স্বাধীন যাচাইকরণ প্রয়োজন। অনিবন্ধিত পরামর্শ সেবা সেবি নিয়ম লঙ্ঘন করে।',
+    benignSummary:
+      'এই টেক্সটে কোনো স্পষ্ট সতর্কতামূলক লক্ষণ (যেমন নিশ্চিত রিটার্ন, অর্থ গুণ করার প্রতিশ্রুতি বা জরুরি পেমেন্টের দাবি) পাওয়া যায়নি।',
+    guaranteedReturnsExplanation:
+      'সেবি নিয়মাবলী স্পষ্টভাবেই কোনো মধ্যস্থতাকারী, ব্রোকার বা আর্থিক উপদেষ্টাকে বিনিয়োগে নির্দিষ্ট মুনাফার গ্যারান্টি বা প্রতিশ্রুতি দেওয়া থেকে বিরত রাখে।',
+    urgencyExplanation:
+      'যথাযথ যাচাইকরণের আগে দ্রুত আর্থিক লেনদেন করতে বাধ্য করার জন্য বিনিয়োগ কেলেঙ্কারিতে কৃত্রিম সময়সীমা ও সীমিত আসনের চাপ দেওয়া হয়।',
+    upfrontExplanation:
+      'ব্যক্তিগত অ্যাকাউন্টে বা অযাচাইকৃত ইউপিআই আইডিতে অগ্রিম রেজিস্ট্রেশন ফি, মার্জিন বা প্রসেসিং ফি দাবি করা প্রতারণামূলক অফারের বৈশিষ্ট্য।',
+    suspiciousLinkExplanation:
+      'সংবিধিবদ্ধ সেবি রিসার্চ অ্যানালিস্ট রেজিস্ট্রেশন প্রকাশ ছাড়াই ব্যক্তিগত পরামর্শ চ্যানেলে যোগদানের অনাকাঙ্ক্ষিত আমন্ত্রণ।',
+    highRiskContentEstablishes:
+      'এই অফারটি যাচাইযোগ্য সেবি নিবন্ধন ছাড়াই অস্বাভাবিক বা নিশ্চিত আর্থিক রিটার্ন দেওয়ার প্রতিশ্রুতি দেয়।',
+    ambiguousContentEstablishes:
+      'বার্তাটি বাধ্যতামূলক সংবিধিবদ্ধ ঝুঁকি দাবিত্যাগ ছাড়াই অনানুষ্ঠানিক পরামর্শ চ্যানেলে অংশগ্রহণের আমন্ত্রণ জানায়।',
+    benignContentEstablishes:
+      'টেক্সটটিতে গ্যারান্টিযুক্ত রিটার্ন বা অগ্রিম পেমেন্টের দাবি ছাড়াই সাধারণ আর্থিক ধারণা বর্ণনা করা হয়েছে।',
+    highRiskWhatRemainsUnknown:
+      'প্রেরকের আইনি পরিচয়, সেবি রেজিস্ট্রেশন নম্বর এবং এমসিএ (MCA) পোর্টালে অফিসিয়াল কর্পোরেট রেজিস্ট্রেশন।',
+    ambiguousWhatRemainsUnknown:
+      'রিসার্চ অ্যানালিস্ট রেজিস্ট্রেশন নম্বর এবং সেবি অনুমোদন।',
+    benignWhatRemainsUnknown: 'ব্যবহৃত নির্দিষ্ট ট্রেডিং প্ল্যাটফর্ম বা মধ্যস্থতাকারী।',
+    highRiskVerificationStep:
+      'https://www.sebi.gov.in-এ অফিসিয়াল সেবি নিবন্ধিত মধ্যস্থতাকারী ডেটাবেসে সত্তা বা উপদেষ্টার নাম অনুসন্ধান করুন।',
+    ambiguousVerificationStep:
+      'সেবি আরএ রেজিস্ট্রেশন নম্বর চেয়ে নিন এবং sebi.gov.in এ যাচাই করুন।',
+    benignVerificationStep:
+      'সর্বদা যাচাই করুন যে কোনো ব্রোকার বা উপদেষ্টা সেবি এবং এএমএফআই (AMFI)-তে নিবন্ধিত কিনা।',
+    journeyInitialOfferTitle: 'অস্বাভাবিক রিটার্ন স্কিম',
+    journeyInitialOfferExplanation:
+      'দ্রুত অর্থ বহুগুণ করার বা লোভনীয় আয়ের কাল্পনিক প্রতিশ্রুতি দেওয়া হয়।',
+    journeyUrgencyTitle: 'কৃত্রিম সময়ের চাপ',
+    journeyUrgencyExplanation:
+      'যাচাই করার সুযোগ না দিয়ে তাড়াতাড়ি টাকা পাঠাতে বাধ্য করা হয়।',
+    journeyPaymentTitle: 'ব্যক্তিগত ইউপিআই বা অ্যাকাউন্টে অর্থ প্রেরণের দাবি',
+    journeyPaymentExplanation:
+      'পরবর্তী ধাপ: ব্যক্তিগত ইউপিআই বা সন্দেহজনক অ্যাকাউন্টে টাকা পাঠাতে বলা হয়।',
+    journeyAppTitle: 'ভুয়ো অ্যাপ বা ক্ষতিকারক লিঙ্ক',
+    journeyAppExplanation:
+      'অযাচাইকৃত অ্যাপে কৃত্রিমভাবে স্ক্রিনে ভুয়ো মুনাফা দেখানো হয়।',
+    journeyRecoveryTitle: 'টাকা তুলতে বাধা ও ভুয়ো ট্যাক্স দাবি',
+    journeyRecoveryExplanation:
+      'টাকা তোলার সময় আরও ট্যাক্স দাবি করা হয় এবং অর্থ ফেরত পাওয়া যায় না।',
+    highRiskUnknowns: [
+      'প্রদত্ত তথ্য থেকে সেবি নিবন্ধন যাচাই করা যায় না।',
+      'প্রেরকের প্যান বা নিবন্ধিত ডোমেইন সম্পূর্ণ অজানা।',
+    ],
+    highRiskNextSteps: [
+      'ব্যক্তিগত কোনো ইউপিআই বা অ্যাকাউন্টে কখনোই টাকা পাঠাবেন না।',
+      'https://www.sebi.gov.in এ সেবি নিবন্ধিত উপদেষ্টাদের তালিকা পরীক্ষা করুন।',
+      'প্রতারণামূলক বার্তার বিরুদ্ধে সঞ্চার সাথী পোর্টালে রিপোর্ট করুন বা ১৯৩০ এ কল করুন।',
+    ],
+    highRiskLimitations: [
+      'সেবি ও আরবিআই সংবিধিবদ্ধ নীতিমালার ভিত্তিতে NiveshShield দ্বারা মূল্যায়িত।',
+      'বিনিয়োগের পূর্বে সর্বদা অফিসিয়াল পোর্টালে যাচাই করুন।',
+    ],
+    ambiguousUnknowns: ['চ্যানেল প্রশাসকের সেবি অনুমোদনের প্রমাণ অনুপস্থিত।'],
+    ambiguousNextSteps: [
+      'উপদেষ্টার সেবি আরএ নম্বর পরীক্ষা করুন।',
+      'sebi.gov.in এ গিয়ে যাচাই করুন।',
+      'চ্যাট গ্রুপের মাধ্যমে বিনিয়োগ এড়িয়ে চলুন।',
+    ],
+    ambiguousLimitations: ['NiveshShield ক্লায়েন্ট ইঞ্জিন দ্বারা মূল্যায়িত।'],
+    benignUnknowns: ['নির্দিষ্ট ক্রয় প্ল্যাটফর্মের তথ্য অনুপস্থিত।'],
+    benignNextSteps: [
+      'আর্থিক শৃঙ্খলা বজায় রাখুন এবং ঝুঁকি বুঝুন।',
+      'AMFI India পোর্টালে মিউচুয়াল ফান্ড নিবন্ধন দেখুন।',
+    ],
+    benignLimitations: ['শিক্ষামূলক উদ্দেশ্যে মূল্যায়িত।'],
+    phoneSafetyAdvisories: [
+      'সেবি বা আরবিআই নিবন্ধিত প্রতিষ্ঠান কখনোই ব্যক্তিগত হোয়াটসঅ্যাপ থেকে টাকা সংগ্রহ করে না।',
+      'ব্যক্তিগত ইউপিআইতে স্টক ট্রেডিংয়ের টাকা পাঠাবেন না।',
+      'সন্দেহ হলে সঞ্চার সাথী বা ১৯৩০ হেল্পলাইনে জানান।',
+    ],
+    phonePrivacyNotice:
+      'ফোন নম্বর সাময়িকভাবে সুরক্ষিতভাবে (+91 XX*** ***XX) প্রক্রিয়াজাত হয়।',
+    phoneOfficialStatus:
+      'অভিযোগ না থাকা নিরাপত্তার প্রমাণ নয়। বৈধ প্রতিষ্ঠান ব্যক্তিগত ফোন থেকে লেনদেন করে না।',
+    phoneExternalRep: (masked) =>
+      `${masked} এর অনুসন্ধান সম্পন্ন। সরাসরি সরকারি পোর্টালে যাচাই করার জন্য নিচের লিঙ্ক ব্যবহার করুন।`,
+    phoneUnverifiedElements: [
+      'কলারের পরিচয় ও সেবি অনুমোদন অসত্যায়িত',
+      'টেলিকম ডিএলটি হেডার যাচাই করা যায়নি',
+    ],
+  },
+
+  ta: {
+    multiplierSummary:
+      'உயர் ஆபத்து எச்சரிக்கை: இந்தச் சலுகை சாத்தியமற்ற பணப் பெருக்கத்தை உறுதியளிக்கிறது (எ.கா. சிறிய தொகையைக் கொடுத்து பல மடங்கு வருமானம்). இது பங்கு வர்த்தகத்தில் உத்தரவாத வருமானத்தைத் தடைசெய்யும் செபி விதிமுறைகளை மீறுகிறது.',
+    guaranteedSummary:
+      'எச்சரிக்கை அறிகுறிகள் கண்டறியப்பட்டன: உறுதிசெய்யப்பட்ட வருமான வாக்குறுதிகள் மற்றும் அவசரப்படுத்தும் உத்திகள் செபி மற்றும் ரிசர்வ் வங்கியின் முதலீட்டாளர் பாதுகாப்பு விதிமுறைகளை மீறுகின்றன.',
+    ambiguousSummary:
+      'எச்சரிக்கை: முறைசாரா வழிகள் (வாட்ஸ்அப்/டெலிகிராம் குழுக்கள்) மூலம் வரும் சலுகைகளுக்கு கடுமையான சுயாதீன சரிபார்ப்பு தேவை. பதிவு செய்யப்படாத ஆலோசனை சேவைகள் செபி விதிகளை மீறுகின்றன.',
+    benignSummary:
+      'இந்த உரையில் வெளிப்படையான எச்சரிக்கை அறிகுறிகள் (உத்தரவாத வருமானம், பணப் பெருக்கம் அல்லது அவசர கட்டணக் கோரிக்கைகள் போன்றவை) எதுவும் கண்டறியப்படவில்லை.',
+    guaranteedReturnsExplanation:
+      'செபி விதிமுறைகள் எந்தவொரு இடைத்தரகர், தரகர் அல்லது நிதி ஆலோசகரும் முதலீடுகளில் நிலையான லாபத்தை உத்தரவாதம் செய்வதை அல்லது உறுதியளிப்பதை வெளிப்படையாகத் தடைசெய்கின்றன.',
+    urgencyExplanation:
+      'சரியான சரிபார்ப்பிற்கு முன் அவசர நிதி முடிவுகளை எடுக்க வைக்க முதலீட்டு மோசடிகளில் செயற்கை காலக்கெடு மற்றும் குறிப்பிட்ட இடங்கள் போன்ற உத்திகள் பயன்படுத்தப்படுகின்றன.',
+    upfrontExplanation:
+      'தனிப்பட்ட கணக்குகள் அல்லது சரிபார்க்கப்படாத UPI ஐடிகளுக்கு முன்பணப் பதிவு, மார்ஜின் அல்லது செயலாக்கக் கட்டணங்களைக் கோருவது மோசடியின் முக்கிய அறிகுறியாகும்.',
+    suspiciousLinkExplanation:
+      'செபி ஆராய்ச்சி ஆய்வாளர் பதிவு விவரங்கள் எதுவும் இன்றி தனிப்பட்ட ஆலோசனைக் குழுக்களுக்கு வரும் அழைப்பு.',
+    highRiskContentEstablishes:
+      'இந்தச் சலுகை சரிபார்க்கக்கூடிய செபி பதிவு விவரங்கள் ஏதுமின்றி சாத்தியமற்ற அல்லது உறுதியான வருமானத்தை அளிக்கிறது.',
+    ambiguousContentEstablishes:
+      'கட்டாய சட்டபூர்வ இடர் எச்சரிக்கைகள் இன்றி முறைசாரா ஆலோசனைக் குழுவில் பங்கேற்க செய்தி அழைக்கிறது.',
+    benignContentEstablishes:
+      'உரையானது உத்தரவாத வருமானம் அல்லது முன்பணக் கோரிக்கைகள் இன்றி பொதுவான நிதி அல்லது கல்வி கருத்துக்களை விவரிக்கிறது.',
+    highRiskWhatRemainsUnknown:
+      'அனுப்புநரின் சட்டப்பூர்வ அடையாளம், செபி பதிவு எண் மற்றும் கார்ப்பரேட் பதிவு விவரங்கள்.',
+    ambiguousWhatRemainsUnknown:
+      'ஆராய்ச்சி ஆய்வாளர் பதிவு எண் மற்றும் செபி அங்கீகாரம்.',
+    benignWhatRemainsUnknown:
+      'பயன்படுத்தப்படும் குறிப்பிட்ட வர்த்தக தளம் அல்லது இடைத்தரகர்.',
+    highRiskVerificationStep:
+      'https://www.sebi.gov.in இல் அதிகாரப்பூர்வ செபி பதிவு செய்யப்பட்ட இடைத்தரகர்கள் தரவுத்தளத்தில் பெயர் அல்லது அமைப்பைத் தேடுங்கள்.',
+    ambiguousVerificationStep:
+      'செபி பதிவு எண்ணைக் கேட்டு sebi.gov.in இல் சரிபார்க்கவும்.',
+    benignVerificationStep:
+      'எந்தவொரு தரகர் அல்லது ஆலோசகரும் செபி மற்றும் AMFI-யில் உரிமம் பெற்றுள்ளாரா என்பதை எப்போதும் சரிபார்க்கவும்.',
+    journeyInitialOfferTitle: 'சாத்தியமற்ற வருமானத் திட்டம்',
+    journeyInitialOfferExplanation:
+      'பணத்தை விரைவாகப் பல மடங்கு பெருக்குவதாக கவர்ச்சிகரமான வாக்குறுதிகள் அளிக்கப்படுகின்றன.',
+    journeyUrgencyTitle: 'செயற்கை அவசர அழுத்தம்',
+    journeyUrgencyExplanation:
+      'ஆராய்ந்து பார்க்க அவகாசம் தராமல் உடனே பணத்தை முதலீடு செய்ய அழுத்தம் தரப்படுகிறது.',
+    journeyPaymentTitle: 'தனிநபர் கணக்கிற்குப் பணம் அனுப்பும் கோரிக்கை',
+    journeyPaymentExplanation:
+      'அடுத்த கட்டம்: தனிப்பட்ட UPI அல்லது போலி கணக்கிற்கு முன்பணம் செலுத்தக் கோருவது.',
+    journeyAppTitle: 'போலி ஆப் அல்லது APK இணைப்பு',
+    journeyAppExplanation:
+      'போலி செயலிகளில் திரையில் பொய்யான லாபம் காட்டப்பட்டு ஏமாற்றப்படுகிறது.',
+    journeyRecoveryTitle: 'பணம் எடுப்பதில் தடை & போலி வரிக் கோரிக்கை',
+    journeyRecoveryExplanation:
+      'பணத்தை எடுக்கும் போது கூடுதல் கட்டணங்கள் கோரப்பட்டு முழு பணமும் பறிக்கப்படுகிறது.',
+    highRiskUnknowns: [
+      'சமர்ப்பிக்கப்பட்ட தகவலில் இருந்து செபி பதிவு எண்ணை உறுதிப்படுத்த முடியவில்லை.',
+      'நிறுவனத்தின் பான் அல்லது பதிவு செய்யப்பட்ட இணையதளம் அறியப்படவில்லை.',
+    ],
+    highRiskNextSteps: [
+      'தனிநபர் UPI ஐடிக்கோ அறியப்படாத கணக்குகளுக்கோ பணம் அனுப்ப வேண்டாம்.',
+      'https://www.sebi.gov.in இல் பதிவு விவரங்களைச் சரிபார்க்கவும்.',
+      'சஞ்சார் சாத்தி தளம் அல்லது 1930 இல் உடனடியாகப் புகாரளிக்கவும்.',
+    ],
+    highRiskLimitations: [
+      'செபி மற்றும் ரிசர்வ் வங்கி விதிமுறைகளின் அடிப்படையில் NiveshShield ஆல் மதிப்பிடப்பட்டது.',
+      'முதலீடு செய்வதற்கு முன் அதிகாரப்பூர்வ தளங்களில் சரிபார்க்கவும்.',
+    ],
+    ambiguousUnknowns: ['குழு நிர்வாகியின் செபி உரிமம் சரிபார்க்கப்படவில்லை.'],
+    ambiguousNextSteps: [
+      'ஆலோசகரிடம் செபி பதிவு எண்ணைக் கேட்டு உறுதிப்படுத்தவும்.',
+      'sebi.gov.in இல் சரிபார்க்கவும்.',
+      'சாட்டிங் குழுக்கள் வழியாக முதலீடு செய்வதைத் தவிர்க்கவும்.',
+    ],
+    ambiguousLimitations: ['NiveshShield கிளையன்ட் எஞ்சின் மூலம் சரிபார்க்கப்பட்டது.'],
+    benignUnknowns: ['குறிப்பிட்ட வர்த்தகத் தளம் குறித்த தகவல் இல்லை.'],
+    benignNextSteps: [
+      'நிதி ஒழுக்கத்தைப் பேணுங்கள் மற்றும் பல்வகை முதலீடுகளைத் தேர்வு செய்யுங்கள்.',
+      'AMFI India தளத்தில் மியூச்சுவல் ஃபண்ட் பதிவுகளைச் சரிபார்க்கவும்.',
+    ],
+    benignLimitations: ['கல்வி நோக்கிலான வழிகாட்டுதல் மட்டுமே.'],
+    phoneSafetyAdvisories: [
+      'செபி/ரிசர்வ் வங்கி பதிவு பெற்ற நிறுவனங்கள் வாட்ஸ்அப் மூலம் முதலீடுகளைக் கோருவதில்லை.',
+      'தனிநபர் பெயர்களுக்கு ஒருபோதும் வர்த்தகப் பணத்தை அனுப்பாதீர்கள்.',
+      'சந்தேகம் எழுந்தால் உடனே 1930 உதவி எண்ணிற்கு அழைக்கவும்.',
+    ],
+    phonePrivacyNotice:
+      'எண்கள் பாதுகாப்பாக (+91 XX*** ***XX) முகமூடி செய்யப்பட்டு தற்காலிகமாகப் பரிசீலிக்கப்படுகின்றன.',
+    phoneOfficialStatus:
+      'புகார் இல்லாமை பாதுகாப்பிற்கு உத்தரவாதமல்ல. உண்மையான நிறுவனங்கள் தனிநபர் எண்களில் வர்த்தகம் செய்யாது.',
+    phoneExternalRep: (masked) =>
+      `${masked} க்கான விசாரணை முடிந்தது. சரிபார்க்க அரசு போர்ட்டல் இணைப்புகளைப் பயன்படுத்தவும்.`,
+    phoneUnverifiedElements: [
+      'அனுப்புநரின் அடையாளம் மற்றும் செபி பதிவு சரிபார்க்கப்படவில்லை',
+      'தொலைத்தொடர்பு DLT பதிவு உறுதிப்படுத்தப்படவில்லை',
+    ],
+  },
+
+  gu: {
+    multiplierSummary:
+      'ઉચ્ચ જોખમ ચેતવણી: આ ઓફર અવાસ્તવિક નાણાં ગુણાકારનું વચન આપે છે (દા.ત. થોડી રકમ આપીને અનેક ગણો નફો). આ જામીનગીરી વ્યવહારોમાં ગેરંટીડ રિટર્નનું વચન આપવા પર પ્રતિબંધ મૂકતા સેબીના નિયમોનું ઉલ્લંઘન કરે છે.',
+    guaranteedSummary:
+      'ચેતવણીના સંકેતો મળ્યા: ખાતરીપૂર્વકના વળતરના વચનો અને દબાણની યુક્તિઓ સેબી અને આરબીઆઈના રોકાણકાર સુરક્ષા નિયમોનું ઉલ્લંઘન કરે છે.',
+    ambiguousSummary:
+      'સાવચેતી: અનૌપચારિક માધ્યમો (WhatsApp/Telegram ગ્રૂપ) દ્વારા આવતી ઓફર્સની સ્વતંત્ર ચકાસણી જરૂરી છે. બિનનોંધણીકૃત સલાહકાર સેવાઓ સેબીના નિયમોનું ઉલ્લંઘન કરે છે.',
+    benignSummary:
+      'આ લખાણમાં કોઈ સ્પષ્ટ ચેતવણીના સંકેતો (જેમ કે ગેરંટીડ રિટર્ન, નાણાં ગુણાકારના વચનો અથવા તાત્કાલિક પેમેન્ટની માંગ) મળ્યા નથી.',
+    guaranteedReturnsExplanation:
+      'સેબીના નિયમો કોઈપણ મધ્યસ્થી, બ્રોકર અથવા નાણાકીય સલાહકારને રોકાણ પર નિશ્ચિત નફાની ગેરંટી આપવા અથવા વચન આપવા પર સ્પષ્ટપણે પ્રતિબંધ મૂકે છે.',
+    urgencyExplanation:
+      'યોગ્ય ચકાસણી પહેલાં ઉતાવળે નાણાં રોકવા પ્રેરિત કરવા માટે રોકાણ કૌભાંડોમાં કૃત્રિમ સમયમર્યાદા અને મર્યાદિત બેઠકોનું દબાણ સામાન્ય યુક્તિઓ છે.',
+    upfrontExplanation:
+      'વ્યક્તિગત ખાતામાં અથવા અપ્રમાણિત UPI ID પર એડવાન્સ રજીસ્ટ્રેશન ફી, માર્જિન કે પ્રોસેસિંગ ફી માંગવી એ છેતરપિંડીનો મોટો સંકેત છે.',
+    suspiciousLinkExplanation:
+      'કાયદેસર સેબી રિસર્ચ એનાલિસ્ટ નોંધણી વિગતો દર્શાવ્યા વિના ખાનગી સલાહકાર ચેનલોનું આમંત્રણ.',
+    highRiskContentEstablishes:
+      'આ ઓફર ચકાસી શકાય તેવી સેબી નોંધણી વિના અસામાન્ય અથવા ખાતરીપૂર્વકનું વળતર આપે છે.',
+    ambiguousContentEstablishes:
+      'આ સંદેશ ફરજિયાત કાયદાકીય જોખમ ચેતવણી વિના અનૌપચારિક સલાહકાર જૂથમાં જોડાવા આમંત્રણ આપે છે.',
+    benignContentEstablishes:
+      'લખાણ ગેરંટીડ રિટર્ન કે એડવાન્સ પેમેન્ટની માંગ વિના પ્રમાણભૂત નાણાકીય અથવા શૈક્ષણિક વિભાવનાઓનું વર્ણન કરે છે.',
+    highRiskWhatRemainsUnknown:
+      'મોકલનારની કાયદેસર ઓળખ, સેબી નોંધણી નંબર અને MCA પોર્ટલ પર સત્તાવાર કોર્પોરેટ નોંધણી.',
+    ambiguousWhatRemainsUnknown:
+      'રિસર્ચ એનાલિસ્ટ રજીસ્ટ્રેશન નંબર અને સેબી અધિકૃતતા.',
+    benignWhatRemainsUnknown: 'ઉપયોગમાં લેવાયેલ ચોક્કસ પ્લેટફોર્મ અથવા મધ્યસ્થી.',
+    highRiskVerificationStep:
+      'https://www.sebi.gov.in પર સત્તાવાર સેબી નોંધાયેલ મધ્યસ્થી ડેટાબેઝ પર સંસ્થા અથવા સલાહકારનું નામ શોધો.',
+    ambiguousVerificationStep:
+      'સેબી RA નોંધણી નંબર માંગો અને sebi.gov.in પર ચકાસો.',
+    benignVerificationStep:
+      'હંમેશા ચકાસો કે કોઈપણ બ્રોકર અથવા સલાહકાર સેબી અને AMFI સાથે નોંધાયેલા છે.',
+    journeyInitialOfferTitle: 'અવાસ્તવિક વળતરની યોજના',
+    journeyInitialOfferExplanation:
+      'ઝડપથી નાણાં ડબલ કે અનેક ગણા કરવાની લાલચ આપવામાં આવે છે.',
+    journeyUrgencyTitle: 'કૃત્રિમ સમયનું દબાણ',
+    journeyUrgencyExplanation:
+      'વિચારવાનો સમય ન મળે તે માટે તાત્કાલિક નિર્ણય લેવાનું દબાણ કરવામાં આવે છે.',
+    journeyPaymentTitle: 'વ્યક્તિગત ખાતામાં નાણાં મોકલવાની માંગ',
+    journeyPaymentExplanation:
+      'આગળનું પગલું: વ્યક્તિગત UPI કે ખાતામાં પૈસા જમા કરાવવાનું કહેવું.',
+    journeyAppTitle: 'નકલી એપ કે APK લિંક',
+    journeyAppExplanation:
+      'અપ્રમાણિત એપ ડાઉનલોડ કરાવી સ્ક્રીન પર નકલી નફો બતાવવામાં આવે છે.',
+    journeyRecoveryTitle: 'નાણાં ઉપાડવા પર રોક અને ખોટી ટેક્સ માંગ',
+    journeyRecoveryExplanation:
+      'પૈસા ઉપાડતી વખતે વધુ ટેક્સ કે ફી માંગવામાં આવે છે અને પૈસા ડૂબી જાય છે.',
+    highRiskUnknowns: [
+      'સબમિટ કરેલી સામગ્રીમાંથી સેબી નોંધણી આઈડી ચકાસી શકાતી નથી.',
+      'કંપનીનો PAN કે રજીસ્ટર્ડ ડોમેન જાણીતો નથી.',
+    ],
+    highRiskNextSteps: [
+      'કોઈપણ વ્યક્તિગત UPI ID કે અજાણ્યા ખાતામાં પૈસા મોકલશો નહીં.',
+      'https://www.sebi.gov.in પર સેબી નોંધાયેલા સલાહકારોની પુષ્ટિ કરો.',
+      'સંચાર સાથી પોર્ટલ પર રિપોર્ટ કરો અથવા 1930 ડાયલ કરો.',
+    ],
+    highRiskLimitations: [
+      'સેબી અને આરબીઆઈ નિયમોના આધારે NiveshShield દ્વારા મૂલ્યાંકન કરેલ.',
+      'રોકાણ કરતા પહેલા સત્તાવાર પોર્ટલ પર નોંધણી તપાસો.',
+    ],
+    ambiguousUnknowns: ['ગ્રૂપ એડમિનની સેબી લાયસન્સ વિગતો ઉપલબ્ધ નથી.'],
+    ambiguousNextSteps: [
+      'સલાહકારનો સેબી RA નંબર માંગો.',
+      'sebi.gov.in પર ચકાસો.',
+      'ચેટ એપ્લિકેશનો દ્વારા રોકાણ કરવાનું ટાળો.',
+    ],
+    ambiguousLimitations: ['NiveshShield ક્લાયન્ટ એન્જિન દ્વારા ચકાસાયેલ.'],
+    benignUnknowns: ['ચોક્કસ ખરીદી પ્લેટફોર્મની વિગત નથી.'],
+    benignNextSteps: [
+      'નાણાકીય શિસ્ત જાળવો અને વિવિધતા લાવો.',
+      'AMFI India પોર્ટલ પર મ્યુચ્યુઅલ ફંડ નોંધણી તપાસો.',
+    ],
+    benignLimitations: ['શૈક્ષણિક હેતુ માટે મૂલ્યાંકન કરેલ.'],
+    phoneSafetyAdvisories: [
+      'સેબી કે આરબીઆઈ નોંધાયેલ સંસ્થાઓ વ્યક્તિગત WhatsApp પરથી ડિપોઝિટ માંગતી નથી.',
+      'ટ્રેડિંગ માટે અજાણી વ્યક્તિઓના UPI પર ક્યારેય પૈસા ન મોકલો.',
+      'શંકા પડે તો સંચાર સાથી અથવા 1930 હેલ્પલાઇન પર સંપર્ક કરો.',
+    ],
+    phonePrivacyNotice:
+      'ગોપનીયતા સુરક્ષા માટે ફોન નંબરો માસ્ક (+91 XX*** ***XX) કરીને પ્રોસેસ થાય છે.',
+    phoneOfficialStatus:
+      'ફરિયાદ ન હોવી એ સલામતીની ખાતરી નથી. અધિકૃત સંસ્થાઓ વ્યક્તિગત મોબાઇલ પરથી વ્યવહારો કરતી નથી.',
+    phoneExternalRep: (masked) =>
+      `${masked} માટે તપાસ પૂર્ણ. સીધી સરકારી પોર્ટલ પર ચકાસણી માટે નીચેની લિંક્સ વાપરો.`,
+    phoneUnverifiedElements: [
+      'મોકલનારની ઓળખ અને સેબી નોંધણી અપ્રમાણિત છે',
+      'ટેલિકોમ DLT હેડર નોંધણી ચકાસાયેલી નથી',
+    ],
+  },
+}
+
 export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
   const text = (options.message || '').trim()
   const modality = options.modality || 'text'
-  const language = options.language || 'en'
+  const langKey = resolveLang(options.language)
+  const dict = DICTIONARY[langKey]
   const lower = text.toLowerCase()
 
   const extractedPhones = extractPhonesLocally(text)
@@ -116,7 +742,15 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
     lower.includes('risk-free') ||
     lower.includes('गारंटी') ||
     lower.includes('पक्का मुनाफा') ||
-    lower.includes('निश्चित रिटर्न')
+    lower.includes('निश्चित रिटर्न') ||
+    lower.includes('हमी') ||
+    lower.includes('खात्रीशीर') ||
+    lower.includes('গ্যারান্টি') ||
+    lower.includes('নিশ্চিত') ||
+    lower.includes('உத்தரவாத') ||
+    lower.includes('லாபம்') ||
+    lower.includes('ગેરંટી') ||
+    lower.includes('ખાતરી')
 
   const hasUrgencyPressure =
     lower.includes('urgent') ||
@@ -127,7 +761,11 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
     lower.includes('act now') ||
     lower.includes('तुरंत') ||
     lower.includes('आज ही') ||
-    lower.includes('आखिरी मौका')
+    lower.includes('आखिरी मौका') ||
+    lower.includes('लगेच') ||
+    lower.includes('দ্রুত') ||
+    lower.includes('உடனே') ||
+    lower.includes('તાત્કાલિક')
 
   const hasUpfrontPayment =
     lower.includes('registration fee') ||
@@ -137,7 +775,11 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
     lower.includes('upfront') ||
     lower.includes('margin deposit') ||
     lower.includes('फीस') ||
-    lower.includes('पहले पैसे')
+    lower.includes('पहले पैसे') ||
+    lower.includes('शुल्क') ||
+    lower.includes('পেমেন্ট') ||
+    lower.includes('கட்டணம்') ||
+    lower.includes('ફી')
 
   const isSuspiciousGroupOrApp =
     lower.includes('telegram') ||
@@ -153,18 +795,18 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
   const isAmbiguous = !isHighRisk && (isSuspiciousGroupOrApp || hasUrgencyPressure || hasUpfrontPayment)
 
   // Find relevant official SEBI source
-  const sebiFakeTradingSource = officialSources.find((s) => s.id === 'sebi_fake_trading_apps')
-  const sebiScoresSource = officialSources.find((s) => s.id === 'sebi_scores')
+  const sebiFakeTradingSource = officialSources.find((s: OfficialSource) => s.id === 'sebi_fake_trading_apps')
+  const sebiScoresSource = officialSources.find((s: OfficialSource) => s.id === 'sebi_scores')
 
   if (isHighRisk) {
     return {
       input_modality: modality,
-      input_language: language,
+      input_language: langKey,
       extracted_text: text || `[${modality} content submitted for analysis]`,
       extraction_uncertainty: {
         has_uncertainty: false,
         confidence: 'high',
-        notes: 'High-risk solicitation markers and prohibited claims detected in submitted content.',
+        notes: dict.multiplierSummary,
       },
       extracted_entities: {
         urls: extractedUrls,
@@ -186,15 +828,12 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
       extracted_phones: mappedPhoneItems,
       overall_status: 'warning_signs_found',
       uncertainty_rating: 'low',
-      summary: hasMoneyMultiplier
-        ? 'High Risk Alert: The solicitation promises unrealistic money multiplication (e.g. giving a small amount to receive an exponential return). This violates SEBI regulations prohibiting guaranteed return promises in securities transactions.'
-        : 'Warning Signs Found: Assured return promises and pressure tactics violate statutory SEBI and RBI investor protection regulations.',
+      summary: hasMoneyMultiplier ? dict.multiplierSummary : dict.guaranteedSummary,
       findings: [
         {
           indicator: 'guaranteed_returns',
           original_excerpt: text.slice(0, 120),
-          explanation:
-            'SEBI regulations explicitly prohibit any intermediary, broker, or financial advisor from guaranteeing or promising fixed profits on investments.',
+          explanation: dict.guaranteedReturnsExplanation,
           evidence_type: 'message_excerpt',
           verification_status: 'not_independently_verified',
         },
@@ -203,8 +842,7 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
               {
                 indicator: 'urgency_pressure' as const,
                 original_excerpt: text.slice(0, 80),
-                explanation:
-                  'Artificial deadlines and limited seat pressure are common tactics used in investment scams to induce impulsive financial commitments before proper verification.',
+                explanation: dict.urgencyExplanation,
                 evidence_type: 'message_excerpt' as const,
                 verification_status: 'not_independently_verified' as const,
               },
@@ -215,8 +853,7 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
               {
                 indicator: 'upfront_payment' as const,
                 original_excerpt: text.slice(0, 80),
-                explanation:
-                  'Demanding upfront registration, margin, or processing fees into personal accounts or unverified UPI IDs is a characteristic indicator of fraudulent solicitations.',
+                explanation: dict.upfrontExplanation,
                 evidence_type: 'message_excerpt' as const,
                 verification_status: 'not_independently_verified' as const,
               },
@@ -226,8 +863,7 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
       claims: [
         {
           original_claim: text.slice(0, 120) || 'Promised returns and trading scheme',
-          what_content_establishes:
-            'The solicitation offers exponential or assured financial returns without verifiable SEBI registration credentials.',
+          what_content_establishes: dict.highRiskContentEstablishes,
           external_source_consulted: sebiFakeTradingSource
             ? {
                 id: sebiFakeTradingSource.id,
@@ -239,83 +875,67 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
               }
             : null,
           source_verdict: 'contradicts',
-          what_remains_unknown:
-            'Legal identity of sender, SEBI registration number, and official corporate registration on MCA portal.',
-          safe_verification_step:
-            'Search entity or advisor name on official SEBI registered intermediaries database at https://www.sebi.gov.in.',
+          what_remains_unknown: dict.highRiskWhatRemainsUnknown,
+          safe_verification_step: dict.highRiskVerificationStep,
         },
       ],
       scam_journey_map: [
         {
           stage: 'initial_offer',
-          title: 'Unsolicited High Return Scheme',
+          title: dict.journeyInitialOfferTitle,
           observed: true,
           evidence: text.slice(0, 100),
-          explanation: 'Solicitation promises assured high payouts or quick multiplication of capital.',
+          explanation: dict.journeyInitialOfferExplanation,
           is_future_risk: false,
         },
         {
           stage: 'urgency_pressure',
-          title: 'Artificial Time Pressure',
+          title: dict.journeyUrgencyTitle,
           observed: hasUrgencyPressure,
-          evidence: hasUrgencyPressure ? 'Urgent language detected' : '',
-          explanation:
-            'Perpetrators create fake urgency or exclusivity to bypass the victim’s critical evaluation.',
+          evidence: hasUrgencyPressure ? text.slice(0, 60) : '',
+          explanation: dict.journeyUrgencyExplanation,
           is_future_risk: !hasUrgencyPressure,
         },
         {
           stage: 'payment_request',
-          title: 'Transfer to Personal UPI or Private Account',
+          title: dict.journeyPaymentTitle,
           observed: hasUpfrontPayment,
-          evidence: hasUpfrontPayment ? 'Upfront payment demanded' : '',
-          explanation:
-            'Common next step: asking target to transfer initial sum to individual UPI handles or mule accounts.',
+          evidence: hasUpfrontPayment ? text.slice(0, 60) : '',
+          explanation: dict.journeyPaymentExplanation,
           is_future_risk: !hasUpfrontPayment,
         },
         {
           stage: 'app_or_credential_request',
-          title: 'Custom APK / Unofficial Platform Link',
+          title: dict.journeyAppTitle,
           observed: isSuspiciousGroupOrApp,
-          evidence: isSuspiciousGroupOrApp ? 'Link or app reference' : '',
-          explanation:
-            'Victims are directed to unofficial apps showing fabricated gains on dashboard.',
+          evidence: isSuspiciousGroupOrApp ? text.slice(0, 60) : '',
+          explanation: dict.journeyAppExplanation,
           is_future_risk: !isSuspiciousGroupOrApp,
         },
         {
           stage: 'followup_or_recovery',
-          title: 'Withdrawal Block & Bogus Tax Demands',
+          title: dict.journeyRecoveryTitle,
           observed: false,
           evidence: '',
-          explanation:
-            'When attempting withdrawal, victims are told to pay extra "taxes" or "release fees", losing additional funds.',
+          explanation: dict.journeyRecoveryExplanation,
           is_future_risk: true,
         },
       ],
-      unknowns: [
-        'SEBI registration ID not verifiable from submitted content alone.',
-        'Official company PAN / CIN and registered domain remain undisclosed.',
-      ],
-      next_steps: [
-        'Do not send money or transfer funds to any personal UPI ID or unverified account.',
-        'Verify registered stockbrokers and investment advisors at https://www.sebi.gov.in.',
-        'Report fraudulent communications immediately on DoT Sanchar Saathi (Chakshu) portal or dial 1930.',
-      ],
-      limitations: [
-        'Evaluated via NiveshShield client-side regulatory analysis engine based on official SEBI, RBI, and DoT statutory guidelines.',
-        'Always verify SEBI registration status directly on official regulator portals before making investment decisions.',
-      ],
+      unknowns: dict.highRiskUnknowns,
+      next_steps: dict.highRiskNextSteps,
+      limitations: dict.highRiskLimitations,
     }
   }
 
   if (isAmbiguous) {
     return {
       input_modality: modality,
-      input_language: language,
+      input_language: langKey,
       extracted_text: text || `[${modality} content submitted for analysis]`,
       extraction_uncertainty: {
         has_uncertainty: true,
         confidence: 'medium',
-        notes: 'Informal channel communication requires secondary verification against official registers.',
+        notes: dict.ambiguousSummary,
       },
       extracted_entities: {
         urls: extractedUrls,
@@ -329,14 +949,12 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
       extracted_phones: mappedPhoneItems,
       overall_status: 'insufficient_evidence',
       uncertainty_rating: 'medium',
-      summary:
-        'Caution: Solicitations via informal channels (WhatsApp/Telegram groups) require rigorous independent verification. Unregistered advisory services violate SEBI regulations.',
+      summary: dict.ambiguousSummary,
       findings: [
         {
           indicator: 'suspicious_link',
           original_excerpt: text.slice(0, 100),
-          explanation:
-            'Unsolicited invitation to private advisory channels without statutory SEBI Research Analyst registration disclosures.',
+          explanation: dict.suspiciousLinkExplanation,
           evidence_type: 'message_excerpt',
           verification_status: 'not_independently_verified',
         },
@@ -344,8 +962,7 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
       claims: [
         {
           original_claim: text.slice(0, 100) || 'Trading advisory channel',
-          what_content_establishes:
-            'Message invites participation in informal advisory channel without mandatory statutory risk disclaimers.',
+          what_content_establishes: dict.ambiguousContentEstablishes,
           external_source_consulted: sebiScoresSource
             ? {
                 id: sebiScoresSource.id,
@@ -357,74 +974,67 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
               }
             : null,
           source_verdict: 'unverified',
-          what_remains_unknown: 'Research Analyst Registration Number and SEBI authorization.',
-          safe_verification_step: 'Request SEBI RA registration number and check on sebi.gov.in.',
+          what_remains_unknown: dict.ambiguousWhatRemainsUnknown,
+          safe_verification_step: dict.ambiguousVerificationStep,
         },
       ],
       scam_journey_map: [
         {
           stage: 'initial_offer',
-          title: 'Informal Channel Invitation',
+          title: dict.journeyInitialOfferTitle,
           observed: true,
           evidence: text.slice(0, 100),
-          explanation: 'Inviting users to private chat groups for stock suggestions or tips.',
+          explanation: dict.journeyInitialOfferExplanation,
           is_future_risk: false,
         },
         {
           stage: 'urgency_pressure',
-          title: 'Exclusive Channel Access',
+          title: dict.journeyUrgencyTitle,
           observed: hasUrgencyPressure,
-          evidence: hasUrgencyPressure ? 'Pressure cues noted' : '',
-          explanation: 'Limited seats or VIP group promotions designed to accelerate action.',
+          evidence: hasUrgencyPressure ? text.slice(0, 60) : '',
+          explanation: dict.journeyUrgencyExplanation,
           is_future_risk: !hasUrgencyPressure,
         },
         {
           stage: 'payment_request',
-          title: 'VIP Subscription / Upfront Fees',
+          title: dict.journeyPaymentTitle,
           observed: hasUpfrontPayment,
-          evidence: hasUpfrontPayment ? 'Fee requested' : '',
-          explanation: 'Demanding payment for premium stock calls or algorithmic strategies.',
+          evidence: hasUpfrontPayment ? text.slice(0, 60) : '',
+          explanation: dict.journeyPaymentExplanation,
           is_future_risk: !hasUpfrontPayment,
         },
         {
           stage: 'app_or_credential_request',
-          title: 'Terminal / APK Installation',
+          title: dict.journeyAppTitle,
           observed: false,
           evidence: '',
-          explanation: 'Directing victims to unverified trading terminals or screen-sharing tools.',
+          explanation: dict.journeyAppExplanation,
           is_future_risk: true,
         },
         {
           stage: 'followup_or_recovery',
-          title: 'Followup Escalation',
+          title: dict.journeyRecoveryTitle,
           observed: false,
           evidence: '',
-          explanation: 'Promoting higher-stakes unverified schemes once trust is established.',
+          explanation: dict.journeyRecoveryExplanation,
           is_future_risk: true,
         },
       ],
-      unknowns: ['Authenticity and SEBI licensing of channel administrators.'],
-      next_steps: [
-        'Ask the advisor for their official SEBI Research Analyst (RA) registration number.',
-        'Verify RA credentials on https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doRecognisedFpi=yes&intmId=14.',
-        'Avoid investing through informal chat applications.',
-      ],
-      limitations: [
-        'Evaluated via NiveshShield client-side regulatory analysis engine.',
-        'Informal tips carry substantial capital loss risk without regulatory grievance redressal.',
-      ],
+      unknowns: dict.ambiguousUnknowns,
+      next_steps: dict.ambiguousNextSteps,
+      limitations: dict.ambiguousLimitations,
     }
   }
 
   // Benign or General Informational Content
   return {
     input_modality: modality,
-    input_language: language,
+    input_language: langKey,
     extracted_text: text || `[${modality} content submitted for analysis]`,
     extraction_uncertainty: {
       has_uncertainty: false,
       confidence: 'high',
-      notes: 'No aggressive solicitation or high-risk scam patterns detected.',
+      notes: dict.benignSummary,
     },
     extracted_entities: {
       urls: extractedUrls,
@@ -438,75 +1048,74 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
     extracted_phones: mappedPhoneItems,
     overall_status: 'no_obvious_warning_signs',
     uncertainty_rating: 'low',
-    summary:
-      'No obvious warning signs (such as guaranteed returns, exponential multiplier promises, or urgent payment demands) detected in this text.',
+    summary: dict.benignSummary,
     findings: [],
     claims: [
       {
         original_claim: text.slice(0, 100),
-        what_content_establishes:
-          'Text describes standard financial or educational concepts without guaranteed returns or advance payment demands.',
+        what_content_establishes: dict.benignContentEstablishes,
         external_source_consulted: null,
         source_verdict: 'supports',
-        what_remains_unknown: 'Specific execution platform or intermediary used.',
-        safe_verification_step:
-          'Always verify that any broker, mutual fund distributor, or advisor is licensed with SEBI and AMFI.',
+        what_remains_unknown: dict.benignWhatRemainsUnknown,
+        safe_verification_step: dict.benignVerificationStep,
       },
     ],
     scam_journey_map: [
       {
         stage: 'initial_offer',
-        title: 'Information Sharing',
+        title: dict.journeyInitialOfferTitle,
         observed: true,
         evidence: text.slice(0, 80),
-        explanation: 'Educational discussion regarding financial concepts.',
+        explanation: dict.journeyInitialOfferExplanation,
         is_future_risk: false,
       },
       {
         stage: 'urgency_pressure',
-        title: 'Urgency Pressure',
+        title: dict.journeyUrgencyTitle,
         observed: false,
         evidence: '',
-        explanation: 'No pressure tactics identified.',
+        explanation: dict.journeyUrgencyExplanation,
         is_future_risk: false,
       },
       {
         stage: 'payment_request',
-        title: 'Payment Request',
+        title: dict.journeyPaymentTitle,
         observed: false,
         evidence: '',
-        explanation: 'No upfront demands detected.',
+        explanation: dict.journeyPaymentExplanation,
         is_future_risk: false,
       },
       {
         stage: 'app_or_credential_request',
-        title: 'App / Credential Request',
+        title: dict.journeyAppTitle,
         observed: false,
         evidence: '',
-        explanation: 'No unofficial software installation requested.',
+        explanation: dict.journeyAppExplanation,
         is_future_risk: false,
       },
       {
         stage: 'followup_or_recovery',
-        title: 'Followup / Recovery',
+        title: dict.journeyRecoveryTitle,
         observed: false,
         evidence: '',
-        explanation: 'No recovery or extortion tactics present.',
+        explanation: dict.journeyRecoveryExplanation,
         is_future_risk: false,
       },
     ],
-    unknowns: ['Entity or platform through which investment products are purchased.'],
-    next_steps: [
-      'Maintain disciplined financial habits and asset diversification.',
-      'Check AMFI India (https://www.amfiindia.com) for mutual fund registrations.',
-    ],
-    limitations: [
-      'Evaluated via NiveshShield client-side regulatory analysis engine. Does not substitute for personalized financial planning.',
-    ],
+    unknowns: dict.benignUnknowns,
+    next_steps: dict.benignNextSteps,
+    limitations: dict.benignLimitations,
   }
 }
 
-export function evaluatePhoneLocally(phoneNumber: string, context?: string): PhoneReputationInvestigation {
+export function evaluatePhoneLocally(
+  phoneNumber: string,
+  context?: string,
+  language = 'en',
+): PhoneReputationInvestigation {
+  const langKey = resolveLang(language)
+  const dict = DICTIONARY[langKey]
+
   const cleaned = phoneNumber.trim()
   const digitsOnly = cleaned.replace(/\D/g, '')
   const isIndianFormat = digitsOnly.length === 10 || (digitsOnly.length === 12 && digitsOnly.startsWith('91'))
@@ -526,7 +1135,7 @@ export function evaluatePhoneLocally(phoneNumber: string, context?: string): Pho
       label: null,
       source_url: 'https://cybercrime.gov.in/Webform/suspect_search_repository.aspx',
       limitations:
-        'Automated machine lookup unavailable: The National Cyber Crime Reporting Portal requires interactive citizen CAPTCHA to protect privacy and prevent automated harvesting. Use the official link to verify manually.',
+        'Automated machine lookup unavailable: Interactive citizen CAPTCHA required for privacy protection. Use official link to verify manually.',
     },
     {
       source_name: 'DoT Sanchar Saathi (Chakshu Fraud Prevention Facility)',
@@ -599,21 +1208,12 @@ export function evaluatePhoneLocally(phoneNumber: string, context?: string): Pho
       message_warning_signs: context
         ? ['Context associated with investment solicitation']
         : ['Contact provided for verification'],
-      external_reputation_summary: `Investigation conducted for ${masked}. No automated community flags available without server credentials. Use official links below to verify directly on government portals.`,
-      official_verification_status:
-        'Absence of a public report does not guarantee safety. Legitimate financial institutions never conduct securities transactions from personal mobile numbers.',
-      unverified_elements: [
-        'Caller identity and SEBI registration credentials not verified',
-        'Official telecom DLT header registration unverified',
-      ],
+      external_reputation_summary: dict.phoneExternalRep(masked),
+      official_verification_status: dict.phoneOfficialStatus,
+      unverified_elements: dict.phoneUnverifiedElements,
     },
     official_verification_links: officialVerificationLinks,
-    safety_advisories: [
-      'SEBI and RBI registered financial intermediaries NEVER contact investors via personal WhatsApp or mobile numbers to collect investment deposits.',
-      'Never send funds via UPI to personal names or unverified mobile numbers for stock trading.',
-      'If you suspect fraud, report immediately to DoT Chakshu portal or dial CyberCrime Helpline 1930.',
-    ],
-    privacy_notice:
-      'Phone numbers are processed transiently and masked (+91 XX*** ***XX) in accordance with privacy safeguards.',
+    safety_advisories: dict.phoneSafetyAdvisories,
+    privacy_notice: dict.phonePrivacyNotice,
   }
 }

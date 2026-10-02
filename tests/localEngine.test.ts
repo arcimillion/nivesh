@@ -67,6 +67,47 @@ const phoneRes = evaluatePhoneLocally('+91 98765 43210', 'Investment group admin
 assert('Phone number formatted and masked', phoneRes.is_valid_format && Boolean(phoneRes.normalized_e164))
 assert('Official verification resources provided', phoneRes.official_verification_links.length >= 3)
 
+// Test 6: Multilingual evaluations (Hindi, Marathi, Bengali, Tamil, Gujarati)
+const hiRes = evaluateLocally({
+  message: 'विशेष ऑफर! गारंटीड 40% मासिक रिटर्न',
+  language: 'hi',
+  modality: 'text',
+})
+assert('Hindi evaluation returns warning_signs_found', hiRes.overall_status === 'warning_signs_found')
+assert('Hindi summary contains Devanagari text', /[\u0900-\u097F]/.test(hiRes.summary))
+
+const mrRes = evaluateLocally({
+  message: 'पैसे दुप्पट करण्याची खात्रीशीर योजना',
+  language: 'mr',
+  modality: 'text',
+})
+assert('Marathi evaluation returns warning_signs_found', mrRes.overall_status === 'warning_signs_found')
+assert('Marathi summary contains Devanagari text', /[\u0900-\u097F]/.test(mrRes.summary))
+
+const bnRes = evaluateLocally({
+  message: 'গ্যারান্টিযুক্ত ২০% রিটার্ন স্কিম',
+  language: 'bn',
+  modality: 'text',
+})
+assert('Bengali evaluation returns warning_signs_found', bnRes.overall_status === 'warning_signs_found')
+assert('Bengali summary contains Bengali text', /[\u0980-\u09FF]/.test(bnRes.summary))
+
+const taRes = evaluateLocally({
+  message: 'உத்தரவாத லாபத் திட்டம் உடனடியாக இணையுங்கள்',
+  language: 'ta',
+  modality: 'text',
+})
+assert('Tamil evaluation returns warning_signs_found', taRes.overall_status === 'warning_signs_found')
+assert('Tamil summary contains Tamil text', /[\u0B80-\u0BFF]/.test(taRes.summary))
+
+const guRes = evaluateLocally({
+  message: 'ગેરંટીડ ૧૦૦% નફો રોકાણ યોજના',
+  language: 'gu',
+  modality: 'text',
+})
+assert('Gujarati evaluation returns warning_signs_found', guRes.overall_status === 'warning_signs_found')
+assert('Gujarati summary contains Gujarati text', /[\u0A80-\u0AFF]/.test(guRes.summary))
+
 console.log('\n===========================================================')
 console.log(`CLIENT ENGINE TESTS: ${passed}/${passed + failed} PASSED (${failed} FAILED)`)
 console.log('===========================================================')

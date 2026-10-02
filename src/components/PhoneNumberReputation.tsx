@@ -16,7 +16,7 @@ export const PhoneNumberReputation: React.FC<PhoneNumberReputationProps> = ({
   extractedPhones = [],
   originalText = '',
 }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   // Selected or typed phone number state
   const [phoneList, setPhoneList] = useState<string[]>(() => {
@@ -30,6 +30,18 @@ export const PhoneNumberReputation: React.FC<PhoneNumberReputationProps> = ({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [investigation, setInvestigation] = useState<PhoneReputationInvestigation | null>(null)
+
+  // Re-run investigation if language changes and investigation exists
+  const currentLang = i18n.language
+  const [prevLang, setPrevLang] = useState(currentLang)
+  if (currentLang !== prevLang) {
+    setPrevLang(currentLang)
+    if (selectedPhone && investigation) {
+      checkPhoneReputation(selectedPhone, originalText, currentLang)
+        .then((res) => setInvestigation(res))
+        .catch(() => {})
+    }
+  }
 
   // Sync if extracted phones change
   const [prevExtracted, setPrevExtracted] = useState(extractedPhones)
@@ -70,7 +82,7 @@ export const PhoneNumberReputation: React.FC<PhoneNumberReputationProps> = ({
     setLoading(true)
     setError(null)
     try {
-      const result = await checkPhoneReputation(target, originalText)
+      const result = await checkPhoneReputation(target, originalText, i18n.language)
       setInvestigation(result)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to investigate phone reputation'
@@ -262,7 +274,11 @@ export const PhoneNumberReputation: React.FC<PhoneNumberReputationProps> = ({
 
               {/* Crucial Safety Guardrail Banner */}
               <div className="rounded-lg border border-amber-200 bg-amber-50/80 px-3 py-1.5 text-[11px] font-medium text-amber-950 sm:max-w-xs">
-                ⚠️ <strong>Safety Rule:</strong> A clean or unlisted record does <em>not</em> prove safety. Scammers routinely activate fresh SIM cards.
+                ⚠️ <strong>{t('phoneInvestigation.safetyRuleLabel', 'Safety Rule:')}</strong>{' '}
+                {t(
+                  'phoneInvestigation.safetyRuleText',
+                  'A clean or unlisted record does not prove safety. Scammers routinely activate fresh SIM cards.',
+                )}
               </div>
             </div>
           </div>
@@ -375,12 +391,12 @@ export const PhoneNumberReputation: React.FC<PhoneNumberReputationProps> = ({
 
                   {src.label && (
                     <div className="rounded-md bg-white border border-slate-200 px-2.5 py-1.5 font-medium text-slate-800">
-                      <strong>Notice:</strong> {src.label}
+                      <strong>{t('phoneInvestigation.noticeLabel', 'Notice:')}</strong> {src.label}
                     </div>
                   )}
 
                   <div className="text-slate-600 text-[11px] leading-relaxed">
-                    <strong>Limitations:</strong> {src.limitations}
+                    <strong>{t('phoneInvestigation.limitationsLabel', 'Limitations:')}</strong> {src.limitations}
                   </div>
                 </div>
               ))}
@@ -410,7 +426,7 @@ export const PhoneNumberReputation: React.FC<PhoneNumberReputationProps> = ({
                       rel="noopener noreferrer"
                       className="text-[11px] font-bold text-emerald-700 hover:underline"
                     >
-                      Open Portal ↗
+                      {t('phoneInvestigation.openPortal', 'Open Portal ↗')}
                     </a>
                   </div>
                   <p className="text-[11px] text-slate-500 font-medium">{link.authority}</p>
@@ -424,11 +440,11 @@ export const PhoneNumberReputation: React.FC<PhoneNumberReputationProps> = ({
           <div className="text-[11px] text-slate-500 border-t border-slate-100 pt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <span>🛡️ {investigation.privacy_notice}</span>
             <span>
-              Helpline:{' '}
+              {t('phoneInvestigation.helplineLabel', 'Helpline:')}{' '}
               <a href="tel:1930" className="font-bold text-blue-700 hover:underline">
-                Call 1930
+                {t('phoneInvestigation.call1930', 'Call 1930')}
               </a>{' '}
-              (National Cyber Financial Fraud)
+              {t('phoneInvestigation.helplineDesc', '(National Cyber Financial Fraud)')}
             </span>
           </div>
         </div>

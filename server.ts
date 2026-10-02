@@ -17,6 +17,7 @@ import {
   investigatePhoneNumber,
   PhoneReputationRequestSchema,
 } from './server/phoneReputationService.ts'
+import { evaluateLocally } from './src/localRegulatoryEngine.ts'
 
 const app = express()
 const PORT = Number(process.env.PORT) || 3000
@@ -548,11 +549,11 @@ app.post('/api/analyze', analyzeLimiter, async (req: Request, res: Response) => 
     // If GEMINI_API_KEY is not configured, provide realistic fallback response
     if (!process.env.GEMINI_API_KEY) {
       console.log('[NiveshShield] Using built-in demo evaluator (GEMINI_API_KEY not configured)')
-      const demoResult = getFallbackDemoAnalysis(
-        finalInputText || `[${safeModality} file submitted for analysis]`,
-        safeModality,
-        trimmedLanguage,
-      )
+      const demoResult = evaluateLocally({
+        message: finalInputText || `[${safeModality} file submitted for analysis]`,
+        modality: safeModality,
+        language: trimmedLanguage,
+      })
       return res.json({ status: 'success', analysis: demoResult })
     }
 

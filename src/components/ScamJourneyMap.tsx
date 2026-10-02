@@ -49,10 +49,16 @@ export const ScamJourneyMap: React.FC<Props> = ({ stages }) => {
 
         <div className="shrink-0 flex items-center gap-2">
           <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900 border border-amber-200">
-            {observedCount} Observed in Content
+            {t('journey.observedBadge', {
+              count: observedCount,
+              defaultValue: `${observedCount} Observed in Content`,
+            })}
           </span>
           <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 border border-slate-200">
-            {stages.length - observedCount} Future Escalation Risks
+            {t('journey.futureBadge', {
+              count: stages.length - observedCount,
+              defaultValue: `${stages.length - observedCount} Future Escalation Risks`,
+            })}
           </span>
         </div>
       </div>
@@ -62,7 +68,8 @@ export const ScamJourneyMap: React.FC<Props> = ({ stages }) => {
         {stages.map((stg) => {
           const isExpanded = expandedStage === stg.stage
           const icon = STAGE_ICONS[stg.stage] || '📌'
-          const defaultTitle = STAGE_TITLES[stg.stage] || stg.title
+          const defaultTitle =
+            t(`journey.stageTitles.${stg.stage}`, STAGE_TITLES[stg.stage] || stg.title)
 
           return (
             <div
@@ -92,24 +99,24 @@ export const ScamJourneyMap: React.FC<Props> = ({ stages }) => {
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-bold text-slate-900">
-                        {stg.title || defaultTitle}
+                        {defaultTitle}
                       </span>
                       {stg.observed ? (
                         <span className="rounded-full bg-amber-200 px-2.5 py-0.5 text-[10px] font-extrabold text-amber-950 uppercase tracking-wide">
-                          ✓ Observed Tactic
+                          {t('journey.observedTactic', '✓ Observed Tactic')}
                         </span>
                       ) : (
-                        <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-600 uppercase tracking-wide">
-                          Possible Future Tactic
+                        <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600 uppercase tracking-wide">
+                          {t('journey.futureTactic', 'Possible Future Tactic')}
                         </span>
                       )}
                     </div>
                     <p className="mt-0.5 text-xs text-slate-600 line-clamp-1">
                       {stg.observed
                         ? stg.evidence
-                          ? `Evidence: "${stg.evidence}"`
+                          ? `${t('journey.evidencePrefix', 'Evidence:')} "${stg.evidence}"`
                           : stg.explanation
-                        : `Next risk: ${stg.explanation}`}
+                        : `${t('journey.nextRiskPrefix', 'Next risk:')} ${stg.explanation}`}
                     </p>
                   </div>
                 </div>
@@ -125,7 +132,7 @@ export const ScamJourneyMap: React.FC<Props> = ({ stages }) => {
                   {stg.observed && stg.evidence && (
                     <div className="rounded-lg bg-amber-50 p-3 border border-amber-200">
                       <p className="font-bold text-amber-900 uppercase text-[10px] tracking-wider">
-                        Observed Evidence Excerpt
+                        {t('journey.observedEvidenceExcerpt', 'Observed Evidence Excerpt')}
                       </p>
                       <p className="mt-1 font-mono text-slate-900 font-semibold">
                         “{stg.evidence}”
@@ -135,7 +142,7 @@ export const ScamJourneyMap: React.FC<Props> = ({ stages }) => {
 
                   <div>
                     <p className="font-bold text-slate-700 uppercase text-[10px] tracking-wider">
-                      Analysis & Tactic Explanation
+                      {t('journey.tacticExplanation', 'Analysis & Tactic Explanation')}
                     </p>
                     <p className="mt-1 leading-relaxed text-slate-700 font-medium">
                       {stg.explanation}
@@ -145,10 +152,13 @@ export const ScamJourneyMap: React.FC<Props> = ({ stages }) => {
                   {!stg.observed && (
                     <div className="rounded-lg bg-slate-50 p-3 border border-slate-200 text-slate-600">
                       <p className="font-bold text-slate-800 flex items-center gap-1.5">
-                        <span>💡</span> How to Protect Yourself at This Stage:
+                        <span>💡</span> {t('journey.howToProtect', 'How to Protect Yourself at This Stage:')}
                       </p>
                       <p className="mt-1 leading-relaxed">
-                        If the sender asks for payments, registration fees, or app downloads next, stop immediately and verify with SEBI/RBI.
+                        {t(
+                          'journey.protectStep',
+                          'If the sender asks for payments, registration fees, or app downloads next, stop immediately and verify with SEBI/RBI.',
+                        )}
                       </p>
                     </div>
                   )}

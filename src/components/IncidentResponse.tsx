@@ -93,20 +93,20 @@ export const IncidentResponse: React.FC = () => {
       {incidentType === 'not_sent' && (
         <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-5 animate-fade-in">
           <h5 className="font-bold text-emerald-950 text-base flex items-center gap-2">
-            <span>🛡️</span> Stay Cautious & Report Communication
+            <span>🛡️</span> {t('incident.notSentTitle', 'Stay Cautious & Verify')}
           </h5>
           <ul className="mt-3 space-y-2 text-xs leading-relaxed text-emerald-900 font-medium">
             <li className="flex items-start gap-2">
               <span>•</span>
-              <span>Do not send money, OTPs, passwords, or banking credentials under any circumstances.</span>
+              <span>{t('incident.notSentStep1', 'Do not send money, OTPs, passwords, or banking credentials under any circumstances.')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span>•</span>
-              <span>Verify the entity on the official SEBI directory (sebi.gov.in) or RBI Sachet portal.</span>
+              <span>{t('incident.notSentStep2', 'Verify the entity on the official SEBI directory (sebi.gov.in) or RBI Sachet portal.')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span>•</span>
-              <span>Report the suspicious message / phone number on the Sanchar Saathi Chakshu facility.</span>
+              <span>{t('incident.notSentStep3', 'Avoid installing apps or opening links until independently verified.')}</span>
             </li>
           </ul>
 
@@ -117,7 +117,7 @@ export const IncidentResponse: React.FC = () => {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-800 px-3.5 py-2 text-xs font-bold text-white shadow-2xs hover:bg-emerald-900"
             >
-              <span>Report on Sanchar Saathi Chakshu</span>
+              <span>{t('incident.reportChakshu', 'Report on Sanchar Saathi Chakshu')}</span>
               <span>↗</span>
             </a>
             <a
@@ -126,7 +126,7 @@ export const IncidentResponse: React.FC = () => {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 rounded-lg bg-white border border-emerald-300 px-3.5 py-2 text-xs font-bold text-emerald-900 shadow-2xs hover:bg-emerald-100"
             >
-              <span>SEBI SCORES Directory</span>
+              <span>{t('incident.scoresDirectory', 'SEBI SCORES Directory')}</span>
               <span>↗</span>
             </a>
           </div>
@@ -137,27 +137,23 @@ export const IncidentResponse: React.FC = () => {
       {incidentType === 'sent_money' && (
         <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-5 animate-fade-in">
           <h5 className="font-bold text-red-950 text-base flex items-center gap-2">
-            <span>🚨</span> Act Immediately to Block & Report
+            <span>🚨</span> {t('incident.sentMoneyTitle', 'Act Immediately to Block & Report')}
           </h5>
           <p className="mt-1 text-xs text-red-900 font-semibold">
-            Note: Recovery cannot be guaranteed, but rapid reporting within 1-2 hours ("Golden Hour") increases the chance of freezing funds in destination bank accounts.
+            {t('incident.goldenHourNote', 'Note: Recovery cannot be guaranteed, but rapid reporting within 1-2 hours ("Golden Hour") increases the chance of freezing funds in destination bank accounts.')}
           </p>
           <ul className="mt-3 space-y-2 text-xs leading-relaxed text-red-900 font-medium">
             <li className="flex items-start gap-2">
               <span>1.</span>
-              <span>Call National Cyber Crime Helpline <strong>1930</strong> immediately to report financial fraud.</span>
+              <span>{t('incident.sentMoneyStep1', 'Contact your bank or payment provider immediately through its official channel.')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span>2.</span>
-              <span>Contact your bank or UPI app provider immediately to request transaction freeze/dispute.</span>
+              <span>{t('incident.sentMoneyStep2', 'Preserve transaction details, chat logs, UPI IDs, and evidence.')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span>3.</span>
-              <span>Preserve screenshots of transaction reference numbers, UPI IDs, chat logs, and bank statements.</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span>4.</span>
-              <span>File a formal cybercrime report at cybercrime.gov.in.</span>
+              <span>{t('incident.sentMoneyStep3', 'Report suspected cyber financial fraud through the official cybercrime reporting portal (Call 1930).')}</span>
             </li>
           </ul>
 
@@ -168,8 +164,7 @@ export const IncidentResponse: React.FC = () => {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 rounded-lg bg-red-700 px-4 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-red-800"
             >
-              <span>Open Cyber Crime Portal (cybercrime.gov.in)</span>
-              <span>↗</span>
+              <span>{t('incident.cybercrimePortal', 'Open Cyber Crime Portal (cybercrime.gov.in) →')}</span>
             </a>
           </div>
         </div>
@@ -179,24 +174,24 @@ export const IncidentResponse: React.FC = () => {
       {incidentType === 'installed_app' && (
         <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-5 animate-fade-in">
           <h5 className="font-bold text-amber-950 text-base flex items-center gap-2">
-            <span>📱</span> Device & Security Remediation Steps
+            <span>📱</span> {t('incident.installedAppTitle', 'Device & Security Remediation Steps')}
           </h5>
           <ul className="mt-3 space-y-2 text-xs leading-relaxed text-amber-900 font-medium">
             <li className="flex items-start gap-2">
               <span>1.</span>
-              <span>Disconnect your mobile phone or computer from Wi-Fi and mobile data immediately.</span>
+              <span>{t('incident.installedAppStep1', 'Do not enter passwords, OTPs, or banking credentials into the app or website.')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span>2.</span>
-              <span>Uninstall any untrusted APK or remote control apps (e.g. AnyDesk, TeamViewer, QuickSupport).</span>
+              <span>{t('incident.installedAppStep2', 'Avoid granting additional permissions to untrusted apps.')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span>3.</span>
-              <span>If credentials or banking passwords were entered, reset bank passwords immediately from a separate secure device.</span>
+              <span>{t('incident.installedAppStep3', 'If sensitive information was entered, contact your bank/service provider immediately.')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span>4.</span>
-              <span>Check SMS forwarding permissions and revoke device administrator access for unapproved apps.</span>
+              <span>{t('incident.installedAppStep4', 'Report financial loss or cybercrime to the official Cyber Crime Reporting Portal.')}</span>
             </li>
           </ul>
 
@@ -207,8 +202,7 @@ export const IncidentResponse: React.FC = () => {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 rounded-lg bg-amber-800 px-4 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-amber-900"
             >
-              <span>Report Device Compromise to Cyber Crime</span>
-              <span>↗</span>
+              <span>{t('incident.reportDeviceCompromise', 'Report Device Compromise to Cyber Crime →')}</span>
             </a>
           </div>
         </div>

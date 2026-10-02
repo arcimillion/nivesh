@@ -16,7 +16,7 @@ const LANG_VOICE_CODES: Record<string, string> = {
 }
 
 export const VoiceAssistant: React.FC<Props> = ({ analysis }) => {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [isPlaying, setIsPlaying] = useState(false)
   const [speechSupported] = useState(() => typeof window !== 'undefined' && 'speechSynthesis' in window)
 
@@ -41,23 +41,22 @@ export const VoiceAssistant: React.FC<Props> = ({ analysis }) => {
       text += `${analysis.summary}. `
     } else {
       if (analysis.overall_status === 'warning_signs_found') {
-        text += 'Warning signs were identified in the submitted content. '
+        text += `${t('analysis.warning', 'Warning signs identified')}. `
       } else if (analysis.overall_status === 'no_obvious_warning_signs') {
-        text += 'No obvious warning signs were identified, but this does not confirm safety. '
+        text += `${t('analysis.noWarning', 'No obvious warning signs identified')}. `
       } else {
-        text += 'More information is required for a complete check. '
+        text += `${t('analysis.insufficientEvidence', 'More information required')}. `
       }
     }
 
     if (analysis.findings && analysis.findings.length > 0) {
-      text += `We identified ${analysis.findings.length} key warning indicators. `
       analysis.findings.slice(0, 2).forEach((f) => {
         text += `${f.explanation}. `
       })
     }
 
     if (analysis.next_steps && analysis.next_steps.length > 0) {
-      text += `Recommended action: ${analysis.next_steps[0]}. `
+      text += `${analysis.next_steps[0]}. `
     }
 
     return text.trim()
@@ -119,10 +118,14 @@ export const VoiceAssistant: React.FC<Props> = ({ analysis }) => {
           </div>
           <div>
             <h5 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-              Multilingual Voice Explanation Readout
+              {t('voice.title', 'Multilingual Voice Explanation Readout')}
             </h5>
             <p className="text-[11px] text-slate-500">
-              Listen to the summary read aloud in {i18n.language.toUpperCase()} ({LANG_VOICE_CODES[i18n.language] || 'en-IN'})
+              {t('voice.subtitle', {
+                lang: i18n.language.toUpperCase(),
+                code: LANG_VOICE_CODES[i18n.language] || 'en-IN',
+                defaultValue: `Listen to the summary read aloud in ${i18n.language.toUpperCase()} (${LANG_VOICE_CODES[i18n.language] || 'en-IN'})`,
+              })}
             </p>
           </div>
         </div>
@@ -139,12 +142,12 @@ export const VoiceAssistant: React.FC<Props> = ({ analysis }) => {
           {isPlaying ? (
             <>
               <span className="h-2 w-2 rounded-full bg-white animate-ping" />
-              <span>Pause Speech</span>
+              <span>{t('voice.pause', 'Pause Speech')}</span>
             </>
           ) : (
             <>
               <span>🔊</span>
-              <span>Read Findings Aloud</span>
+              <span>{t('voice.readAloud', 'Read Findings Aloud')}</span>
             </>
           )}
         </button>
@@ -154,7 +157,7 @@ export const VoiceAssistant: React.FC<Props> = ({ analysis }) => {
       {spokenText && (
         <div className="mt-3 rounded-lg border border-slate-200 bg-white p-3 text-xs text-slate-700 leading-relaxed">
           <p className="font-bold text-[10px] uppercase tracking-wider text-slate-400 mb-1">
-            Readout Speech Transcript:
+            {t('voice.transcriptTitle', 'Readout Speech Transcript:')}
           </p>
           <p>"{spokenText}"</p>
         </div>
@@ -162,7 +165,10 @@ export const VoiceAssistant: React.FC<Props> = ({ analysis }) => {
 
       {!speechSupported && (
         <p className="mt-2 text-[11px] text-amber-800 italic">
-          Note: Browser text-to-speech engine unavailable. Full text transcript provided above.
+          {t(
+            'voice.unsupported',
+            'Note: Browser text-to-speech engine unavailable. Full text transcript provided above.',
+          )}
         </p>
       )}
     </div>
