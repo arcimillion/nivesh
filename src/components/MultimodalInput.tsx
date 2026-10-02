@@ -29,6 +29,7 @@ export const MultimodalInput: React.FC<Props> = ({
   // Voice recording state
   const [isRecording, setIsRecording] = useState(false)
   const [recordingTime, setRecordingTime] = useState(0)
+  const [micError, setMicError] = useState<string | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -58,6 +59,7 @@ export const MultimodalInput: React.FC<Props> = ({
     const file = e.target.files?.[0]
     if (!file) return
 
+    setMicError(null)
     setSelectedFile(file)
     const objectUrl = URL.createObjectURL(file)
     setFilePreview(objectUrl)
@@ -69,22 +71,104 @@ export const MultimodalInput: React.FC<Props> = ({
     reader.readAsDataURL(file)
   }
 
+  const handleLoadSampleVoice = () => {
+    try {
+      setMicError(null)
+      const sampleRate = 16000
+      const duration = 2.5
+      const numSamples = Math.floor(sampleRate * duration)
+      const buffer = new ArrayBuffer(44 + numSamples * 2)
+      const view = new DataView(buffer)
+
+      const writeString = (offset: number, str: string) => {
+        for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i))
+      }
+      writeString(0, 'RIFF')
+      view.setUint32(4, 36 + numSamples * 2, true)
+      writeString(8, 'WAVE')
+      writeString(12, 'fmt ')
+      view.setUint32(16, 16, true)
+      view.setUint16(20, 1, true)
+      view.setUint16(22, 1, true)
+      view.setUint32(24, sampleRate, true)
+      view.setUint32(28, sampleRate * 2, true)
+      view.setUint16(32, 2, true)
+      view.setUint16(34, 16, true)
+      writeString(36, 'data')
+      view.setUint32(40, numSamples * 2, true)
+
+      for (let i = 0; i < numSamples; i++) {
+        const t = i / sampleRate
+        const freq = 260 + 60 * Math.sin(2 * Math.PI * 3 * t)
+        const envelope = Math.min(1, Math.min(t * 6, (duration - t) * 6))
+        const sample = Math.sin(2 * Math.PI * freq * t) * 0.35 * envelope
+        view.setInt16(44 + i * 2, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true)
+      }
+
+      const blob = new Blob([buffer], { type: 'audio/wav' })
+      const sampleFile = new File([blob], 'sample_guaranteed_profit_voice.wav', { type: 'audio/wav' })
+      const blobUrl = URL.createObjectURL(blob)
+
+      let binary = ''
+      const bytes = new Uint8Array(buffer)
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i])
+      }
+      const base64 = 'data:audio/wav;base64,' + btoa(binary)
+
+      setSelectedFile(sampleFile)
+      setFilePreview(blobUrl)
+      setFileBase64(base64)
+      if (!textInput.trim()) {
+        setTextInput('Bhai guaranteed 40% daily profit scheme hai, aaj hi registration fee bhej do.')
+      }
+    } catch (err) {
+      console.error('Failed to create sample voice note:', err)
+    }
+  }
+
   const startRecording = async () => {
+    setMicError(null)
+
+    if (typeof window === 'undefined' || !navigator?.mediaDevices?.getUserMedia) {
+      setMicError(
+        'Audio recording is not supported in this browser environment. You can upload an audio file or click "Load Sample Voice Note" below.',
+      )
+      return
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const recorder = new MediaRecorder(stream)
+
+      // Determine best supported MIME type
+      let mimeType = 'audio/webm'
+      if (typeof MediaRecorder !== 'undefined') {
+        if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+          mimeType = 'audio/webm;codecs=opus'
+        } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+          mimeType = 'audio/webm'
+        } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+          mimeType = 'audio/mp4'
+        } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
+          mimeType = 'audio/ogg'
+        }
+      }
+
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined)
       mediaRecorderRef.current = recorder
       audioChunksRef.current = []
 
       recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
+        if (event.data && event.data.size > 0) {
           audioChunksRef.current.push(event.data)
         }
       }
 
       recorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
-        const audioFile = new File([audioBlob], 'voice_note.webm', { type: 'audio/webm' })
+        const finalType = recorder.mimeType || mimeType || 'audio/webm'
+        const audioBlob = new Blob(audioChunksRef.current, { type: finalType })
+        const ext = finalType.includes('mp4') ? 'mp4' : 'webm'
+        const audioFile = new File([audioBlob], `voice_recording_${Date.now()}.${ext}`, { type: finalType })
         setSelectedFile(audioFile)
         setFilePreview(URL.createObjectURL(audioBlob))
 
@@ -94,18 +178,32 @@ export const MultimodalInput: React.FC<Props> = ({
         }
         reader.readAsDataURL(audioBlob)
 
-        // Stop audio tracks
+        // Stop all audio tracks
         stream.getTracks().forEach((track) => track.stop())
       }
 
-      recorder.start()
+      recorder.start(250) // 250ms timeslice to ensure continuous data delivery
       setIsRecording(true)
       setRecordingTime(0)
+      if (timerRef.current) clearInterval(timerRef.current)
       timerRef.current = setInterval(() => {
         setRecordingTime((prev) => prev + 1)
       }, 1000)
-    } catch {
-      console.warn('Microphone access denied or unsupported by browser.')
+    } catch (err: unknown) {
+      console.warn('Microphone start error:', err)
+      if (
+        err instanceof DOMException &&
+        (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError' || err.name === 'SecurityError')
+      ) {
+        setMicError(
+          'Microphone permission is blocked by your browser or iframe security settings. Allow microphone access in your browser address bar, choose an audio file from your device, or click "Load Sample Voice Note".',
+        )
+      } else if (err instanceof DOMException && err.name === 'NotFoundError') {
+        setMicError('No microphone detected on your device. Please plug in a microphone or upload an audio file.')
+      } else {
+        const msg = err instanceof Error ? err.message : 'Unknown audio error'
+        setMicError(`Unable to access microphone (${msg}). You can upload an audio file directly below.`)
+      }
     }
   }
 
@@ -124,6 +222,7 @@ export const MultimodalInput: React.FC<Props> = ({
     setFilePreview(null)
     setFileBase64(null)
     setIsRecording(false)
+    setMicError(null)
     if (timerRef.current) clearInterval(timerRef.current)
     onClear()
   }
@@ -352,12 +451,13 @@ export const MultimodalInput: React.FC<Props> = ({
       {modality === 'voice' && (
         <div className="space-y-4">
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 text-center">
-            <div className="flex justify-center gap-4 mb-4">
+            {/* Record Buttons */}
+            <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
               {!isRecording ? (
                 <button
                   type="button"
                   onClick={startRecording}
-                  className="flex items-center gap-2 rounded-full bg-red-600 px-5 py-3 text-xs font-bold text-white shadow-md transition hover:bg-red-700"
+                  className="flex items-center gap-2 rounded-full bg-red-600 px-6 py-3.5 text-xs font-bold text-white shadow-md transition hover:bg-red-700 active:scale-95"
                 >
                   <span className="h-3 w-3 rounded-full bg-white animate-pulse" />
                   <span>Start Recording Voice Note</span>
@@ -366,30 +466,106 @@ export const MultimodalInput: React.FC<Props> = ({
                 <button
                   type="button"
                   onClick={stopRecording}
-                  className="flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-xs font-bold text-white shadow-md transition hover:bg-slate-800"
+                  className="flex items-center gap-2.5 rounded-full bg-slate-950 px-6 py-3.5 text-xs font-bold text-white shadow-md transition hover:bg-slate-900 animate-bounce active:scale-95"
                 >
-                  <span className="h-3 w-3 rounded bg-red-500" />
+                  <span className="h-3 w-3 rounded-xs bg-red-500 animate-ping" />
                   <span>Stop Recording ({recordingTime}s)</span>
                 </button>
               )}
+
+              <button
+                type="button"
+                onClick={handleLoadSampleVoice}
+                className="flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-4 py-3 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-100 hover:text-slate-900 transition"
+              >
+                <span>🎧</span>
+                <span>Load Sample Voice Note</span>
+              </button>
             </div>
 
+            {/* Error Banner when Microphone is Blocked */}
+            {micError && (
+              <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-left text-xs text-amber-950">
+                <div className="flex items-start gap-2.5">
+                  <span className="text-base">⚠️</span>
+                  <div className="space-y-2 flex-1">
+                    <p className="font-bold text-amber-900">Microphone Access Notice</p>
+                    <p className="leading-relaxed text-amber-900">{micError}</p>
+                    <p className="text-[11px] text-amber-800">
+                      💡 <strong>Why this happens:</strong> The AI Studio preview is running inside a secure iframe, where browsers block direct hardware microphone access for safety.
+                    </p>
+                    <div className="pt-1 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={handleLoadSampleVoice}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-bold text-white shadow-2xs hover:bg-emerald-800 transition"
+                      >
+                        <span>⚡ Load Demo Voice Note</span>
+                      </button>
+                      <a
+                        href={typeof window !== 'undefined' ? window.location.href : '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-amber-400 bg-white px-3 py-1.5 text-xs font-bold text-amber-950 shadow-2xs hover:bg-amber-100 transition"
+                      >
+                        <span>↗️ Open in New Tab for Real Microphone</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Audio Player Preview */}
+            {filePreview && (
+              <div className="my-4 rounded-xl border border-emerald-200 bg-emerald-50/70 p-4">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-950">
+                    <span className="text-base">🎙️</span>
+                    <span>Ready for Analysis: {selectedFile?.name || 'Voice Note'}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedFile(null)
+                      setFilePreview(null)
+                      setFileBase64(null)
+                    }}
+                    className="text-[11px] font-semibold text-emerald-800 hover:underline"
+                  >
+                    ✕ Remove & Record Again
+                  </button>
+                </div>
+                <div className="mt-3 flex justify-center">
+                  <audio controls src={filePreview} className="w-full max-w-md h-10" />
+                </div>
+              </div>
+            )}
+
             <p className="text-xs text-slate-500">
-              Or choose an audio file from your device:
+              Or choose an audio recording from your device (.mp3, .wav, .m4a, .webm, .ogg):
             </p>
 
             <input
               type="file"
-              accept="audio/*"
+              accept="audio/*,.mp3,.wav,.m4a,.webm,.ogg,.aac"
               onChange={handleFileSelect}
               className="mt-2 text-xs text-slate-600 file:mr-4 file:rounded-full file:border-0 file:bg-emerald-100 file:px-4 file:py-2 file:text-xs file:font-bold file:text-emerald-800 hover:file:bg-emerald-200"
             />
+          </div>
 
-            {selectedFile && (
-              <div className="mt-3 text-xs font-bold text-emerald-800 flex items-center justify-center gap-2">
-                <span>🎙️ Ready: {selectedFile.name}</span>
-              </div>
-            )}
+          {/* Optional Transcript / Context box */}
+          <div>
+            <label className="block text-xs font-bold text-slate-600 mb-1">
+              Optional Context / Voice Transcript Review:
+            </label>
+            <textarea
+              value={textInput}
+              onChange={(e) => setTextInput(e.target.value)}
+              placeholder="If you already have a transcript or notes about the voice message, enter it here..."
+              rows={3}
+              className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-slate-800 outline-none focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+            />
           </div>
         </div>
       )}

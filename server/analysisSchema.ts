@@ -54,6 +54,13 @@ export const ExtractionUncertaintySchema = z.object({
   notes: z.string(),
 })
 
+export const ExtractedPhoneItemSchema = z.object({
+  raw: z.string(),
+  normalized_e164: z.string().nullable(),
+  country_code: z.string(),
+  format_type: z.string(),
+})
+
 export const ExtractedEntitiesSchema = z.object({
   urls: z.array(z.string()),
   names: z.array(z.string()),
@@ -61,6 +68,7 @@ export const ExtractedEntitiesSchema = z.object({
   deadlines: z.array(z.string()),
   payment_requests: z.array(z.string()),
   claims: z.array(z.string()),
+  phone_numbers: z.array(z.string()).default([]),
 })
 
 export const AnalysisSchema = z.object({
@@ -69,6 +77,7 @@ export const AnalysisSchema = z.object({
   extracted_text: z.string().default(''),
   extraction_uncertainty: ExtractionUncertaintySchema,
   extracted_entities: ExtractedEntitiesSchema,
+  extracted_phones: z.array(ExtractedPhoneItemSchema).default([]),
 
   overall_status: z.enum([
     'warning_signs_found',

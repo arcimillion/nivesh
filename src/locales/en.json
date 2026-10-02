@@ -129,5 +129,31 @@
     "installedAppStep3": "If sensitive information was entered, contact your bank/service provider immediately.",
     "installedAppStep4": "Report financial loss or cybercrime to the official Cyber Crime Reporting Portal.",
     "cybercrimePortal": "Open Cyber Crime Reporting Portal (cybercrime.gov.in) →"
+  },
+  "phoneInvestigation": {
+    "title": "Contact Number Reputation & Scam Investigation",
+    "subtitle": "Verify WhatsApp numbers, SMS senders, and Telegram contacts against telecom regulations and official cybercrime repositories.",
+    "privacyGuaranteed": "Zero Persistence & Masked Logs",
+    "selectNumberLabel": "Contacts detected from content or manually added:",
+    "noNumbersFound": "No contact phone numbers detected automatically in the submitted content. You can add one below to investigate.",
+    "inputPlaceholder": "Enter phone number (e.g. +91 98765 43210 or 9876543210)...",
+    "addNumberBtn": "+ Add Contact",
+    "investigateBtn": "Investigate Contact Reputation for",
+    "investigatingBtn": "Querying Repositories & Telecom Standards...",
+    "remove": "Remove",
+    "statusReported": "Flagged / Regulatory Warning",
+    "statusNoMatch": "No Reports (Not Proof of Safety)",
+    "statusUnavailable": "Automated Lookup Unavailable",
+    "statusInconclusive": "Inconclusive / Format Unrecognized",
+    "normalizedHeading": "Analyzed Target Number",
+    "evidenceBreakdownHeading": "Evidence Categorization & Verification Breakdown",
+    "category1": "Warning Signs in Content",
+    "category2": "External Reputation Findings",
+    "category3": "Official Regulatory Standards",
+    "category4": "What Remains Unverified",
+    "noDirectMessageWarnings": "No aggressive keywords directly tied to this number in context.",
+    "sourceResultsHeading": "Detailed Source Inspection Records",
+    "officialPortalsHeading": "Official Government Verification & Reporting Direct Links",
+    "officialPortalsDesc": "Government cybercrime portals protect citizen privacy with CAPTCHA and do not permit automated third-party scraping. Use these verified official government portals to check or report suspicious contacts directly:"
   }
 }

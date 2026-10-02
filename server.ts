@@ -12,6 +12,11 @@ import { createServer as createViteServer } from 'vite'
 import { AnalysisSchema, type AnalysisSchemaType } from './server/analysisSchema.ts'
 import { OFFICIAL_KNOWLEDGE_BASE } from './server/knowledgeBase.ts'
 import { safeFetchUrl } from './server/urlFetcher.ts'
+import { extractPhoneNumbers } from './server/phoneExtractor.ts'
+import {
+  investigatePhoneNumber,
+  PhoneReputationRequestSchema,
+} from './server/phoneReputationService.ts'
 
 const app = express()
 const PORT = Number(process.env.PORT) || 3000
@@ -29,27 +34,10 @@ const ai = new GoogleGenAI({
 // ----------------------------------------------------
 // CORS CONFIGURATION
 // ----------------------------------------------------
-const allowedOrigins = process.env.FRONTEND_ORIGIN
-  ? process.env.FRONTEND_ORIGIN
-      .split(',')
-      .map((origin) => origin.trim())
-      .filter(Boolean)
-  : [
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
-      'http://localhost:5173',
-      'http://127.0.0.1:5173',
-    ]
-
 app.use(
   cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin) || !isProduction) {
-        callback(null, true)
-        return
-      }
-      callback(new Error('Origin not allowed by CORS'))
-    },
+    origin: true,
+    credentials: true,
   }),
 )
 
@@ -71,6 +59,16 @@ const analyzeLimiter = rateLimit({
   },
 })
 
+const phoneReputationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes window
+  max: 30, // 30 lookups per 15 minutes
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: {
+    error: 'Too many contact investigation requests. Please try again after 15 minutes.',
+  },
+})
+
 // ----------------------------------------------------
 // HEALTH CHECK
 // ----------------------------------------------------
@@ -85,6 +83,28 @@ app.get('/api/health', (_req: Request, res: Response) => {
 })
 
 // ----------------------------------------------------
+// PHONE REPUTATION & CONTACT INVESTIGATION ENDPOINT
+// ----------------------------------------------------
+app.post('/api/phone-reputation', phoneReputationLimiter, async (req: Request, res: Response) => {
+  try {
+    const parseResult = PhoneReputationRequestSchema.safeParse(req.body)
+    if (!parseResult.success) {
+      return res.status(400).json({
+        error: 'Invalid contact format. Provide a valid phone number string.',
+        details: parseResult.error.format(),
+      })
+    }
+
+    const investigation = await investigatePhoneNumber(parseResult.data)
+    return res.json({ status: 'success', data: investigation })
+  } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+    console.error('[NiveshShield] Contact reputation endpoint error:', errorMsg)
+    return res.status(500).json({ error: 'Failed to complete contact reputation investigation.' })
+  }
+})
+
+// ----------------------------------------------------
 // HELPER FOR DEMO FALLBACK WHEN API KEY IS MISSING
 // ----------------------------------------------------
 function getFallbackDemoAnalysis(
@@ -93,7 +113,21 @@ function getFallbackDemoAnalysis(
   language: string,
 ): AnalysisSchemaType {
   const lower = text.toLowerCase()
+  const extractedPhones = extractPhoneNumbers(text)
+  const phoneStrings = extractedPhones.map((p) => p.normalized_e164 || p.raw)
+  const mappedPhoneItems = extractedPhones.map((p) => ({
+    raw: p.raw,
+    normalized_e164: p.normalized_e164,
+    country_code: p.country_code,
+    format_type: p.format_type,
+  }))
+
+  const hasMoneyMultiplier =
+    /(give|send|invest|pay|deposite?)\s*\d+.*(take|get|receive|return)\s*\d+/i.test(text) ||
+    /double.*money|triple.*money|money.*double/i.test(text)
+
   const isHighRisk =
+    hasMoneyMultiplier ||
     lower.includes('guaranteed') ||
     lower.includes('100% profit') ||
     lower.includes('fixed return') ||
@@ -130,7 +164,9 @@ function getFallbackDemoAnalysis(
         deadlines: ['Immediate / Today Only'],
         payment_requests: ['Upfront Registration / Margin Deposit'],
         claims: ['Assured profit scheme', 'Risk-free return guarantee'],
+        phone_numbers: phoneStrings,
       },
+      extracted_phones: mappedPhoneItems,
       overall_status: 'warning_signs_found',
       uncertainty_rating: 'low',
       summary:
@@ -247,7 +283,9 @@ function getFallbackDemoAnalysis(
         deadlines: [],
         payment_requests: [],
         claims: ['Exclusive trading tips community'],
+        phone_numbers: phoneStrings,
       },
+      extracted_phones: mappedPhoneItems,
       overall_status: 'insufficient_evidence',
       uncertainty_rating: 'medium',
       summary:
@@ -349,7 +387,9 @@ function getFallbackDemoAnalysis(
       deadlines: [],
       payment_requests: [],
       claims: ['General financial information / education'],
+      phone_numbers: phoneStrings,
     },
+    extracted_phones: mappedPhoneItems,
     overall_status: 'no_obvious_warning_signs',
     uncertainty_rating: 'low',
     summary:
@@ -746,6 +786,21 @@ ${finalInputText ? `<UNTRUSTED_SUBMITTED_CONTENT>\n${finalInputText}\n</UNTRUSTE
     }
     if (!parsed.input_modality) {
       parsed.input_modality = safeModality
+    }
+
+    // Extract and enrich phone numbers from analyzed content
+    const phones = extractPhoneNumbers(finalInputText || String(parsed.extracted_text || ''))
+    parsed.extracted_phones = phones.map((p) => ({
+      raw: p.raw,
+      normalized_e164: p.normalized_e164,
+      country_code: p.country_code,
+      format_type: p.format_type,
+    }))
+    if (parsed.extracted_entities && typeof parsed.extracted_entities === 'object') {
+      const entities = parsed.extracted_entities as Record<string, unknown>
+      if (!Array.isArray(entities.phone_numbers) || entities.phone_numbers.length === 0) {
+        entities.phone_numbers = phones.map((p) => p.normalized_e164 || p.raw)
+      }
     }
 
     const validation = AnalysisSchema.safeParse(parsed)

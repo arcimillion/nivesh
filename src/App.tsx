@@ -11,6 +11,7 @@ import { ClaimInvestigation } from './components/ClaimInvestigation'
 import { ScamJourneyMap } from './components/ScamJourneyMap'
 import { VoiceAssistant } from './components/VoiceAssistant'
 import { IncidentResponse } from './components/IncidentResponse'
+import { PhoneNumberReputation } from './components/PhoneNumberReputation'
 
 function App() {
   const { t, i18n } = useTranslation()
@@ -361,6 +362,12 @@ function App() {
 
               {/* FEATURE 4: Scam Journey Tactic Map */}
               <ScamJourneyMap stages={analysis.scam_journey_map || []} />
+
+              {/* FEATURE 6: Phone Number Reputation & Scam Contact Investigation */}
+              <PhoneNumberReputation
+                extractedPhones={analysis.extracted_phones || []}
+                originalText={analysis.extracted_text || ''}
+              />
 
               {/* SPECIFIC WARNING INDICATOR FINDINGS */}
               {analysis.findings && analysis.findings.length > 0 && (

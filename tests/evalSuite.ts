@@ -253,6 +253,23 @@ const TEST_CASES: TestCase[] = [
       return { pass: errorMatched, reason: 'Enforced maximum character limit' }
     },
   },
+  {
+    id: 'TC-14',
+    name: 'Money Multiplication Scheme (give 1000 take 5000)',
+    category: 'Scam Detection',
+    modality: 'text',
+    language: 'en',
+    payload: {
+      message: 'give 1000 take 5000',
+      language: 'en',
+      modality: 'text',
+    },
+    expectedStatus: 200,
+    validate: (b) => {
+      const isWarning = b.analysis?.overall_status === 'warning_signs_found'
+      return { pass: isWarning, reason: 'Flagged money multiplication scheme as warning sign' }
+    },
+  },
 ]
 
 async function runEvaluations() {
