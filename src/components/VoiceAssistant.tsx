@@ -19,6 +19,7 @@ export const VoiceAssistant: React.FC<Props> = ({ analysis }) => {
   const { i18n } = useTranslation()
   const [isPlaying, setIsPlaying] = useState(false)
   const [speechSupported] = useState(() => typeof window !== 'undefined' && 'speechSynthesis' in window)
+
   const [spokenText, setSpokenText] = useState('')
 
   const [prevAnalysis, setPrevAnalysis] = useState(analysis)
