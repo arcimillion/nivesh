@@ -1,0 +1,133 @@
+{
+  "labels": {
+    "exactPhrase": "Exact phrase",
+    "officialGuidance": "Official guidance",
+    "openOfficialGuidance": "Open official guidance →",
+    "important": "Important:",
+    "findingSingular": "finding",
+    "findingPlural": "findings"
+  },
+
+  "maxCharacters": "Max 10,000",
+
+  "brand": "NiveshShield",
+  "tagline": "Understand before you trust.",
+  "badge": "INVESTOR SAFETY ASSISTANT",
+
+  "hero": {
+    "title": "Not sure if an investment message is safe?",
+    "description": "Paste a suspicious message to identify warning signs, understand the evidence, and know what to do next."
+  },
+
+  "checker": {
+    "title": "Check a suspicious message",
+    "label": "Message to check",
+    "placeholder": "Paste a suspicious investment message here (e.g. WhatsApp message, SMS, Telegram post, or email)...",
+    "button": "Check for warning signs",
+    "clearButton": "Clear text",
+    "characters": "{{count}}/10,000"
+  },
+
+  "demoExamples": {
+    "title": "Try a demo message",
+    "subtitle": "Click an example below to load it into the checker.",
+    "ex1Title": "Guaranteed Returns",
+    "ex1Badge": "High Risk",
+    "ex1Text": "SPECIAL OFFER! Guaranteed 40% monthly returns on crypto trading! Limited spots remaining, act now! Send upfront registration fee of Rs 5000 to UPI ID fast-wealth@upi and download our official app: http://bit.ly/trade-fast-apk",
+    "ex2Title": "Ambiguous Message",
+    "ex2Badge": "Needs Verification",
+    "ex2Text": "Our investment program has excellent opportunities. Contact our representative to learn more about the available plans.",
+    "ex3Title": "Benign Educational",
+    "ex3Badge": "Educational",
+    "ex3Text": "Investments in securities market are subject to market risks. Read all the scheme related documents carefully before investing. Verify registered intermediaries on SEBI website."
+  },
+
+  "features": {
+    "title": "Understand before you trust",
+    "warningTitle": "Spot warning signs",
+    "warningText": "Identify pressure tactics, guaranteed returns, suspicious requests, and other potential warning signs.",
+    "evidenceTitle": "Understand the evidence",
+    "evidenceText": "See the exact phrases that deserve closer attention and understand why they matter.",
+    "nextTitle": "Know your next steps",
+    "nextText": "Find safer actions and relevant official investor-protection resources."
+  },
+
+  "privacy": {
+    "title": "Privacy & Safety Principles",
+    "short": "Submitted messages are processed strictly in-memory for analysis and are not saved.",
+    "detail1": "Do not enter passwords, OTPs, or banking credentials.",
+    "detail2": "Messages are analyzed in real-time and not stored by NiveshShield.",
+    "detail3": "API keys remain securely on the backend server.",
+    "detail4": "Designed around data minimization and investor safety."
+  },
+
+  "targetMetric": {
+    "title": "Target Evaluation Metric",
+    "text": "Target evaluation metric: ≥90% recall on reviewed synthetic test cases for predefined critical warning indicators, measured separately across all 6 supported languages."
+  },
+
+  "language": "Language",
+
+  "disclaimer": "NiveshShield provides educational safety guidance. It does not provide financial advice or a definitive fraud verdict.",
+
+  "emptyMessage": "Paste a message before checking it.",
+
+  "analysis": {
+    "title": "Safety check",
+    "warning": "Warning signs found",
+    "noWarning": "No obvious warning signs found",
+    "insufficientEvidence": "More information is needed",
+    "review": "This does not confirm that the message is safe. Verify the sender, claims and organization independently before taking action.",
+    "noWarningNoticeTitle": "No obvious warning signs identified",
+    "noWarningNoticeText": "No specific warning signs were identified from the submitted text. However, this does NOT confirm that the message or investment is safe. Always verify the sender, credentials, and regulatory registration independently.",
+    "evidence": "Evidence from your message",
+    "why": "Why this may matter",
+    "nextSteps": "Safer next steps",
+    "guaranteedReturns": "Guaranteed or unusually certain returns",
+    "urgency": "Pressure to act immediately",
+    "upfrontPayment": "Request for an upfront payment",
+    "suspiciousLink": "Suspicious or unofficial link",
+    "impersonation": "Suspicious claim of identity or official affiliation",
+    "unofficialApp": "Request to download an unofficial app or APK",
+    "genericWarning": "This message contains language that deserves additional verification.",
+    "notVerified": "Not independently verified",
+    "unknownsTitle": "What could not be verified from this message",
+    "limitationsTitle": "Limitations of this analysis",
+    "analyzing": "Analyzing message...",
+    "analysisErrorTitle": "Analysis could not be completed",
+    "safetyFirst": "Safety first",
+    "safetyText": "We look for warning signs and supporting evidence — we never recommend investments or predict returns.",
+    "noFindings": "No specific warning signs were identified from the submitted message."
+  },
+
+  "incident": {
+    "title": "What happened?",
+    "description": "Select your situation for relevant safety guidance and immediate action steps.",
+
+    "notSent": "I haven't sent money",
+    "notSentDescription": "I received the message but haven't transferred any funds.",
+
+    "sentMoney": "I already sent money",
+    "sentMoneyDescription": "I have transferred funds or made a payment.",
+
+    "installedApp": "I installed an app / opened a link",
+    "installedAppDescription": "I interacted with an APK, app, or suspicious web link.",
+
+    "notSentTitle": "Stay cautious & verify",
+    "notSentStep1": "Do not send money, OTPs, passwords, or account credentials.",
+    "notSentStep2": "Verify the sender and organization using an independent official source.",
+    "notSentStep3": "Avoid installing apps or opening links until independently verified.",
+
+    "sentMoneyTitle": "Act quickly to report & preserve evidence",
+    "sentMoneyStep1": "Contact your bank or payment provider immediately through its official channel.",
+    "sentMoneyStep2": "Preserve transaction details, chat logs, UPI IDs, and evidence.",
+    "sentMoneyStep3": "Report suspected cyber financial fraud through the official cybercrime reporting portal.",
+
+    "installedAppTitle": "Treat the device interaction cautiously",
+    "installedAppStep1": "Do not enter passwords, OTPs, or banking credentials into the app or website.",
+    "installedAppStep2": "Avoid granting additional permissions to untrusted apps.",
+    "installedAppStep3": "If sensitive information was entered, contact your bank/service provider immediately.",
+    "installedAppStep4": "Report financial loss or cybercrime to the official Cyber Crime Reporting Portal.",
+    "cybercrimePortal": "Open Cyber Crime Reporting Portal (cybercrime.gov.in) →"
+  }
+}
