@@ -1,0 +1,7 @@
+{
+  "name": "NiveshShield 2.0",
+  "description": "Evidence-grounded multimodal AI investor protection platform verifying investment claims against official SEBI and RBI regulatory guidelines.",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -95,7 +95,7 @@ export type AnalyzeOptions = {
   url?: string
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const API_URL = import.meta.env.VITE_API_URL || ''
 
 export async function analyzeMessage(
   options: AnalyzeOptions | string,
@@ -116,10 +116,9 @@ export async function analyzeMessage(
     body: JSON.stringify(payload),
   })
 
-  let data: any = null
-
+  let data: { error?: string; analysis?: AnalysisResult }
   try {
-    data = await response.json()
+    data = (await response.json()) as { error?: string; analysis?: AnalysisResult }
   } catch {
     throw new Error('The analysis server returned an invalid response.')
   }

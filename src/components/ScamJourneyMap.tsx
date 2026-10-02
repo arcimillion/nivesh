@@ -59,7 +59,7 @@ export const ScamJourneyMap: React.FC<Props> = ({ stages }) => {
 
       {/* Journey Timeline Steps */}
       <div className="relative space-y-3">
-        {stages.map((stg, idx) => {
+        {stages.map((stg) => {
           const isExpanded = expandedStage === stg.stage
           const icon = STAGE_ICONS[stg.stage] || '📌'
           const defaultTitle = STAGE_TITLES[stg.stage] || stg.title

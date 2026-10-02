@@ -31,16 +31,18 @@ export const MultimodalInput: React.FC<Props> = ({
   const [recordingTime, setRecordingTime] = useState(0)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
-  const timerRef = useRef<any>(null)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
+  const [prevInitialText, setPrevInitialText] = useState(initialText)
+  if (initialText !== prevInitialText) {
+    setPrevInitialText(initialText)
     if (initialText) {
       setTextInput(initialText)
     }
-  }, [initialText])
+  }
 
   // Clean up object URLs
   useEffect(() => {
@@ -102,8 +104,8 @@ export const MultimodalInput: React.FC<Props> = ({
       timerRef.current = setInterval(() => {
         setRecordingTime((prev) => prev + 1)
       }, 1000)
-    } catch (err) {
-      alert('Microphone access denied or unsupported by browser. Please upload an audio file instead.')
+    } catch {
+      console.warn('Microphone access denied or unsupported by browser.')
     }
   }
 

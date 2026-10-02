@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { AnalysisResult } from '../api'
 
@@ -18,33 +18,19 @@ const LANG_VOICE_CODES: Record<string, string> = {
 export const VoiceAssistant: React.FC<Props> = ({ analysis }) => {
   const { i18n } = useTranslation()
   const [isPlaying, setIsPlaying] = useState(false)
-  const [speechSupported, setSpeechSupported] = useState(false)
-  const [voiceAvailable, setVoiceAvailable] = useState(false)
+  const [speechSupported] = useState(() => typeof window !== 'undefined' && 'speechSynthesis' in window)
   const [spokenText, setSpokenText] = useState('')
 
-  useEffect(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      setSpeechSupported(true)
-
-      const checkVoices = () => {
-        const voices = window.speechSynthesis.getVoices()
-        if (voices && voices.length > 0) {
-          setVoiceAvailable(true)
-        }
+  const [prevAnalysis, setPrevAnalysis] = useState(analysis)
+  if (analysis !== prevAnalysis) {
+    setPrevAnalysis(analysis)
+    if (isPlaying) {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel()
       }
-
-      checkVoices()
-      window.speechSynthesis.onvoiceschanged = checkVoices
-    }
-  }, [])
-
-  useEffect(() => {
-    // Stop playback if analysis changes
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel()
       setIsPlaying(false)
     }
-  }, [analysis])
+  }
 
   const constructSpokenSummary = (): string => {
     if (!analysis) return ''
@@ -78,7 +64,7 @@ export const VoiceAssistant: React.FC<Props> = ({ analysis }) => {
 
   const handleToggleSpeak = () => {
     if (!speechSupported) {
-      alert('Speech synthesis is not supported in this browser. Please read the findings on screen.')
+      setSpokenText(constructSpokenSummary())
       return
     }
 

@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "server": "node server/server.cjs",
-    "dev:all": "concurrently \"npm run dev\" \"npm run server\"",
+    "dev": "tsx server.ts",
+    "start": "node server.ts",
     "build": "tsc -b && vite build",
+    "test": "tsx tests/evalSuite.ts",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -27,6 +27,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
@@ -36,6 +38,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.6",
     "globals": "^17.12.0",
+    "tsx": "^4.23.15",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.69.0",
     "vite": "^8.3.0"
