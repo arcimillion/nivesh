@@ -271,3 +271,90 @@ export async function checkPhoneReputation(
     return evaluatePhoneLocally(phoneNumber, originalContext, language)
   }
 }
+
+import type {
+  CommunityReportInput,
+  CommunityIndicatorAggregate,
+  CommunityReport,
+} from './types/community.ts'
+
+export async function fetchCommunityIndicators(
+  query?: string,
+  category?: string,
+): Promise<{ results: CommunityIndicatorAggregate[]; totalCount: number }> {
+  const baseOrigin =
+    typeof globalThis !== 'undefined' && (globalThis as { location?: { origin?: string } }).location?.origin
+      ? (globalThis as { location?: { origin?: string } }).location!.origin!
+      : 'http://localhost:3000'
+  const targetUrl = new URL(
+    API_URL ? `${API_URL}/api/community-reports` : '/api/community-reports',
+    baseOrigin,
+  )
+  if (query) targetUrl.searchParams.set('q', query)
+  if (category) targetUrl.searchParams.set('category', category)
+
+  try {
+    const res = await fetch(targetUrl.toString(), {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    })
+    if (!res.ok) throw new Error('Failed to fetch community reports')
+    const json = (await res.json()) as { data?: { results: CommunityIndicatorAggregate[]; totalCount: number } }
+    return json.data || { results: [], totalCount: 0 }
+  } catch {
+    // Client-side fallback for static/offline deployment
+    return {
+      results: [
+        {
+          indicatorKey: 'phone_number:+919845129810',
+          category: 'phone_number',
+          maskedIdentifier: '+91 98*** ***10',
+          reportCount: 14,
+          firstSeen: '2026-09-12',
+          lastSeen: '2026-10-02',
+          topTactics: ['Sideloaded APK', 'Guaranteed Daily Yield', 'WhatsApp Solicitation'],
+          trustLabel: 'multiple_reports_unverified',
+          isDemoData: true,
+          evidenceQuality: 'medium',
+          sampleDescription:
+            '[DEMO DATA — NOT A REAL-WORLD REPORT] Unsolicited WhatsApp message promoting VIP Institutional APK download with guaranteed 15% daily return claims.',
+        },
+        {
+          indicatorKey: 'domain_url:fii-vip-terminal.in',
+          category: 'domain_url',
+          maskedIdentifier: 'fii-vip-terminal.in',
+          reportCount: 23,
+          firstSeen: '2026-09-15',
+          lastSeen: '2026-10-02',
+          topTactics: ['Institutional Impersonation', 'Fake Trading Balance'],
+          trustLabel: 'multiple_reports_unverified',
+          isDemoData: true,
+          evidenceQuality: 'medium',
+          sampleDescription:
+            '[DEMO DATA — NOT A REAL-WORLD REPORT] Phishing domain mimicking institutional broker terminal.',
+        },
+      ],
+      totalCount: 2,
+    }
+  }
+}
+
+export async function submitCommunityReportApi(
+  payload: CommunityReportInput,
+): Promise<{ report: CommunityReport; aggregate: CommunityIndicatorAggregate }> {
+  const targetUrl = API_URL ? `${API_URL}/api/community-reports` : '/api/community-reports'
+
+  const res = await fetch(targetUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  if (!res.ok) {
+    const errorJson = (await res.json().catch(() => ({}))) as { error?: string }
+    throw new Error(errorJson.error || 'Failed to submit community report')
+  }
+
+  const json = (await res.json()) as { data: { report: CommunityReport; aggregate: CommunityIndicatorAggregate } }
+  return json.data
+}

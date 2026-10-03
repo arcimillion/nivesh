@@ -19,8 +19,22 @@ import { NiveshParivarCard } from './components/NiveshParivarCard'
 import { CoolingOffCalculator } from './components/CoolingOffCalculator'
 import { ComplaintDossierGenerator } from './components/ComplaintDossierGenerator'
 import { SpotTheScamSimulation } from './components/SpotTheScamSimulation'
+import { EvidenceGraph } from './components/EvidenceGraph'
+import { PreTransactionSafetyGate } from './components/PreTransactionSafetyGate'
+import { ScamIncidentCasebook } from './components/ScamIncidentCasebook'
+import { CommunityIntelligence } from './components/CommunityIntelligence'
 
-type ActiveFeatureTab = 'multimodal' | 'demat' | 'sebi' | 'cooling' | 'sandbox' | 'dossier'
+type ActiveFeatureTab =
+  | 'multimodal'
+  | 'graph'
+  | 'safety_gate'
+  | 'casebook'
+  | 'community'
+  | 'demat'
+  | 'sebi'
+  | 'cooling'
+  | 'sandbox'
+  | 'dossier'
 
 function App() {
   const { t, i18n } = useTranslation()
@@ -206,7 +220,7 @@ function App() {
           <button
             type="button"
             onClick={() => setActiveTab('multimodal')}
-            className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-2 ${
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-1.5 ${
               activeTab === 'multimodal'
                 ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
@@ -217,8 +231,56 @@ function App() {
           </button>
           <button
             type="button"
+            onClick={() => setActiveTab('graph')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-1.5 ${
+              activeTab === 'graph'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+            }`}
+          >
+            <span>🕸️</span>
+            <span>{t('nav.graph', 'Evidence Graph')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('safety_gate')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-1.5 ${
+              activeTab === 'safety_gate'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+            }`}
+          >
+            <span>🛑</span>
+            <span>{t('nav.safetyGate', 'Safety Gate')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('casebook')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-1.5 ${
+              activeTab === 'casebook'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+            }`}
+          >
+            <span>📁</span>
+            <span>{t('nav.casebook', 'Incident Casebook')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('community')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-1.5 ${
+              activeTab === 'community'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+            }`}
+          >
+            <span>🌐</span>
+            <span>{t('nav.community', 'Community Intel')}</span>
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab('demat')}
-            className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-2 ${
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-1.5 ${
               activeTab === 'demat'
                 ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
@@ -230,7 +292,7 @@ function App() {
           <button
             type="button"
             onClick={() => setActiveTab('sebi')}
-            className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-2 ${
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-1.5 ${
               activeTab === 'sebi'
                 ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
@@ -242,7 +304,7 @@ function App() {
           <button
             type="button"
             onClick={() => setActiveTab('cooling')}
-            className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-2 ${
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-1.5 ${
               activeTab === 'cooling'
                 ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
@@ -254,7 +316,7 @@ function App() {
           <button
             type="button"
             onClick={() => setActiveTab('sandbox')}
-            className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-2 ${
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-1.5 ${
               activeTab === 'sandbox'
                 ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
@@ -266,7 +328,7 @@ function App() {
           <button
             type="button"
             onClick={() => setActiveTab('dossier')}
-            className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-2 ${
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-colors shrink-0 flex items-center gap-1.5 ${
               activeTab === 'dossier'
                 ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
@@ -277,35 +339,72 @@ function App() {
           </button>
         </nav>
 
-        {/* Tab 2: NSDL Demat Shield */}
+        {/* Tab: Evidence Graph */}
+        {activeTab === 'graph' && (
+          <div className="space-y-6">
+            <EvidenceGraph
+              analysis={analysis}
+              submittedText={demoText}
+              onOpenSafetyGate={() => setActiveTab('safety_gate')}
+              onOpenCasebook={() => setActiveTab('casebook')}
+            />
+          </div>
+        )}
+
+        {/* Tab: Pre-Transaction Safety Gate */}
+        {activeTab === 'safety_gate' && (
+          <div className="space-y-6">
+            <PreTransactionSafetyGate
+              analysis={analysis}
+              onOpenEvidenceGraph={() => setActiveTab('graph')}
+              onOpenCasebook={() => setActiveTab('casebook')}
+            />
+          </div>
+        )}
+
+        {/* Tab: Scam Incident Casebook */}
+        {activeTab === 'casebook' && (
+          <div className="space-y-6">
+            <ScamIncidentCasebook analysis={analysis} extractedText={demoText} />
+          </div>
+        )}
+
+        {/* Tab: Community Scam Intelligence */}
+        {activeTab === 'community' && (
+          <div className="space-y-6">
+            <CommunityIntelligence analysis={analysis} extractedText={demoText} />
+          </div>
+        )}
+
+        {/* Tab: NSDL Demat Shield */}
         {activeTab === 'demat' && (
           <div className="space-y-6">
             <DematSafetyChecker />
           </div>
         )}
 
-        {/* Tab 3: SEBI Validator */}
+        {/* Tab: SEBI Validator */}
         {activeTab === 'sebi' && (
           <div className="space-y-6">
             <SebiValidator />
           </div>
         )}
 
-        {/* Tab 4: Cooling-Off Shield */}
+        {/* Tab: Cooling-Off Shield */}
         {activeTab === 'cooling' && (
           <div className="space-y-6">
             <CoolingOffCalculator />
           </div>
         )}
 
-        {/* Tab 5: Spot-the-Scam Sandbox */}
+        {/* Tab: Spot-the-Scam Sandbox */}
         {activeTab === 'sandbox' && (
           <div className="space-y-6">
             <SpotTheScamSimulation />
           </div>
         )}
 
-        {/* Tab 6: 1930 / Chakshu Dossier Generator */}
+        {/* Tab: 1930 / Chakshu Dossier Generator */}
         {activeTab === 'dossier' && (
           <div className="space-y-6">
             <ComplaintDossierGenerator analysis={analysis} extractedText={demoText} />
@@ -527,6 +626,51 @@ function App() {
                   <VoiceAssistant analysis={analysis} />
                 </div>
               </div>
+
+              {/* QUICK ACTION ADVANCED SUITE LAUNCHER */}
+              <div className="flex items-center justify-between flex-wrap gap-2.5 p-3 rounded-xl bg-slate-100 border border-slate-200">
+                <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <span>⚡</span> Deep Investigation & Safety Tools:
+                </span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('graph')}
+                    className="px-3 py-1.5 text-xs font-bold text-slate-900 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors shadow-2xs flex items-center gap-1"
+                  >
+                    <span>🕸️</span> Evidence Graph
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('safety_gate')}
+                    className="px-3 py-1.5 text-xs font-bold text-red-900 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors shadow-2xs flex items-center gap-1"
+                  >
+                    <span>🛑</span> Safety Gate
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('casebook')}
+                    className="px-3 py-1.5 text-xs font-bold text-slate-900 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors shadow-2xs flex items-center gap-1"
+                  >
+                    <span>📁</span> Casebook
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('community')}
+                    className="px-3 py-1.5 text-xs font-bold text-slate-900 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors shadow-2xs flex items-center gap-1"
+                  >
+                    <span>🌐</span> Community Intel
+                  </button>
+                </div>
+              </div>
+
+              {/* FEATURE 1: Interactive Scam Evidence Graph */}
+              <EvidenceGraph
+                analysis={analysis}
+                submittedText={demoText}
+                onOpenSafetyGate={() => setActiveTab('safety_gate')}
+                onOpenCasebook={() => setActiveTab('casebook')}
+              />
 
               {/* Extracted Content Review Box (if extracted from OCR/Audio/URL) */}
               {analysis.extracted_text && (

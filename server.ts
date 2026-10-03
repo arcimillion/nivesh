@@ -17,6 +17,12 @@ import {
   investigatePhoneNumber,
   PhoneReputationRequestSchema,
 } from './server/phoneReputationService.ts'
+import {
+  CommunityReportInputSchema,
+  submitCommunityReport,
+  searchCommunityIndicators,
+  getCommunityStats,
+} from './server/communityIntelligenceService.ts'
 import { evaluateLocally } from './src/localRegulatoryEngine.ts'
 
 const app = express()
@@ -70,6 +76,26 @@ const phoneReputationLimiter = rateLimit({
   },
 })
 
+const communitySubmitLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour window
+  max: 20, // 20 report submissions per hour per IP
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: {
+    error: 'Too many community report submissions from this network. Please try again later.',
+  },
+})
+
+const communitySearchLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute window
+  max: 60, // 60 lookups per minute
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: {
+    error: 'Too many community search requests. Please slow down.',
+  },
+})
+
 // ----------------------------------------------------
 // HEALTH CHECK
 // ----------------------------------------------------
@@ -81,6 +107,53 @@ app.get('/api/health', (_req: Request, res: Response) => {
     supportedModalities: ['text', 'image', 'url', 'voice'],
     supportedLanguages: ['en', 'hi', 'mr', 'bn', 'ta', 'gu'],
   })
+})
+
+// ----------------------------------------------------
+// COMMUNITY SCAM INTELLIGENCE ENDPOINTS
+// ----------------------------------------------------
+app.post('/api/community-reports', communitySubmitLimiter, (req: Request, res: Response) => {
+  try {
+    const parseResult = CommunityReportInputSchema.safeParse(req.body)
+    if (!parseResult.success) {
+      return res.status(400).json({
+        error: 'Invalid community report submission.',
+        details: parseResult.error.format(),
+      })
+    }
+
+    const created = submitCommunityReport(parseResult.data)
+    return res.status(201).json({ status: 'success', data: created })
+  } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+    console.error('[NiveshShield] Community report submission error:', errorMsg)
+    return res.status(500).json({ error: 'Failed to record community scam report.' })
+  }
+})
+
+app.get('/api/community-reports', communitySearchLimiter, (req: Request, res: Response) => {
+  try {
+    const query = typeof req.query.q === 'string' ? req.query.q : undefined
+    const category = typeof req.query.category === 'string' ? req.query.category : undefined
+
+    const results = searchCommunityIndicators(query, category)
+    return res.json({ status: 'success', data: results })
+  } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+    console.error('[NiveshShield] Community search error:', errorMsg)
+    return res.status(500).json({ error: 'Failed to search community scam database.' })
+  }
+})
+
+app.get('/api/community-reports/stats', (_req: Request, res: Response) => {
+  try {
+    const stats = getCommunityStats()
+    return res.json({ status: 'success', data: stats })
+  } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+    console.error('[NiveshShield] Community stats error:', errorMsg)
+    return res.status(500).json({ error: 'Failed to retrieve community scam statistics.' })
+  }
 })
 
 // ----------------------------------------------------
