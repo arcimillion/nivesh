@@ -63,4 +63,17 @@ export const officialSources: OfficialSource[] = [
       'other_warning_sign',
     ],
   },
+  {
+    id: 'rbi_kehta_hai',
+    title: 'RBI Kehta Hai — Financial Credential & Card Phishing Alerts',
+    description:
+      'Official Reserve Bank of India consumer safety directives. Explicitly warns against sharing credit/debit card photos, CVV, OTP, or PIN under any pretext.',
+    url: 'https://rbikehtahai.rbi.org.in/',
+    relevantIndicators: [
+      'other_warning_sign',
+      'upfront_payment',
+      'unofficial_app',
+      'impersonation',
+    ],
+  },
 ]

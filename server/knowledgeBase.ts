@@ -75,4 +75,14 @@ export const OFFICIAL_KNOWLEDGE_BASE: KnowledgeBaseEntry[] = [
     verification_guidance: 'Never trade based on unverified tips received via SMS, WhatsApp, Telegram, or social media.',
     last_updated: '2025-01-05',
   },
+  {
+    id: 'rbi_kehta_hai',
+    title: 'RBI Kehta Hai — Financial Credential & Card Phishing Alerts',
+    issuing_authority: 'Reserve Bank of India (RBI)',
+    description: 'Official RBI consumer awareness directives warning against sharing credit/debit card photos, card number, CVV, OTP, or PIN under any pretext including prizes, lottery, or rewards.',
+    url: 'https://rbikehtahai.rbi.org.in/',
+    relevant_indicators: ['other_warning_sign', 'upfront_payment', 'unofficial_app', 'impersonation'],
+    verification_guidance: 'Never share credit card photos or secret credentials. Genuine financial institutions never ask for card photos or PINs.',
+    last_updated: '2025-02-15',
+  },
 ]

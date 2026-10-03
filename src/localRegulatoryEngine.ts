@@ -92,6 +92,10 @@ const DICTIONARY: Record<
   {
     multiplierSummary: string
     guaranteedSummary: string
+    credentialHarvestingSummary: string
+    credentialHarvestingExplanation: string
+    credentialHarvestingWhatRemainsUnknown: string
+    credentialHarvestingVerificationStep: string
     ambiguousSummary: string
     benignSummary: string
     guaranteedReturnsExplanation: string
@@ -138,6 +142,14 @@ const DICTIONARY: Record<
       'High Risk Alert: The solicitation promises unrealistic money multiplication (e.g. giving a small amount to receive an exponential return). This violates SEBI regulations prohibiting guaranteed return promises in securities transactions.',
     guaranteedSummary:
       'Warning Signs Found: Assured return promises and pressure tactics violate statutory SEBI and RBI investor protection regulations.',
+    credentialHarvestingSummary:
+      'CRITICAL FRAUD WARNING: Requests for credit card photos, debit card details, CVV, or confidential banking credentials in exchange for "free money" or rewards are severe phishing and identity-theft scams. Legitimate financial institutions and regulators NEVER ask for card photos or private credentials. Immediate transaction block recommended.',
+    credentialHarvestingExplanation:
+      'Sharing a photo of your credit card reveals the 16-digit card number, expiry date, and CVV, enabling fraudsters to make unauthorized online transactions and drain your funds. Reserve Bank of India (RBI) directives strictly prohibit sharing card photos or confidential credentials.',
+    credentialHarvestingWhatRemainsUnknown:
+      'Identity of the solicitor, legitimate business registration, and authorization under RBI / Cyber laws.',
+    credentialHarvestingVerificationStep:
+      'NEVER share photos of credit/debit cards. If already shared, call your bank immediately to block/hotlist the card and dial 1930 (National Cyber Crime Helpline).',
     ambiguousSummary:
       'Caution: Solicitations via informal channels (WhatsApp/Telegram groups) require rigorous independent verification. Unregistered advisory services violate SEBI regulations.',
     benignSummary:
@@ -236,6 +248,14 @@ const DICTIONARY: Record<
       'उच्च जोखिम चेतावनी: यह प्रस्ताव अवास्तविक धन गुणन का वादा करता है (जैसे कम पैसे देकर कई गुना रिटर्न)। यह प्रतिभूति लेन-देन में गारंटीड रिटर्न पर रोक लगाने वाले सेबी नियमों का सीधा उल्लंघन है।',
     guaranteedSummary:
       'चेतावनी के संकेत मिले: निश्चित रिटर्न के वादे और जल्दबाज़ी का दबाव सेबी और आरबीआई के वैधानिक निवेशक सुरक्षा नियमों का उल्लंघन करते हैं।',
+    credentialHarvestingSummary:
+      'गंभीर धोखाधड़ी चेतावनी: "मुफ्त पैसे" या इनाम के बदले क्रेडिट कार्ड का फोटो, डेबिट कार्ड विवरण, CVV या बैंकिंग क्रेडेंशियल्स मांगना एक गंभीर साइबर फ़िशिंग और वित्तीय धोखाधड़ी है। वैध वित्तीय संस्थान कभी भी कार्ड का फोटो या गोपनीय जानकारी नहीं मांगते। तत्काल लेन-देन रोकने (Transaction Block) की सलाह दी जाती है।',
+    credentialHarvestingExplanation:
+      'क्रेडिट कार्ड का फोटो साझा करने से 16 अंकों का कार्ड नंबर, एक्सपायरी डेट और CVV लीक हो जाते हैं, जिससे धोखेबाज़ अनधिकृत ऑनलाइन लेन-देन कर आपके पूरे पैसे निकाल सकते हैं। आरबीआई (RBI) के निर्देश कार्ड का फोटो या क्रेडेंशियल्स साझा करने पर सख्त रोक लगाते हैं।',
+    credentialHarvestingWhatRemainsUnknown:
+      'संदेश भेजने वाले की पहचान, आधिकारिक व्यावसायिक पंजीकरण और आरबीआई प्राधिकरण।',
+    credentialHarvestingVerificationStep:
+      'कभी भी क्रेडिट/डेबिट कार्ड का फोटो न भेजें। यदि पहले ही भेज दिया है, तो तुरंत अपने बैंक से संपर्क कर कार्ड ब्लॉक करवाएं और राष्ट्रीय साइबर हेल्पलाइन 1930 पर शिकायत दर्ज करें।',
     ambiguousSummary:
       'सावधानी: अनौपचारिक चैनलों (व्हाट्सएप/टेलीग्राम ग्रुप) के माध्यम से किए गए प्रस्तावों की स्वतंत्र रूप से पुष्टि आवश्यक है। अपंजीकृत सलाहकार सेवाएं सेबी नियमों का उल्लंघन हैं।',
     benignSummary:
@@ -334,6 +354,14 @@ const DICTIONARY: Record<
       'उच्च जोखीम इशारा: ही ऑफर अवास्तव पैसे वाढवण्याचे (उदा. कमी रक्कम देऊन अनेक पट परतावा) आश्वासन देते. रोखे बाजारात हमी परताव्यावर बंदी घालणाऱ्या सेबी नियमांचे हे थेट उल्लंघन आहे.',
     guaranteedSummary:
       'चेतावणी संकेत आढळले: खात्रीशीर परताव्याची आश्वासने आणि घाई करण्याची रणनीती सेबी आणि आरबीआयच्या गुंतवणूकदार सुरक्षा नियमांचे उल्लंघन करतात.',
+    credentialHarvestingSummary:
+      'गंभीर फसवणूक इशारा: "मोफत पैसे" किंवा बक्षिसाच्या बदल्यात क्रेडिट कार्डचा फोटो, डेबिट कार्ड तपशील, CVV किंवा बँकिंग क्रेडेंशियल्स मागणे ही एक अत्यंत गंभीर सायबर फिशिंग फसवणूक आहे. अधिकृत वित्तीय संस्था कधीही कार्डचा फोटो किंवा गोपनीय क्रेडेंशियल्स मागत नाहीत. तत्काळ व्यवहार रोखण्याची (Transaction Block) शिफारस केली जाते.',
+    credentialHarvestingExplanation:
+      'क्रेडिट कार्डचा फोटो शेअर केल्याने 16-अंकी कार्ड क्रमांक, समाप्ती तारीख आणि CVV उघड होतो, ज्यामुळे फसवणूक करणारे अनधिकृत व्यवहार करून तुमची रक्कम लंपास करू शकतात. आरबीआय (RBI) मार्गदर्शक तत्त्वे कार्डचा फोटो किंवा गोपनीय क्रेडेंशियल्स शेअर करण्यास स्पष्टपणे मनाई करतात.',
+    credentialHarvestingWhatRemainsUnknown:
+      'संदेश पाठवणाऱ्याची खरी ओळख, अधिकृत व्यावसायिक नोंदणी आणि आरबीआय मंजुरी.',
+    credentialHarvestingVerificationStep:
+      'क्रेडिट किंवा डेबिट कार्डचा फोटो कधीही पाठवू नका. पाठवला असल्यास लगेच बँकेशी संपर्क साधून कार्ड ब्लॉक करा आणि १९३० वर तक्रार नोंदवा.',
     ambiguousSummary:
       'सावधान: अनौपचारिक माध्यमांतून (व्हॉट्सॲप/टेलिग्राम) मिळणाऱ्या ऑफर्सची कठोर पडताळणी आवश्यक आहे. विनानोंदणीकृत सल्लागार सेवा सेबी नियमांचे उल्लंघन करतात.',
     benignSummary:
@@ -429,6 +457,14 @@ const DICTIONARY: Record<
       'উচ্চ ঝুঁকির সতর্কতা: এই প্রস্তাবটি অবাস্তব অর্থ গুণের প্রতিশ্রুতি দেয় (যেমন অল্প টাকা দিয়ে বহুগুণ রিটার্ন)। এটি সিকিউরিটিজ লেনদেনে নিশ্চিত রিটার্নের প্রতিশ্রুতি নিষিদ্ধকারী সেবি বিধি লঙ্ঘন করে।',
     guaranteedSummary:
       'সতর্কতামূলক লক্ষণ পাওয়া গেছে: নিশ্চিত রিটার্নের প্রতিশ্রুতি এবং চাপের কৌশলগুলি সেবি এবং আরবিআইয়ের সংবিধিবদ্ধ বিনিয়োগকারী সুরক্ষা বিধি লঙ্ঘন করে।',
+    credentialHarvestingSummary:
+      'গুরুতর প্রতারণা সতর্কতা: "বিনামূল্যে টাকা" বা পুরস্কারের বিনিময়ে ক্রেডিট কার্ডের ছবি, ডেবিট কার্ডের তথ্য, CVV বা ব্যাঙ্কিং প্রমাণপত্র চাওয়া একটি মারাত্মক ফিশিং প্রতারণা। কোনো বৈধ আর্থিক প্রতিষ্ঠান কখনোই কার্ডের ছবি বা গোপন তথ্য চায় না। অবিলম্বে লেনদেন বন্ধ করার (Transaction Block) পরামর্শ দেওয়া হচ্ছে।',
+    credentialHarvestingExplanation:
+      'ক্রেডিট কার্ডের ছবি শেয়ার করলে কার্ডের ১৬-সংখ্যার নম্বর, মেয়াদোত্তীর্ণের তারিখ এবং CVV প্রকাশ পায়, যার ফলে প্রতারকরা অননুমোদিত অনলাইন লেনদেন করে আপনার সম্পূর্ণ টাকা হাতিয়ে নিতে পারে। আরবিআই (RBI) নির্দেশিকা কখনোই কার্ডের ছবি শেয়ার না করার নির্দেশ দেয়।',
+    credentialHarvestingWhatRemainsUnknown:
+      'বার্তা প্রেরকের আসল পরিচয়, কর্পোরেট নিবন্ধন এবং আরবিআই অনুমোদন।',
+    credentialHarvestingVerificationStep:
+      'কখনোই ক্রেডিট/ডেবিট কার্ডের ছবি পাঠাবেন না। যদি দিয়ে থাকেন, তবে অবিলম্বে ব্যাংকে ফোন করে কার্ড ব্লক করুন এবং ১৯৩০ সাইবার ক্রাইম হেল্পলাইনে রিপোর্ট করুন।',
     ambiguousSummary:
       'সতর্কতা: অনানুষ্ঠানিক চ্যানেলের (হোয়াটসঅ্যাপ/টেলিগ্রাম গ্রুপ) মাধ্যমে প্রাপ্ত অফারগুলির স্বাধীন যাচাইকরণ প্রয়োজন। অনিবন্ধিত পরামর্শ সেবা সেবি নিয়ম লঙ্ঘন করে।',
     benignSummary:
@@ -521,6 +557,14 @@ const DICTIONARY: Record<
       'உயர் ஆபத்து எச்சரிக்கை: இந்தச் சலுகை சாத்தியமற்ற பணப் பெருக்கத்தை உறுதியளிக்கிறது (எ.கா. சிறிய தொகையைக் கொடுத்து பல மடங்கு வருமானம்). இது பங்கு வர்த்தகத்தில் உத்தரவாத வருமானத்தைத் தடைசெய்யும் செபி விதிமுறைகளை மீறுகிறது.',
     guaranteedSummary:
       'எச்சரிக்கை அறிகுறிகள் கண்டறியப்பட்டன: உறுதிசெய்யப்பட்ட வருமான வாக்குறுதிகள் மற்றும் அவசரப்படுத்தும் உத்திகள் செபி மற்றும் ரிசர்வ் வங்கியின் முதலீட்டாளர் பாதுகாப்பு விதிமுறைகளை மீறுகின்றன.',
+    credentialHarvestingSummary:
+      'முக்கிய மோசடி எச்சரிக்கை: "இலவச பணம்" அல்லது பரிசுகளுக்குப் பதிலாக கிரெடிட் கார்டு புகைப்படம், டெபிட் கார்டு விவரங்கள், CVV அல்லது வங்கி ரகசிய விவரங்களைக் கோருவது கடுமையான இணைய நிதி மோசடியாகும். உண்மையான நிதி நிறுவனங்கள் ஒருபோதும் கார்டு புகைப்படங்களையோ ரகசிய குறியீடுகளையோ கேட்பதில்லை. உடனடியாகப் பரிவர்த்தனையைத் தடுக்க (Transaction Block) பரிந்துரைக்கப்படுகிறது.',
+    credentialHarvestingExplanation:
+      'கிரெடிட் கார்டு புகைப்படத்தைப் பகிர்வது 16 இலக்க கார்டு எண், காலாவதி தேதி மற்றும் CVV ஆகியவற்றை அம்பலப்படுத்துகிறது, இதனால் மோசடி செய்பவர்கள் உங்கள் பணத்தைத் திருட முடியும். ரிசர்வ் வங்கி (RBI) கார்டு புகைப்படங்களைப் பகிர்வதை வெளிப்படையாகத் தடைசெய்கிறது.',
+    credentialHarvestingWhatRemainsUnknown:
+      'அனுப்புநரின் சட்டப்பூர்வ அடையாளம், நிறுவன பதிவு மற்றும் ரிசர்வ் வங்கி அங்கீகாரம்.',
+    credentialHarvestingVerificationStep:
+      'கார்டு புகைப்படங்களை ஒருபோதும் பகிராதீர்கள். ஏற்கனவே பகிர்ந்திருந்தால், உடனே உங்கள் வங்கியைத் தொடர்புகொண்டு கார்டை முடக்குங்கள் மற்றும் 1930 என்ற சைபர் கிரைம் எண்ணில் புகாரளிக்கவும்.',
     ambiguousSummary:
       'எச்சரிக்கை: முறைசாரா வழிகள் (வாட்ஸ்அப்/டெலிகிராம் குழுக்கள்) மூலம் வரும் சலுகைகளுக்கு கடுமையான சுயாதீன சரிபார்ப்பு தேவை. பதிவு செய்யப்படாத ஆலோசனை சேவைகள் செபி விதிகளை மீறுகின்றன.',
     benignSummary:
@@ -614,6 +658,14 @@ const DICTIONARY: Record<
       'ઉચ્ચ જોખમ ચેતવણી: આ ઓફર અવાસ્તવિક નાણાં ગુણાકારનું વચન આપે છે (દા.ત. થોડી રકમ આપીને અનેક ગણો નફો). આ જામીનગીરી વ્યવહારોમાં ગેરંટીડ રિટર્નનું વચન આપવા પર પ્રતિબંધ મૂકતા સેબીના નિયમોનું ઉલ્લંઘન કરે છે.',
     guaranteedSummary:
       'ચેતવણીના સંકેતો મળ્યા: ખાતરીપૂર્વકના વળતરના વચનો અને દબાણની યુક્તિઓ સેબી અને આરબીઆઈના રોકાણકાર સુરક્ષા નિયમોનું ઉલ્લંઘન કરે છે.',
+    credentialHarvestingSummary:
+      'ગંભીર છેતરપિંડી ચેતવણી: "મફત પૈસા" કે ઇનામના બદલામાં ક્રેડિટ કાર્ડનો ફોટો, ડેબિટ કાર્ડ વિગતો, CVV કે બેંકિંગ ક્રેડેન્શિયલ્સ માંગવા એ અત્યંત ગંભીર સાયબર ફિશિંગ છેતરપિંડી છે. કાયદેસરની નાણાકીય સંસ્થાઓ ક્યારેય કાર્ડનો ફોટો કે ગુપ્ત વિગતો માંગતી નથી. તાત્કાલિક વ્યવહાર રોકવાની (Transaction Block) ભલામણ કરવામાં આવે છે.',
+    credentialHarvestingExplanation:
+      'ક્રેડિટ કાર્ડનો ફોટો શેર કરવાથી 16-અંકનો કાર્ડ નંબર, સમાપ્તિ તારીખ અને CVV ખુલ્લા પડી જાય છે, જેનાથી છેતરપિંડી કરનારા અનધિકૃત વ્યવહારો કરીને તમારા નાણાં ચોરી શકે છે. આરબીઆઈ (RBI) નિર્દેશો કાર્ડનો ફોટો કે ગોપનીય વિગતો શેર કરવા પર સખત પ્રતિબંધ મૂકે છે.',
+    credentialHarvestingWhatRemainsUnknown:
+      'સંદેશ મોકલનારની સાચી ઓળખ, સત્તાવાર વ્યવસાય નોંધણી અને આરબીઆઈ અધિકૃતતા.',
+    credentialHarvestingVerificationStep:
+      'ક્રેડિટ કે ડેબિટ કાર્ડનો ફોટો ક્યારેય મોકલશો નહીં. જો મોકલી દીધો હોય, તો તરત જ બેંકનો સંપર્ક કરી કાર્ડ બ્લોક કરાવો અને 1930 સાયબર હેલ્પલાઇન પર ફરિયાદ નોંધાવો.',
     ambiguousSummary:
       'સાવચેતી: અનૌપચારિક માધ્યમો (WhatsApp/Telegram ગ્રૂપ) દ્વારા આવતી ઓફર્સની સ્વતંત્ર ચકાસણી જરૂરી છે. બિનનોંધણીકૃત સલાહકાર સેવાઓ સેબીના નિયમોનું ઉલ્લંઘન કરે છે.',
     benignSummary:
@@ -730,6 +782,57 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
     /double.*money|triple.*money|money.*double|multipl(y|ier)/i.test(text) ||
     /(give|giving|take|taking)\s*\d+.*(give|giving|take|taking)\s*\d+/i.test(text)
 
+  // 1. Financial credential harvesting / Payment card phishing / Sensitive credentials demand
+  const cardPhotoRegex =
+    /(?:credit|debit|atm|bank|forex|rupay|visa|mastercard)?\s*card\s*(?:photo|picture|image|pic|scan|front|back|details|number|copy|snapshot)/i
+  const photoOfCardRegex =
+    /(?:photo|picture|image|pic|scan|copy|snapshot)\s*(?:of\s*)?(?:your\s*)?(?:credit|debit|atm|bank|forex|rupay|visa|mastercard)?\s*card/i
+  const sensitiveCredentialRegex =
+    /\b(?:credit\s*card|debit\s*card|atm\s*card|cvv2?|card\s*number|card\s*pin|atm\s*pin|upi\s*pin|mpin|net\s*banking\s*password|one\s*time\s*password)\b/i
+  const sensitiveDocRegex =
+    /(?:cheque|check|passbook|bank\s*statement|aadhaar|pan\s*card)\s*(?:photo|picture|image|pic|copy|scan)/i
+
+  const hasCredentialHarvesting =
+    cardPhotoRegex.test(text) ||
+    photoOfCardRegex.test(text) ||
+    sensitiveCredentialRegex.test(text) ||
+    sensitiveDocRegex.test(text) ||
+    lower.includes('credit card photo') ||
+    lower.includes('card photo') ||
+    lower.includes('debit card') ||
+    lower.includes('क्रेडिट कार्ड') ||
+    lower.includes('कार्ड का फोटो') ||
+    lower.includes('कार्ड फोटो') ||
+    lower.includes('डेबिट कार्ड') ||
+    lower.includes('कार्डचा फोटो') ||
+    lower.includes('কার্ডের ছবি') ||
+    lower.includes('கார்டு புகைப்படம்') ||
+    lower.includes('કાર્ડનો ફોટો')
+
+  // 2. Unearned "Free Money" / Lottery / Prize / Reward lures
+  const freeMoneyRegex =
+    /\b(?:free\s*(?:money|cash|fund|funds|rupees|dollar|crypto|reward|bonus|gift|payout|earning|income))\b/i
+  const getFreeMoneyRegex =
+    /\b(?:get|win|claim|earn|receive)\s*free\s*(?:money|cash|reward|rupees|bonus)\b/i
+  const exchangeRegex =
+    /\b(?:in\s*exchange\s*(?:of|for)|in\s*return\s*(?:of|for)|exchange\s*(?:your|of))\b/i
+  const lotteryRegex =
+    /\b(?:lottery\s*winner|won\s*lottery|lucky\s*draw|kbc\s*lottery|unclaimed\s*(?:prize|money|funds))\b/i
+
+  const hasFreeMoneyLure =
+    freeMoneyRegex.test(text) ||
+    getFreeMoneyRegex.test(text) ||
+    exchangeRegex.test(text) ||
+    lotteryRegex.test(text) ||
+    lower.includes('free money') ||
+    lower.includes('मुफ्त पैसे') ||
+    lower.includes('फ्री पैसे') ||
+    lower.includes('मुफ्त धन') ||
+    lower.includes('मोफत पैसे') ||
+    lower.includes('বিনামূল্যে টাকা') ||
+    lower.includes('இலவச பணம்') ||
+    lower.includes('મફત પૈસા')
+
   const hasGuaranteedReturns =
     hasMoneyMultiplier ||
     lower.includes('guaranteed') ||
@@ -791,11 +894,59 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
     lower.includes('vip tips') ||
     lower.includes('exclusive trading')
 
-  const isHighRisk = hasMoneyMultiplier || hasGuaranteedReturns || (hasUrgencyPressure && hasUpfrontPayment)
-  const isAmbiguous = !isHighRisk && (isSuspiciousGroupOrApp || hasUrgencyPressure || hasUpfrontPayment)
+  // 3. Sympathy & Emotional Coercion Hooks (e.g. cancer, hospital bills, paying medical treatment with algo strategy)
+  const hasSympathyHook =
+    /\b(?:mother|father|parent|son|daughter|family|wife|husband|brother|sister|relative)\b.*\b(?:cancer|hospital|sick|illness|medical|operation|surgery|treatment|bills|death)\b/i.test(text) ||
+    /\b(?:cancer|hospital\s*bills?|medical\s*bills?|surgery|treatment)\b.*\b(?:algorithmic|algorithm|strategy|trading|profit|invest|shares?|crypto|forex|returns?|pay|bills)\b/i.test(text) ||
+    /\b(?:algorithmic\s*strategy|algo\s*strategy|algorithmic\s*trading)\b.*\b(?:helped\s*me|hospital|bills|give\s*back|sharing)\b/i.test(text) ||
+    lower.includes('hospital bills') ||
+    lower.includes('cancer')
 
-  // Find relevant official SEBI source
+  // 4. False Exclusivity & VIP Quotas (e.g. only sharing with 3 special people, secret group)
+  const hasFalseExclusivity =
+    /\b(?:only\s*sharing\s*with|sharing\s*with\s*(?:\d+|few|special)|special\s*people|selected\s*members?|vip\s*(?:group|channel|quota|access)|exclusive\s*(?:circle|quota|window)|insider\s*tips?)\b/i.test(text) ||
+    lower.includes('3 special people') ||
+    lower.includes('only sharing with')
+
+  // 5. Account Freezing Threats & Regulatory Extortion (e.g. permanently frozen by SEBI in 10 minutes, clearance fee)
+  const hasFreezeExtortion =
+    /\b(?:permanently\s*frozen|frozen\s*by\s*(?:sebi|rbi|tax|police|cyber|it\s*dept|authorities)|account\s*will\s*be\s*(?:permanently\s*)?frozen|freeze\s*in\s*\d+\s*(?:minutes?|hours?|mins?))\b/i.test(text) ||
+    /\b(?:clearance\s*fee|noc\s*tax|verification\s*fee|unlock\s*fee|withdrawal\s*fee|unfreeze\s*fee|10%\s*advance\s*deposit)\b/i.test(text) ||
+    (/\b(?:in\s*\d+\s*minutes?|in\s*10\s*minutes?|within\s*\d+\s*(?:hours?|minutes?))\b/i.test(text) && /\b(?:frozen|freeze|unless|clearance|fee|pay)\b/i.test(text)) ||
+    lower.includes('frozen by sebi') ||
+    lower.includes('permanently frozen') ||
+    lower.includes('clearance fee')
+
+  // 6. Dabba Trading / Off-Market / KYC Bypass
+  const hasDabbaTrading =
+    /\b(?:dabba\s*trading|off[- ]market\s*trading|bina\s*pan(?:\s*card)?|without\s*pan|no\s*kyc(?:\s*required)?|cash\s*settlement|chhutti\s*settlement)\b/i.test(text) ||
+    lower.includes('dabba trading') ||
+    lower.includes('bina pan card') ||
+    lower.includes('no kyc')
+
+  // 7. Secondary Extortion
+  const hasSecondaryExtortion =
+    /\b(?:noc\s*tax|clearance\s*fee|verification\s*fee|10%\s*advance\s*deposit)\b/i.test(text) ||
+    (/\b(?:recover|refund|chargeback)\b/i.test(text) && /\b(?:fee|advance|deposit|pay)\b/i.test(text))
+
+  const isHighRisk =
+    hasCredentialHarvesting ||
+    hasMoneyMultiplier ||
+    hasGuaranteedReturns ||
+    hasSympathyHook ||
+    hasFalseExclusivity ||
+    hasFreezeExtortion ||
+    hasDabbaTrading ||
+    hasSecondaryExtortion ||
+    (hasFreeMoneyLure && (hasUpfrontPayment || hasUrgencyPressure || isSuspiciousGroupOrApp || exchangeRegex.test(text))) ||
+    (hasUrgencyPressure && hasUpfrontPayment)
+
+  const isAmbiguous = !isHighRisk && (isSuspiciousGroupOrApp || hasUrgencyPressure || hasUpfrontPayment || hasFreeMoneyLure)
+
+  // Find relevant official regulatory sources
   const sebiFakeTradingSource = officialSources.find((s: OfficialSource) => s.id === 'sebi_fake_trading_apps')
+  const rbiKehtaHaiSource = officialSources.find((s: OfficialSource) => s.id === 'rbi_kehta_hai')
+  const cybercrime1930Source = officialSources.find((s: OfficialSource) => s.id === 'cybercrime_1930')
   const sebiScoresSource = officialSources.find((s: OfficialSource) => s.id === 'sebi_scores')
 
   if (isHighRisk) {
@@ -806,20 +957,32 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
       extraction_uncertainty: {
         has_uncertainty: false,
         confidence: 'high',
-        notes: dict.multiplierSummary,
+        notes: hasCredentialHarvesting
+          ? dict.credentialHarvestingSummary
+          : hasMoneyMultiplier
+          ? dict.multiplierSummary
+          : dict.guaranteedSummary,
       },
       extracted_entities: {
         urls: extractedUrls,
-        names: ['Unverified Scheme / Solicitation Channel'],
-        promised_returns: hasMoneyMultiplier
+        names: hasCredentialHarvesting
+          ? ['Unverified Solicitation / Phishing Sender']
+          : ['Unverified Scheme / Solicitation Channel'],
+        promised_returns: hasFreeMoneyLure
+          ? ['Unearned Free Money / Reward Claim']
+          : hasMoneyMultiplier
           ? ['Unrealistic Money Multiplication / Guaranteed Returns']
           : ['Guaranteed Returns / Daily Profit'],
         deadlines: hasUrgencyPressure ? ['Urgent / Limited Window'] : [],
-        payment_requests: hasUpfrontPayment
+        payment_requests: hasCredentialHarvesting
+          ? ['Credit / Debit Card Photo & Security Details Demand']
+          : hasUpfrontPayment
           ? ['Advance Fee / Registration / Deposit Demand']
           : ['Transfer to Private Account / UPI'],
         claims: [
-          hasMoneyMultiplier
+          hasCredentialHarvesting
+            ? 'Free money in exchange for card credentials / photo'
+            : hasMoneyMultiplier
             ? 'Disproportionate money multiplication promise'
             : 'Guaranteed investment return claim',
         ],
@@ -828,16 +991,73 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
       extracted_phones: mappedPhoneItems,
       overall_status: 'warning_signs_found',
       uncertainty_rating: 'low',
-      summary: hasMoneyMultiplier ? dict.multiplierSummary : dict.guaranteedSummary,
+      summary: hasFreezeExtortion
+        ? '🛑 HIGH-RISK EXTORTION ALERT: Threatening that your account or Demat will be permanently frozen by SEBI/authorities unless an advance clearance fee is paid is a fraudulent coercion tactic. Regulators never demand clearance fees via chat or freeze accounts without due legal process.'
+        : hasSympathyHook || hasFalseExclusivity
+        ? '🛑 HIGH-RISK MANIPULATION ALERT: Solicitation uses emotional sympathy hooks (e.g. cancer, hospital bills) and false exclusivity ("only sharing with 3 special people") to lure targets into unverified algorithmic trading schemes in violation of SEBI regulations.'
+        : hasDabbaTrading
+        ? '🛑 ILLEGAL DABA TRADING ALERT: Solicitation promotes off-market dabba trading or KYC bypass ("bina PAN card") in direct violation of SEBI Act Section 13/16 and PMLA Act regulations.'
+        : hasCredentialHarvesting
+        ? dict.credentialHarvestingSummary
+        : hasMoneyMultiplier
+        ? dict.multiplierSummary
+        : dict.guaranteedSummary,
       findings: [
-        {
-          indicator: 'guaranteed_returns',
-          original_excerpt: text.slice(0, 120),
-          explanation: dict.guaranteedReturnsExplanation,
-          evidence_type: 'message_excerpt',
-          verification_status: 'not_independently_verified',
-        },
-        ...(hasUrgencyPressure
+        ...(hasFreezeExtortion
+          ? [
+              {
+                indicator: 'impersonation' as const,
+                original_excerpt: text.slice(0, 120),
+                explanation:
+                  'Perpetrator is impersonating SEBI/regulatory authorities and using coercive threats of immediate account freeze to extort advance clearance fees.',
+                evidence_type: 'message_excerpt' as const,
+                verification_status: 'not_independently_verified' as const,
+              },
+            ]
+          : hasSympathyHook || hasFalseExclusivity
+          ? [
+              {
+                indicator: 'other_warning_sign' as const,
+                original_excerpt: text.slice(0, 120),
+                explanation:
+                  'Social engineering attack utilizing emotional sympathy hooks and false exclusivity to build artificial trust for an unregistered algorithmic trading scheme.',
+                evidence_type: 'message_excerpt' as const,
+                verification_status: 'not_independently_verified' as const,
+              },
+            ]
+          : hasDabbaTrading
+          ? [
+              {
+                indicator: 'other_warning_sign' as const,
+                original_excerpt: text.slice(0, 120),
+                explanation:
+                  'Off-market / dabba trading and operating without mandatory PAN/KYC compliance is illegal under SEBI Act and Prevention of Money Laundering Act.',
+                evidence_type: 'message_excerpt' as const,
+                verification_status: 'not_independently_verified' as const,
+              },
+            ]
+          : hasCredentialHarvesting
+          ? [
+              {
+                indicator: 'other_warning_sign' as const,
+                original_excerpt:
+                  text.match(/(?:credit|debit|atm)?\s*card\s*photo|get\s*free\s*money|in\s*exchange\s*of[^\n.,!]*|\b(?:credit\s*card|debit\s*card|cvv|otp|pin)\b/i)?.[0] ||
+                  text.slice(0, 100),
+                explanation: dict.credentialHarvestingExplanation,
+                evidence_type: 'message_excerpt' as const,
+                verification_status: 'not_independently_verified' as const,
+              },
+            ]
+          : [
+              {
+                indicator: 'guaranteed_returns' as const,
+                original_excerpt: text.slice(0, 120),
+                explanation: dict.guaranteedReturnsExplanation,
+                evidence_type: 'message_excerpt' as const,
+                verification_status: 'not_independently_verified' as const,
+              },
+            ]),
+        ...(hasUrgencyPressure || hasFreezeExtortion
           ? [
               {
                 indicator: 'urgency_pressure' as const,
@@ -848,7 +1068,7 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
               },
             ]
           : []),
-        ...(hasUpfrontPayment
+        ...(hasUpfrontPayment || hasFreezeExtortion || hasSecondaryExtortion
           ? [
               {
                 indicator: 'upfront_payment' as const,
@@ -862,9 +1082,35 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
       ],
       claims: [
         {
-          original_claim: text.slice(0, 120) || 'Promised returns and trading scheme',
-          what_content_establishes: dict.highRiskContentEstablishes,
-          external_source_consulted: sebiFakeTradingSource
+          original_claim:
+            text.slice(0, 120) ||
+            (hasCredentialHarvesting
+              ? 'Free money in exchange for credit card photo'
+              : 'Promised returns and trading scheme'),
+          what_content_establishes: hasCredentialHarvesting
+            ? 'Content requests confidential payment card photos or credentials in exchange for monetary returns.'
+            : dict.highRiskContentEstablishes,
+          external_source_consulted: hasCredentialHarvesting
+            ? (rbiKehtaHaiSource
+                ? {
+                    id: rbiKehtaHaiSource.id,
+                    title: rbiKehtaHaiSource.title,
+                    url: rbiKehtaHaiSource.url,
+                    relevant_excerpt:
+                      'RBI directives strictly warn citizens to never share credit/debit card photos, card numbers, CVV, or OTPs. Legitimate banks and authorities NEVER solicit card photos.',
+                    date_accessed: '2026-10-02',
+                  }
+                : cybercrime1930Source
+                ? {
+                    id: cybercrime1930Source.id,
+                    title: cybercrime1930Source.title,
+                    url: cybercrime1930Source.url,
+                    relevant_excerpt:
+                      'National Cyber Crime advisory warns against financial credential harvesting and unauthorized payment card solicitation.',
+                    date_accessed: '2026-10-02',
+                  }
+                : null)
+            : sebiFakeTradingSource
             ? {
                 id: sebiFakeTradingSource.id,
                 title: sebiFakeTradingSource.title,
@@ -875,17 +1121,25 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
               }
             : null,
           source_verdict: 'contradicts',
-          what_remains_unknown: dict.highRiskWhatRemainsUnknown,
-          safe_verification_step: dict.highRiskVerificationStep,
+          what_remains_unknown: hasCredentialHarvesting
+            ? dict.credentialHarvestingWhatRemainsUnknown
+            : dict.highRiskWhatRemainsUnknown,
+          safe_verification_step: hasCredentialHarvesting
+            ? dict.credentialHarvestingVerificationStep
+            : dict.highRiskVerificationStep,
         },
       ],
       scam_journey_map: [
         {
           stage: 'initial_offer',
-          title: dict.journeyInitialOfferTitle,
+          title: hasFreeMoneyLure ? 'Unsolicited Free Money or Reward Lure' : dict.journeyInitialOfferTitle,
           observed: true,
-          evidence: text.slice(0, 100),
-          explanation: dict.journeyInitialOfferExplanation,
+          evidence: hasFreeMoneyLure
+            ? (text.match(/get\s*free\s*money|free\s*money/i)?.[0] || text.slice(0, 80))
+            : text.slice(0, 100),
+          explanation: hasFreeMoneyLure
+            ? 'Perpetrator lures target with unearned cash or guaranteed financial reward.'
+            : dict.journeyInitialOfferExplanation,
           is_future_risk: false,
         },
         {
@@ -906,11 +1160,17 @@ export function evaluateLocally(options: AnalyzeOptions): AnalysisResult {
         },
         {
           stage: 'app_or_credential_request',
-          title: dict.journeyAppTitle,
-          observed: isSuspiciousGroupOrApp,
-          evidence: isSuspiciousGroupOrApp ? text.slice(0, 60) : '',
-          explanation: dict.journeyAppExplanation,
-          is_future_risk: !isSuspiciousGroupOrApp,
+          title: hasCredentialHarvesting
+            ? 'Card Photo & Confidential Credential Harvesting'
+            : dict.journeyAppTitle,
+          observed: hasCredentialHarvesting || isSuspiciousGroupOrApp,
+          evidence: hasCredentialHarvesting
+            ? (text.match(/(?:credit|debit|atm)?\s*card\s*photo|credit\s*card|debit\s*card/i)?.[0] || 'Credit card photo requested')
+            : (isSuspiciousGroupOrApp ? text.slice(0, 60) : ''),
+          explanation: hasCredentialHarvesting
+            ? dict.credentialHarvestingExplanation
+            : dict.journeyAppExplanation,
+          is_future_risk: !(hasCredentialHarvesting || isSuspiciousGroupOrApp),
         },
         {
           stage: 'followup_or_recovery',

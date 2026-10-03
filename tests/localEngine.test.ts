@@ -108,6 +108,37 @@ const guRes = evaluateLocally({
 assert('Gujarati evaluation returns warning_signs_found', guRes.overall_status === 'warning_signs_found')
 assert('Gujarati summary contains Gujarati text', /[\u0A80-\u0AFF]/.test(guRes.summary))
 
+// Test 7: User's exact prompt: "GET FREE MONEY!!!! IN EXCHANGE OF YOUR CREDIT CARD PHOTO"
+const userCardPhishRes = evaluateLocally({
+  message: 'GET FREE MONEY!!!! IN EXCHANGE OF YOUR CREDIT CARD PHOTO',
+  language: 'en',
+  modality: 'text',
+})
+assert(
+  'User test prompt: "GET FREE MONEY!!!! IN EXCHANGE OF YOUR CREDIT CARD PHOTO" flagged as warning_signs_found',
+  userCardPhishRes.overall_status === 'warning_signs_found',
+  `Expected warning_signs_found, got ${userCardPhishRes.overall_status}`,
+)
+assert(
+  'User test prompt: Credential harvesting explanation and warning findings populated',
+  userCardPhishRes.findings.length > 0 &&
+    userCardPhishRes.summary.toLowerCase().includes('credit card'),
+  `Summary: ${userCardPhishRes.summary}`,
+)
+assert(
+  'User test prompt: 5-stage scam journey map observes credential harvesting',
+  userCardPhishRes.scam_journey_map.some((s) => s.stage === 'app_or_credential_request' && s.observed),
+)
+
+// Test 8: Vernacular card photo phishing in Hindi
+const hiCardPhishRes = evaluateLocally({
+  message: 'मुफ्त पैसे पाने के लिए अपने क्रेडिट कार्ड का फोटो भेजें',
+  language: 'hi',
+  modality: 'text',
+})
+assert('Hindi credit card phishing flagged as warning_signs_found', hiCardPhishRes.overall_status === 'warning_signs_found')
+assert('Hindi credit card phishing includes Devanagari alert', /क्रेडिट कार्ड|धोखाधड़ी/.test(hiCardPhishRes.summary))
+
 console.log('\n===========================================================')
 console.log(`CLIENT ENGINE TESTS: ${passed}/${passed + failed} PASSED (${failed} FAILED)`)
 console.log('===========================================================')
