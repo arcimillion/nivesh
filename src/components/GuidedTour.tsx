@@ -48,14 +48,19 @@ export function GuidedTour({
   const { t } = useTranslation()
   const [step, setStep] = useState<TourStep>('lang-prompt')
   const [highlightStyle, setHighlightStyle] = useState<React.CSSProperties>({})
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    }
+    return false
+  })
+  const [, setIsSpeechPlaying] = useState(false)
 
   const activeUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-      setPrefersReducedMotion(mediaQuery.matches)
       const listener = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
       mediaQuery.addEventListener('change', listener)
       return () => mediaQuery.removeEventListener('change', listener)
@@ -83,55 +88,101 @@ export function GuidedTour({
     }
   }
 
+  const handleComplete = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel()
+    }
+    onComplete()
+  }
+
+  const advanceToNextStep = () => {
+    if (step === 'lang-prompt') {
+      setStep('welcome')
+      return
+    }
+
+    const currentIndex = STEPS.indexOf(step)
+    if (currentIndex === -1) return
+
+    if (currentIndex < STEPS.length - 1) {
+      setStep(STEPS[currentIndex + 1])
+    } else {
+      // Completed!
+      handleComplete()
+    }
+  }
+
   // Handle highlight spotlight positioning & interaction on step changes
   useEffect(() => {
     if (!isOpen) return
 
     const elId = getElementIdForStep(step)
-    if (!elId) {
-      setHighlightStyle({ display: 'none' })
-      return
+
+    // If it's a tab, switch tab first so that content opens
+    if (elId && elId.startsWith('onboarding-tab-')) {
+      const tabEl = document.getElementById(elId)
+      if (tabEl) {
+        tabEl.click()
+      }
     }
 
     const updatePosition = () => {
+      if (!elId) {
+        setHighlightStyle({ display: 'none' })
+        return
+      }
+
       const el = document.getElementById(elId)
       if (el) {
         const rect = el.getBoundingClientRect()
+        if (rect.width === 0 && rect.height === 0) {
+          setHighlightStyle({ display: 'none' })
+          return
+        }
+
         setHighlightStyle({
           position: 'fixed',
-          top: rect.top - 6,
-          left: rect.left - 6,
-          width: rect.width + 12,
-          height: rect.height + 12,
+          top: Math.round(rect.top - 6),
+          left: Math.round(rect.left - 6),
+          width: Math.round(rect.width + 12),
+          height: Math.round(rect.height + 12),
           borderRadius: '16px',
           boxShadow: '0 0 0 9999px rgba(15, 23, 42, 0.75), 0 0 20px 6px rgba(16, 185, 129, 0.95)',
           pointerEvents: 'none',
           zIndex: 100,
-          transition: prefersReducedMotion ? 'none' : 'all 0.3s ease-in-out',
+          transition: prefersReducedMotion ? 'none' : 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
         })
-
-        // Scroll to highlighted element to make sure it is in view
-        el.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'center' })
-
-        // Programmatically trigger tabs to open to show their contents during the tour
-        if (elId.startsWith('onboarding-tab-')) {
-          el.click()
-        }
       } else {
         setHighlightStyle({ display: 'none' })
       }
     }
 
-    // Run slightly delayed to let tabs/view render fully
-    const timer = setTimeout(updatePosition, 100)
+    // Scroll element into view smoothly if out of viewport
+    if (elId) {
+      const targetEl = document.getElementById(elId)
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'nearest' })
+      }
+    }
+
+    // Multiple triggers to ensure coordinates settle precisely after tab switch and scroll
+    const timer0 = setTimeout(updatePosition, 0)
+    const timer1 = setTimeout(updatePosition, 50)
+    const timer2 = setTimeout(updatePosition, 150)
+    const timer3 = setTimeout(updatePosition, 300)
+    const timer4 = setTimeout(updatePosition, 600)
 
     window.addEventListener('resize', updatePosition)
-    window.addEventListener('scroll', updatePosition)
+    window.addEventListener('scroll', updatePosition, true)
 
     return () => {
-      clearTimeout(timer)
+      clearTimeout(timer0)
+      clearTimeout(timer1)
+      clearTimeout(timer2)
+      clearTimeout(timer3)
+      clearTimeout(timer4)
       window.removeEventListener('resize', updatePosition)
-      window.removeEventListener('scroll', updatePosition)
+      window.removeEventListener('scroll', updatePosition, true)
     }
   }, [step, isOpen, prefersReducedMotion])
 
@@ -230,36 +281,13 @@ export function GuidedTour({
     // Delayed so speechSynthesis voice cache can settle
     const timer = setTimeout(speakCurrentStep, 200)
     return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, isOpen, currentLanguage])
 
   const handleLanguageSelect = (lang: string) => {
     onLanguageChange(lang)
     // Advancing immediately upon selection becomes the user gesture allowing speechSynthesis
     setStep('welcome')
-  }
-
-  const advanceToNextStep = () => {
-    if (step === 'lang-prompt') {
-      setStep('welcome')
-      return
-    }
-
-    const currentIndex = STEPS.indexOf(step)
-    if (currentIndex === -1) return
-
-    if (currentIndex < STEPS.length - 1) {
-      setStep(STEPS[currentIndex + 1])
-    } else {
-      // Completed!
-      handleComplete()
-    }
-  }
-
-  const handleComplete = () => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel()
-    }
-    onComplete()
   }
 
   if (!isOpen) return null

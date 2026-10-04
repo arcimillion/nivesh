@@ -485,12 +485,7 @@ export const MultimodalScamScanner: React.FC<MultimodalScamScannerProps> = ({
             <button
               type="button"
               id="onboarding-tab-image"
-              onClick={() => {
-                setModality('image')
-                if (!filePreview) {
-                  setTimeout(() => fileInputRef.current?.click(), 50)
-                }
-              }}
+              onClick={() => setModality('image')}
               className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all border-2 ${
                 modality === 'image'
                   ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-400/20'
@@ -534,6 +529,7 @@ export const MultimodalScamScanner: React.FC<MultimodalScamScannerProps> = ({
           {/* Primary Action Button */}
           <button
             type="submit"
+            id="onboarding-btn-ask"
             disabled={isSubmitDisabled}
             className="w-full py-4 px-6 text-base sm:text-lg font-black text-white bg-emerald-700 hover:bg-emerald-800 disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2.5 min-h-[56px] border-2 border-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-200 cursor-pointer"
           >

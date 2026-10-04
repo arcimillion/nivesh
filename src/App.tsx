@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   analyzeMessage,
@@ -33,14 +33,12 @@ export default function App() {
   const [showHowItWorks, setShowHowItWorks] = useState(false)
   const [showCapsulesModal, setShowCapsulesModal] = useState(false)
   const [showDetailsAccordion, setShowDetailsAccordion] = useState(false)
-  const [showGuidedTour, setShowGuidedTour] = useState(false)
-
-  useEffect(() => {
-    const isCompleted = localStorage.getItem('niveshshield-onboarding-completed')
-    if (!isCompleted) {
-      setShowGuidedTour(true)
+  const [showGuidedTour, setShowGuidedTour] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return !localStorage.getItem('niveshshield-onboarding-completed')
     }
-  }, [])
+    return false
+  })
 
   const handleLanguageChange = (newLang: string) => {
     i18n.changeLanguage(newLang)
