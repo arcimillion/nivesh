@@ -92,17 +92,22 @@ export function isEducationalOrDisclaimer(input: string): boolean {
   if (!input) return false
   const lower = input.toLowerCase().trim()
 
-  // Added Hinglish/Vernacular question markers (kya, kaise, antar, fark, kaunsa, matlab)
+  // 1. Added Hinglish/Vernacular question markers (kya, kaise, antar, fark, kaunsa, matlab)
   const isLiteracyQuestion =
     /^(what|how|why|can|explain|difference|compare|kya|kaise|kaunsa)\s+.*(mutual fund|etf|stock|equity|bond|sip|nav|demat|invest)/i.test(
       lower,
     ) || /(antar|fark|matlab|sahi rahega)/i.test(lower)
 
-  // 2. Detect standard statutory disclaimers
+  // 2. Detect standard statutory disclaimers in all regional languages
   const isStatutoryDisclaimer =
-    /disclaimer\s*:.*market risk|read all scheme documents carefully/i.test(lower)
+    /disclaimer\s*:.*market risk|read all scheme.*documents carefully|market risks|bazaar jokhim|bajar jokhim|बाजार जोखिम|जोखमीच्या अधीन|જોખમોને આધીન|ঝুঁকির সাপেক্ষ|அபாயங்களுக்கு உட்பட்டவை|sebi website|official bank|panjikrit broker/i.test(lower)
 
-  return isLiteracyQuestion || isStatutoryDisclaimer
+  // 3. Detect standard legitimate bank transaction alerts or notices
+  const isLegitimateBankSms =
+    /(credited|debited|available balance|a\/c ending|account ending|ref no|rrn|txn id|transaction id|your a\/c|bank alert|neft|rtgs|imps|upi transaction|deposit credited|standard bank notice|jama kiye|balke balance|shillak)/i.test(lower) &&
+    !/(guarantee|fixed return|40%|100% profit|double|triple|free money|give 1000|earn 50000|click link|download apk|vip group)/i.test(lower)
+
+  return isLiteracyQuestion || isStatutoryDisclaimer || isLegitimateBankSms
 }
 
 export function isUniversalGuaranteedReturnScam(input: string): boolean {
@@ -270,8 +275,7 @@ export async function executeNiveshShieldPipeline(
         'Verifiable & Educational: Strictly neutral financial literacy or statutory risk disclosure.',
       ...fallback,
       overall_status: 'no_obvious_warning_signs',
-      summary:
-        'Financial Education & Statutory Disclosure: Content is strictly informational or standard regulatory disclaimer without promotional fraud vectors.',
+      summary: fallback.summary || 'Financial Education & Statutory Disclosure: Content is strictly informational or standard regulatory disclaimer without promotional fraud vectors.',
     }
   }
 
@@ -287,8 +291,7 @@ export async function executeNiveshShieldPipeline(
         'Zero-Trust Violation: Promising guaranteed percentage returns in any language or script violates SEBI regulations.',
       ...fallback,
       overall_status: 'warning_signs_found',
-      summary:
-        'This message promises fake guaranteed returns on your money. Real stock market investments can never guarantee fixed returns.',
+      summary: fallback.summary || 'This message promises fake guaranteed returns on your money. Real stock market investments can never guarantee fixed returns.',
     }
   }
 
@@ -339,8 +342,7 @@ export async function executeNiveshShieldPipeline(
         'Zero-Trust Trigger: Unsolicited executive impersonation over personal chat.',
       ...fallback,
       overall_status: 'warning_signs_found',
-      summary:
-        'This message pretends to be from a bank or company manager. Real officials never ask for money or account transfers on personal WhatsApp.',
+      summary: fallback.summary || 'This message pretends to be from a bank or company manager. Real officials never ask for money or account transfers on personal WhatsApp.',
     }
   }
 
@@ -359,8 +361,7 @@ export async function executeNiveshShieldPipeline(
         'Zero-Trust Trigger: Unsolicited dashboard profit/IPO allotment claim detected.',
       ...fallback,
       overall_status: 'warning_signs_found',
-      summary:
-        'This message shows fake profit numbers or fake share allotments to trick you into transferring money.',
+      summary: fallback.summary || 'This message shows fake profit numbers or fake share allotments to trick you into transferring money.',
     }
   }
 
@@ -380,8 +381,7 @@ export async function executeNiveshShieldPipeline(
         'Zero-Trust Trigger: Promising guaranteed monthly financial returns in regional languages violates SEBI regulations.',
       ...fallback,
       overall_status: 'warning_signs_found',
-      summary:
-        'This message promises fake guaranteed returns on your money. Real stock market investments can never guarantee fixed returns.',
+      summary: fallback.summary || 'This message promises fake guaranteed returns on your money. Real stock market investments can never guarantee fixed returns.',
     }
   }
 
@@ -437,53 +437,54 @@ export async function executeNiveshShieldPipeline(
       }
     }
 
-    // Default Zero-Trust Fallback (Only triggers if it IS financial but unverified)
+    // Fallback based on deterministic engine assessment
     const fallback = runLocalFallbackRules(rawInput)
-    return {
-      ...fallback,
-      ...aiResult,
-      verdict: '🟡 AMBER',
-      scam_detected: false,
-      confidence_score: 0.5,
-      scam_stage: 'none',
-      rationale_for_dossier:
-        'Zero-Trust Rule: Unverified external communication. Exercise caution.',
-      overall_status:
-        fallback.overall_status === 'warning_signs_found'
-          ? 'warning_signs_found'
-          : 'insufficient_evidence',
-    }
-  } catch {
-    // Stage 2 Failure / Timeout Fallback
-    const fallback = runLocalFallbackRules(rawInput)
-    const isCasual =
-      /^(hello|hi|hey|good morning|good evening|good afternoon|how are you|namaste|sup)\b/i.test(
-        lowerInput.trim(),
-      ) ||
-      /(grocery|groceries|movie|ticket|tickets|dinner|lunch|breakfast|food|restaurant|shopping|travel|flight|hotel|uber|ola|cab|rent|electricity|bill)/i.test(
-        lowerInput,
-      ) ||
-      (!/(invest|money|profit|return|stock|fund|share|rupee|inr|usd|crypto|bank|demat|broker|tax|fee|allotment|deposit|account|upi|card|p&l)/i.test(
-        lowerInput,
-      ) &&
-        lowerInput.length < 100)
-
-    if (isCasual) {
+    if (fallback.overall_status === 'no_obvious_warning_signs') {
       return {
         ...fallback,
         verdict: '🟢 GREEN',
         scam_detected: false,
         confidence_score: 0.0,
         scam_stage: 'none',
-        is_financial_context: false,
         rationale_for_dossier:
-          'Neutral Context: This is everyday conversation, not a financial proposition.',
+          'Safe & Verified: No warning signs or deceptive patterns detected.',
         overall_status: 'no_obvious_warning_signs',
-        summary:
-          'Neutral Context: This is everyday conversation, not a financial proposition.',
       }
     }
-
+    if (fallback.overall_status === 'warning_signs_found') {
+      return {
+        ...fallback,
+        verdict: '🔴 RED',
+        scam_detected: true,
+        confidence_score: 0.95,
+        overall_status: 'warning_signs_found',
+      }
+    }
+    return {
+      ...fallback,
+      verdict: '🟡 AMBER',
+      scam_detected: false,
+      confidence_score: 0.5,
+      scam_stage: 'none',
+      rationale_for_dossier:
+        'Zero-Trust Rule: Unverified external communication. Exercise caution.',
+      overall_status: 'insufficient_evidence',
+    }
+  } catch {
+    // Stage 2 Failure / Timeout Fallback
+    const fallback = runLocalFallbackRules(rawInput)
+    if (fallback.overall_status === 'no_obvious_warning_signs') {
+      return {
+        ...fallback,
+        verdict: '🟢 GREEN',
+        scam_detected: false,
+        confidence_score: 0.0,
+        scam_stage: 'none',
+        rationale_for_dossier:
+          'Safe & Verified: No warning signs or deceptive patterns detected.',
+        overall_status: 'no_obvious_warning_signs',
+      }
+    }
     return {
       verdict: fallback.overall_status === 'warning_signs_found' ? '🔴 RED' : '🟡 AMBER',
       ...fallback,

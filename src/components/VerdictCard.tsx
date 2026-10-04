@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { AnalysisResult } from '../api'
 
@@ -11,7 +11,8 @@ interface VerdictCardProps {
   showDossier: boolean
 }
 
-const LANG_VOICE_CODES: Record<string, string> = {
+// BCP 47 Language Tag Mapping for Browser Web Speech API
+const BCP47_LANGUAGE_MAP: Record<string, string> = {
   en: 'en-IN',
   hi: 'hi-IN',
   mr: 'mr-IN',
@@ -21,7 +22,13 @@ const LANG_VOICE_CODES: Record<string, string> = {
 }
 
 // Clean up any residual developer jargon from summary text for elderly villagers
-function sanitizeSummaryText(summary: string | undefined, isRed: boolean, isAmber: boolean, isGreen: boolean): string {
+function sanitizeSummaryText(
+  summary: string | undefined,
+  isRed: boolean,
+  isAmber: boolean,
+  isGreen: boolean,
+  t: any,
+): string {
   if (!summary) return ''
 
   // Replace developer jargon strings
@@ -32,16 +39,17 @@ function sanitizeSummaryText(summary: string | undefined, isRed: boolean, isAmbe
     .replace(/violating SEBI\/RBI regulations\.?/gi, '')
     .trim()
 
-  if (isRed && (text.includes('Guaranteed investment returns') || text.length < 20)) {
-    return 'This message is a fake offer. It promises guaranteed profits to trick you into sending money. Do NOT send any money or click any links.'
+  const lowerText = text.toLowerCase()
+  if (isRed && (lowerText.includes('guaranteed') || lowerText.includes('scam') || text.length < 20)) {
+    return t('verdict.redSubhead', 'This message is a fake offer. It promises guaranteed profits to trick you into sending money. Do NOT send any money or click any links.')
   }
 
   if (isAmber && text.length < 20) {
-    return 'Be careful! This sender is not verified by the government. Check carefully before sending any money.'
+    return t('verdict.amberSubhead', 'Be careful! This sender is not verified by the government. Check carefully before sending any money.')
   }
 
   if (isGreen && text.length < 20) {
-    return 'This looks like a normal message or safe guide. No fake profit promises or money demands were found.'
+    return t('verdict.greenSubhead', 'This looks like a normal message or safe guide. No fake profit promises or money demands were found.')
   }
 
   return text
@@ -61,6 +69,15 @@ export const VerdictCard: React.FC<VerdictCardProps> = ({
   const isRed = analysis.overall_status === 'warning_signs_found'
   const isAmber = analysis.overall_status === 'insufficient_evidence'
   const isGreen = analysis.overall_status === 'no_obvious_warning_signs'
+
+  // Clean up synthesis audio when component unmounts
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel()
+      }
+    }
+  }, [])
 
   const getVerdictDetails = () => {
     if (isRed) {
@@ -120,31 +137,65 @@ export const VerdictCard: React.FC<VerdictCardProps> = ({
   }
 
   const details = getVerdictDetails()
-  const displaySummary = sanitizeSummaryText(analysis.summary, isRed, isAmber, isGreen) || details.subhead
+  const displaySummary = sanitizeSummaryText(analysis.summary, isRed, isAmber, isGreen, t) || details.subhead
 
-  const handleSpeak = () => {
-    if (!('speechSynthesis' in window)) return
+  /**
+   * Elderly-Accessible Text-to-Speech Handler
+   * Dynamically maps internal i18n language state to Web Speech API BCP 47 tags.
+   */
+  const handleListenAloud = () => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
+
+    // Overlap Prevention: Cancel any currently playing speech immediately
+    window.speechSynthesis.cancel()
 
     if (isPlayingAudio) {
-      window.speechSynthesis.cancel()
       setIsPlayingAudio(false)
       return
     }
 
-    window.speechSynthesis.cancel()
-
     const speechText = `${details.headline}. ${displaySummary}. ${details.actionRule}`
-
     const utterance = new SpeechSynthesisUtterance(speechText)
-    const targetLangCode = LANG_VOICE_CODES[i18n.language] || 'en-IN'
-    utterance.lang = targetLangCode
-    utterance.rate = 0.9
+
+    // Dynamic BCP 47 Language Tag resolution based on current react-i18next language state
+    const currentLangCode = (i18n.language || 'en').split('-')[0].toLowerCase()
+    const targetBcp47Tag = BCP47_LANGUAGE_MAP[currentLangCode] || 'en-IN'
+
+    utterance.lang = targetBcp47Tag
+
+    // Elderly Accessibility Adjustment: Slow down speech rate to 0.85 for senior users
+    utterance.rate = 0.85
+    utterance.pitch = 1.0
+
+    // Explicitly find and assign a matching regional voice (handling underscores, casing and base prefixes robustly)
+    const availableVoices = window.speechSynthesis.getVoices()
+    const nativeVoice = availableVoices.find((voice) => {
+      const vLang = voice.lang.replace('_', '-').toLowerCase()
+      const tLang = targetBcp47Tag.toLowerCase()
+      return vLang === tLang || vLang.startsWith(currentLangCode) || voice.lang.toLowerCase().startsWith(currentLangCode)
+    })
+
+    if (nativeVoice) {
+      utterance.voice = nativeVoice
+    } else {
+      console.warn(`No native voice found for ${targetBcp47Tag}. Falling back to default.`)
+    }
 
     utterance.onend = () => setIsPlayingAudio(false)
-    utterance.onerror = () => setIsPlayingAudio(false)
+    utterance.onerror = (e) => {
+      console.error('SpeechSynthesisUtterance error:', e)
+      setIsPlayingAudio(false)
+    }
+
+    // Keep global reference to prevent garbage collection bugs in Chromium
+    ;(window as any)._activeUtterance = utterance
 
     setIsPlayingAudio(true)
-    window.speechSynthesis.speak(utterance)
+
+    // A tiny timeout of 50ms is highly recommended to let the browser cancel process settle down
+    setTimeout(() => {
+      window.speechSynthesis.speak(utterance)
+    }, 50)
   }
 
   return (
@@ -178,7 +229,7 @@ export const VerdictCard: React.FC<VerdictCardProps> = ({
           <div className="flex items-center gap-2.5 self-stretch sm:self-center">
             <button
               type="button"
-              onClick={handleSpeak}
+              onClick={handleListenAloud}
               className="flex-1 sm:flex-none px-4 py-3 text-xs sm:text-sm font-black bg-white hover:bg-slate-100 text-slate-900 rounded-2xl border-2 border-slate-300 shadow-xs transition flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-slate-900 active:scale-95 cursor-pointer"
               title={t('verdict.voiceTitle', 'Listen to the explanation in your language')}
             >
@@ -201,7 +252,7 @@ export const VerdictCard: React.FC<VerdictCardProps> = ({
           </div>
         </div>
 
-        {/* Verdict Explanation in Plain Language (Zero Jargon) */}
+        {/* Verdict Explanation in Plain Language */}
         <div className="mt-6 space-y-4">
           <p className="text-base sm:text-xl font-black leading-relaxed text-slate-900">
             {displaySummary}
@@ -222,7 +273,10 @@ export const VerdictCard: React.FC<VerdictCardProps> = ({
                 “{analysis.findings[0].original_excerpt}”
               </p>
               <p className="text-xs sm:text-sm text-slate-800 font-bold leading-relaxed">
-                {analysis.findings[0].explanation.replace(/SEBI regulations explicitly prohibit any intermediary, broker, or financial advisor from guaranteeing or promising fixed profits on investments\./gi, 'Real stock market investments can never guarantee fixed monthly profits. Anyone promising guaranteed profits is lying to steal your money.')}
+                {analysis.findings[0].explanation.replace(
+                  /SEBI regulations explicitly prohibit any intermediary, broker, or financial advisor from guaranteeing or promising fixed profits on investments\./gi,
+                  'Real stock market investments can never guarantee fixed monthly profits. Anyone promising guaranteed profits is lying to steal your money.',
+                )}
               </p>
             </div>
           )}

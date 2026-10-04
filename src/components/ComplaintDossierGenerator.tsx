@@ -292,12 +292,12 @@ ${evidenceText ? evidenceText.slice(0, 600) : 'Transcript of unauthorized financ
           <span className="text-xs text-slate-600 font-medium">Official Portal Link:</span>
           {selectedTarget === 'cybercrime' && (
             <a
-              href="https://cybercrime.gov.in"
+              href="https://cybercrime.gov.in/Webform/Accept.aspx"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs font-bold text-emerald-700 hover:text-emerald-900 underline"
             >
-              cybercrime.gov.in ↗
+              cybercrime.gov.in (Direct Reporting) ↗
             </a>
           )}
           {selectedTarget === 'chakshu' && (

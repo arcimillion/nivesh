@@ -40,7 +40,7 @@ export const officialSources: OfficialSource[] = [
     title: 'National Cyber Crime Reporting Portal',
     description:
       'Official portal for reporting cybercrime and online financial fraud. The national helpline is 1930.',
-    url: 'https://www.cybercrime.gov.in/',
+    url: 'https://cybercrime.gov.in/Webform/Accept.aspx',
     relevantIndicators: [
       'suspicious_link',
       'unofficial_app',

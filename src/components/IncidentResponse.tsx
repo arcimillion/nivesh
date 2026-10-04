@@ -159,7 +159,7 @@ export const IncidentResponse: React.FC = () => {
 
           <div className="mt-4 flex flex-wrap gap-3">
             <a
-              href="https://www.cybercrime.gov.in/"
+              href="https://cybercrime.gov.in/Webform/Accept.aspx"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 rounded-lg bg-red-700 px-4 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-red-800"
@@ -197,7 +197,7 @@ export const IncidentResponse: React.FC = () => {
 
           <div className="mt-4 flex flex-wrap gap-3">
             <a
-              href="https://www.cybercrime.gov.in/"
+              href="https://cybercrime.gov.in/Webform/Accept.aspx"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 rounded-lg bg-amber-800 px-4 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-amber-900"

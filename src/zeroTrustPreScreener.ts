@@ -93,20 +93,49 @@ export const runDeterministicPreScreen = (input: string | null | undefined): boo
 
   // 1. Normalize the string to prevent multiline bypasses
   const normalizedText = input.replace(/\n/g, ' ')
+  const lower = normalizedText.toLowerCase()
 
-  // 2. Credit Card Matcher: Strictly requires 13 to 16 digits.
-  // Allows for spaces or dashes between digits, but prevents matching random 3-digit numbers.
-  const ccRegex = /\b(?:\d(?:[\s-]*\d){12,15})\b/
+  // EXEMPTION: Safety warnings / advisories (e.g. "never share OTP", "do not share PIN", "bank never asks for OTP", "kabhi share na karein")
+  // must NOT trigger the deterministic bouncer unless an actual valid credit card PAN is exposed.
+  const isSafetyWarning =
+    /(never|do not|don'?t|kabhi mat|nahin|na karein|never share|never ask|never disclose|never give|do not share|never tell|bank never asks|always verify)\s*.*(otp|pin|cvv|password|details)/i.test(lower) ||
+    /(never|do not|don'?t|kabhi mat|nahin|na karein)\s*(share|give|send|disclose|tell)/i.test(lower)
 
-  // 3. PIN / CVV Matcher: Looks for keywords, allows multiple separators (like :- or is), 
-  // and handles spaced-out digits (e.g., 1 2 3 4). Uses /i for case-insensitivity.
+  if (isSafetyWarning) {
+    // Check if an actual valid credit card PAN with Luhn checksum is present
+    const formattedCardMatch = normalizedText.match(FORMATTED_CARD_REGEX) || normalizedText.match(CONTINUOUS_DIGITS_REGEX)
+    if (formattedCardMatch) {
+      for (const m of formattedCardMatch) {
+        const digits = m.replace(/\D/g, '')
+        if (isValidLuhn(digits) && hasCardIssuerPrefix(digits)) return true
+      }
+    }
+    return false
+  }
+
+  // 2. Credit Card Matcher: Strictly requires VALID Luhn checksum and card issuer prefix
+  const formattedCardMatch = normalizedText.match(FORMATTED_CARD_REGEX) || normalizedText.match(CONTINUOUS_DIGITS_REGEX)
+  if (formattedCardMatch) {
+    for (const m of formattedCardMatch) {
+      const digits = m.replace(/\D/g, '')
+      if (isValidLuhn(digits) && hasCardIssuerPrefix(digits)) return true
+    }
+  }
+
+  // 3. PIN / CVV Matcher
   const pinRegex = /\b(cvv2?|cvc2?|pin|passcode)\s*(?:is\s*)?[:=\-~>]*\s*(?:\d\s*){3,4}\b/i
 
-  // 4. OTP / Code Matcher: Same logic as PIN, but expects 4 to 6 digits.
-  const otpRegex = /\b(otp|one[- ]time password|verification code|sms code|auth code|code)\s*(?:is\s*)?[:=\-~>]*\s*(?:\d\s*){4,6}\b/i
+  // 4. OTP / Code Matcher
+  const otpRegex = /\b(otp|one[- ]time password|verification code|sms code|auth code)\s*(?:is\s*)?[:=\-~>]*\s*(?:\d\s*){4,6}\b/i
 
-  // If ANY of these return true, trigger the 🔴 Hard RED Block.
-  return ccRegex.test(normalizedText) || pinRegex.test(normalizedText) || otpRegex.test(normalizedText)
+  if (pinRegex.test(normalizedText) || otpRegex.test(normalizedText)) {
+    if (/(never|do not|don'?t|kabhi mat|nahin|na karein)\s*(share|tell|give|send)/i.test(lower)) {
+      return false
+    }
+    return true
+  }
+
+  return false
 }
 
 // Formatted card sequences (e.g. 4111 2222 3333 4444 or 4111-2222-3333-4444)
