@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { AnalysisResult } from '../api'
 
@@ -27,6 +27,7 @@ function sanitizeSummaryText(
   isRed: boolean,
   isAmber: boolean,
   isGreen: boolean,
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   t: any,
 ): string {
   if (!summary) return ''
@@ -65,13 +66,17 @@ export const VerdictCard: React.FC<VerdictCardProps> = ({
 }) => {
   const { t, i18n } = useTranslation()
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
+  const activeUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
 
   const isRed = analysis.overall_status === 'warning_signs_found'
   const isAmber = analysis.overall_status === 'insufficient_evidence'
   const isGreen = analysis.overall_status === 'no_obvious_warning_signs'
 
-  // Clean up synthesis audio when component unmounts
+  // Clean up synthesis audio when component unmounts and pre-cache available voices
   useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.getVoices()
+    }
     return () => {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel()
@@ -187,8 +192,8 @@ export const VerdictCard: React.FC<VerdictCardProps> = ({
       setIsPlayingAudio(false)
     }
 
-    // Keep global reference to prevent garbage collection bugs in Chromium
-    ;(window as any)._activeUtterance = utterance
+    // Keep reference to prevent garbage collection bugs in Chromium
+    activeUtteranceRef.current = utterance
 
     setIsPlayingAudio(true)
 

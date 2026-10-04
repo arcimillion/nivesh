@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export interface PermissibleVerdictProps {
@@ -21,6 +21,13 @@ export const PermissibleVerdict: React.FC<PermissibleVerdictProps> = ({
 }) => {
   const { t, i18n } = useTranslation()
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
+  const activeUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.getVoices()
+    }
+  }, [])
 
   const badge = t('verdict.greenBadge', 'PERMISSIBLE')
   const headline = t('verdict.greenHeadline', 'No Obvious Warning Signs')
@@ -36,24 +43,49 @@ export const PermissibleVerdict: React.FC<PermissibleVerdictProps> = ({
   )
 
   const handleSpeak = () => {
-    if (!('speechSynthesis' in window)) return
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
+
+    window.speechSynthesis.cancel()
 
     if (isPlayingAudio) {
-      window.speechSynthesis.cancel()
       setIsPlayingAudio(false)
       return
     }
 
-    window.speechSynthesis.cancel()
     const speechText = `${headline}. ${subhead}. ${sebiRule}`
     const utterance = new SpeechSynthesisUtterance(speechText)
-    utterance.lang = LANG_VOICE_CODES[i18n.language] || 'en-IN'
-    utterance.rate = 0.95
-    utterance.onend = () => setIsPlayingAudio(false)
-    utterance.onerror = () => setIsPlayingAudio(false)
+    const currentLangCode = (i18n.language || 'en').split('-')[0].toLowerCase()
+    const targetBcp47Tag = LANG_VOICE_CODES[currentLangCode] || 'en-IN'
 
+    utterance.lang = targetBcp47Tag
+    utterance.rate = 0.85 // Slower for elderly users
+    utterance.pitch = 1.0
+
+    const availableVoices = window.speechSynthesis.getVoices()
+    const nativeVoice = availableVoices.find((voice) => {
+      const vLang = voice.lang.replace('_', '-').toLowerCase()
+      const tLang = targetBcp47Tag.toLowerCase()
+      return vLang === tLang || vLang.startsWith(currentLangCode) || voice.lang.toLowerCase().startsWith(currentLangCode)
+    })
+
+    if (nativeVoice) {
+      utterance.voice = nativeVoice
+    } else {
+      console.warn(`No native voice found for ${targetBcp47Tag}. Falling back to default.`)
+    }
+
+    utterance.onend = () => setIsPlayingAudio(false)
+    utterance.onerror = (e) => {
+      console.error('SpeechSynthesisUtterance error:', e)
+      setIsPlayingAudio(false)
+    }
+
+    activeUtteranceRef.current = utterance
     setIsPlayingAudio(true)
-    window.speechSynthesis.speak(utterance)
+
+    setTimeout(() => {
+      window.speechSynthesis.speak(utterance)
+    }, 50)
   }
 
   return (

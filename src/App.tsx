@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   analyzeMessage,
@@ -15,6 +15,8 @@ import { NiveshParivarCard } from './components/NiveshParivarCard'
 import { PhoneNumberReputation } from './components/PhoneNumberReputation'
 import { SafetyCapsuleCard } from './components/SafetyCapsuleCard'
 import { SafetyCapsulesLibrary } from './components/SafetyCapsulesLibrary'
+import { VoiceNavigation } from './components/VoiceNavigation'
+import { GuidedTour } from './components/GuidedTour'
 
 export default function App() {
   const { t, i18n } = useTranslation()
@@ -31,6 +33,14 @@ export default function App() {
   const [showHowItWorks, setShowHowItWorks] = useState(false)
   const [showCapsulesModal, setShowCapsulesModal] = useState(false)
   const [showDetailsAccordion, setShowDetailsAccordion] = useState(false)
+  const [showGuidedTour, setShowGuidedTour] = useState(false)
+
+  useEffect(() => {
+    const isCompleted = localStorage.getItem('niveshshield-onboarding-completed')
+    if (!isCompleted) {
+      setShowGuidedTour(true)
+    }
+  }, [])
 
   const handleLanguageChange = (newLang: string) => {
     i18n.changeLanguage(newLang)
@@ -126,6 +136,7 @@ export default function App() {
           <div className="flex items-center gap-2.5">
             <button
               type="button"
+              id="onboarding-btn-capsules"
               onClick={() => setShowCapsulesModal(true)}
               className="flex items-center gap-1.5 px-3 py-2 rounded-2xl border-2 border-emerald-600 bg-emerald-700 text-white font-black text-xs sm:text-sm hover:bg-emerald-800 transition shadow-xs cursor-pointer active:scale-95"
             >
@@ -133,7 +144,15 @@ export default function App() {
               <span>{t('capsulesTitle', 'Safety Videos')}</span>
             </button>
 
-            <div className="flex items-center gap-1 bg-slate-100 border-2 border-slate-300 rounded-2xl px-2.5 py-1.5 shadow-2xs">
+            <VoiceNavigation
+              onCheckSafety={handleReset}
+              onExplainCurrentContent={() => setShowDetailsAccordion(true)}
+              onOpenSafetyCapsules={() => setShowCapsulesModal(true)}
+              onOpenHowItWorks={() => setShowHowItWorks(true)}
+              currentAnalysisPresent={!!analysis}
+            />
+
+            <div id="onboarding-lang-select" className="flex items-center gap-1 bg-slate-100 border-2 border-slate-300 rounded-2xl px-2.5 py-1.5 shadow-2xs">
               <span className="text-base select-none" aria-hidden="true">🌐</span>
               <select
                 value={i18n.language}
@@ -358,6 +377,15 @@ export default function App() {
           >
             {t('howItWorksTitle', 'यह कैसे काम करता है? (How it works)')}
           </button>
+
+          <button
+            type="button"
+            onClick={() => setShowGuidedTour(true)}
+            className="text-xs font-black text-emerald-800 hover:text-emerald-950 transition flex items-center gap-1.5 py-2 px-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 cursor-pointer shadow-3xs active:scale-95 mt-1"
+          >
+            <span>🔊</span>
+            <span>{t('onboarding.replay', 'Show me how NiveshShield works')}</span>
+          </button>
         </div>
       </footer>
 
@@ -395,6 +423,17 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Guided Tour Overlay */}
+      <GuidedTour
+        isOpen={showGuidedTour}
+        onComplete={() => {
+          setShowGuidedTour(false)
+          localStorage.setItem('niveshshield-onboarding-completed', 'true')
+        }}
+        currentLanguage={i18n.language}
+        onLanguageChange={handleLanguageChange}
+      />
     </div>
   )
 }

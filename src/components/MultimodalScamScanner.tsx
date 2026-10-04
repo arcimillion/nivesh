@@ -470,6 +470,7 @@ export const MultimodalScamScanner: React.FC<MultimodalScamScannerProps> = ({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 w-full">
             <button
               type="button"
+              id="onboarding-tab-text"
               onClick={() => setModality('text')}
               className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all border-2 ${
                 modality === 'text'
@@ -483,6 +484,7 @@ export const MultimodalScamScanner: React.FC<MultimodalScamScannerProps> = ({
 
             <button
               type="button"
+              id="onboarding-tab-image"
               onClick={() => {
                 setModality('image')
                 if (!filePreview) {
@@ -501,6 +503,7 @@ export const MultimodalScamScanner: React.FC<MultimodalScamScannerProps> = ({
 
             <button
               type="button"
+              id="onboarding-tab-url"
               onClick={() => setModality('url')}
               className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all border-2 ${
                 modality === 'url'
@@ -514,6 +517,7 @@ export const MultimodalScamScanner: React.FC<MultimodalScamScannerProps> = ({
 
             <button
               type="button"
+              id="onboarding-tab-voice"
               onClick={() => setModality('voice')}
               className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all border-2 ${
                 modality === 'voice'

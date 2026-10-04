@@ -92,6 +92,8 @@ const DICTIONARY: Record<
   {
     multiplierSummary: string
     guaranteedSummary: string
+    educationalSummary: string
+    guaranteedFixedSummary: string
     credentialHarvestingSummary: string
     credentialHarvestingExplanation: string
     credentialHarvestingWhatRemainsUnknown: string
@@ -142,6 +144,10 @@ const DICTIONARY: Record<
       'DANGER! This message promises fake money multiplication. Real investments can never double or multiply your money overnight.',
     guaranteedSummary:
       'DANGER! This message promises fake guaranteed returns on your money. Do NOT send any money or click any link.',
+    educationalSummary:
+      'Financial Education & Statutory Disclosure: Content is strictly informational or standard regulatory disclaimer without promotional fraud vectors.',
+    guaranteedFixedSummary:
+      'This message promises fake guaranteed returns on your money. Real stock market investments can never guarantee fixed returns.',
     credentialHarvestingSummary:
       'CRITICAL FRAUD WARNING: Requests for credit card photos, debit card details, CVV, or confidential bank details in exchange for "free money" are severe scams. Real banks and government officers NEVER ask for card photos or PINs.',
     credentialHarvestingExplanation:
@@ -248,6 +254,10 @@ const DICTIONARY: Record<
       'उच्च जोखिम चेतावनी: यह प्रस्ताव अवास्तविक धन गुणन का वादा करता है (जैसे कम पैसे देकर कई गुना रिटर्न)। यह प्रतिभूति लेन-देन में गारंटीड रिटर्न पर रोक लगाने वाले सेबी नियमों का सीधा उल्लंघन है।',
     guaranteedSummary:
       'चेतावनी के संकेत मिले: निश्चित रिटर्न के वादे और जल्दबाज़ी का दबाव सेबी और आरबीआई के वैधानिक निवेशक सुरक्षा नियमों का उल्लंघन करते हैं।',
+    educationalSummary:
+      'वित्तीय शिक्षा और वैधानिक प्रकटीकरण: सामग्री पूरी तरह से सूचनात्मक या मानक नियामक अस्वीकरण है जिसमें कोई प्रचारक धोखाधड़ी शामिल नहीं है।',
+    guaranteedFixedSummary:
+      'यह संदेश आपके पैसे पर फर्जी गारंटीड रिटर्न का वादा करता है। वास्तविक शेयर बाजार निवेश कभी भी निश्चित रिटर्न की गारंटी नहीं दे सकता।',
     credentialHarvestingSummary:
       'गंभीर धोखाधड़ी चेतावनी: "मुफ्त पैसे" या इनाम के बदले क्रेडिट कार्ड का फोटो, डेबिट कार्ड विवरण, CVV या बैंकिंग क्रेडेंशियल्स मांगना एक गंभीर साइबर फ़िशिंग और वित्तीय धोखाधड़ी है। वैध वित्तीय संस्थान कभी भी कार्ड का फोटो या गोपनीय जानकारी नहीं मांगते। तत्काल लेन-देन रोकने (Transaction Block) की सलाह दी जाती है।',
     credentialHarvestingExplanation:
@@ -354,6 +364,10 @@ const DICTIONARY: Record<
       'उच्च जोखीम इशारा: ही ऑफर अवास्तव पैसे वाढवण्याचे (उदा. कमी रक्कम देऊन अनेक पट परतावा) आश्वासन देते. रोखे बाजारात हमी परताव्यावर बंदी घालणाऱ्या सेबी नियमांचे हे थेट उल्लंघन आहे.',
     guaranteedSummary:
       'चेतावणी संकेत आढळले: खात्रीशीर परताव्याची आश्वासने आणि घाई करण्याची रणनीती सेबी आणि आरबीआयच्या गुंतवणूकदार सुरक्षा नियमांचे उल्लंघन करतात.',
+    educationalSummary:
+      'वित्तीय शिक्षण आणि वैधानिक प्रकटीकरण: मजकूर पूर्णपणे माहितीपूर्ण किंवा मानक नियामक अस्वीकरण आहे ज्यामध्ये कोणताही फसवणुकीचा हेतू नाही।',
+    guaranteedFixedSummary:
+      'हा संदेश तुमच्या पैशावर खोट्या हमी परताव्याचे वचन देतो. वास्तविक शेअर बाजारातील गुंतवणूक कधीही निश्चित परताव्याची आज्ञा देऊ शकत नाही।',
     credentialHarvestingSummary:
       'गंभीर फसवणूक इशारा: "मोफत पैसे" किंवा बक्षिसाच्या बदल्यात क्रेडिट कार्डचा फोटो, डेबिट कार्ड तपशील, CVV किंवा बँकिंग क्रेडेंशियल्स मागणे ही एक अत्यंत गंभीर सायबर फिशिंग फसवणूक आहे. अधिकृत वित्तीय संस्था कधीही कार्डचा फोटो किंवा गोपनीय क्रेडेंशियल्स मागत नाहीत. तत्काळ व्यवहार रोखण्याची (Transaction Block) शिफारस केली जाते.',
     credentialHarvestingExplanation:
@@ -457,6 +471,10 @@ const DICTIONARY: Record<
       'উচ্চ ঝুঁকির সতর্কতা: এই প্রস্তাবটি অবাস্তব অর্থ গুণের প্রতিশ্রুতি দেয় (যেমন অল্প টাকা দিয়ে বহুগুণ রিটার্ন)। এটি সিকিউরিটিজ লেনদেনে নিশ্চিত রিটার্নের প্রতিশ্রুতি নিষিদ্ধকারী সেবি বিধি লঙ্ঘন করে।',
     guaranteedSummary:
       'সতর্কতামূলক লক্ষণ পাওয়া গেছে: নিশ্চিত রিটার্নের প্রতিশ্রুতি এবং চাপের কৌশলগুলি সেবি এবং আরবিআইয়ের সংবিধিবদ্ধ বিনিয়োগকারী সুরক্ষা বিধি লঙ্ঘন করে।',
+    educationalSummary:
+      'আর্থিক শিক্ষা এবং সংবিধিবদ্ধ প্রকাশনা: বিষয়বস্তুটি সম্পূর্ণ তথ্যবহুল বা আদর্শ নিয়ন্ত্রক দাবিত্যাগ, যার মধ্যে কোনো প্রতারণামূলক উপাদান নেই।',
+    guaranteedFixedSummary:
+      'এই বার্তাটি আপনার টাকার উপর ভুয়ো নিশ্চিত রিটার্নের প্রতিশ্রুতি দেয়। আসল শেয়ার বাজারের বিনিয়োগ কখনোই নির্দিষ্ট রিটার্নের গ্যারান্টি দিতে পারে না।',
     credentialHarvestingSummary:
       'গুরুতর প্রতারণা সতর্কতা: "বিনামূল্যে টাকা" বা পুরস্কারের বিনিময়ে ক্রেডিট কার্ডের ছবি, ডেবিট কার্ডের তথ্য, CVV বা ব্যাঙ্কিং প্রমাণপত্র চাওয়া একটি মারাত্মক ফিশিং প্রতারণা। কোনো বৈধ আর্থিক প্রতিষ্ঠান কখনোই কার্ডের ছবি বা গোপন তথ্য চায় না। অবিলম্বে লেনদেন বন্ধ করার (Transaction Block) পরামর্শ দেওয়া হচ্ছে।',
     credentialHarvestingExplanation:
@@ -557,6 +575,10 @@ const DICTIONARY: Record<
       'உயர் ஆபத்து எச்சரிக்கை: இந்தச் சலுகை சாத்தியமற்ற பணப் பெருக்கத்தை உறுதியளிக்கிறது (எ.கா. சிறிய தொகையைக் கொடுத்து பல மடங்கு வருமானம்). இது பங்கு வர்த்தகத்தில் உத்தரவாத வருமானத்தைத் தடைசெய்யும் செபி விதிமுறைகளை மீறுகிறது.',
     guaranteedSummary:
       'எச்சரிக்கை அறிகுறிகள் கண்டறியப்பட்டன: உறுதிசெய்யப்பட்ட வருமான வாக்குறுதிகள் மற்றும் அவசரப்படுத்தும் உத்திகள் செபி மற்றும் ரிசர்வ் வங்கியின் முதலீட்டாளர் பாதுகாப்பு விதிமுறைகளை மீறுகின்றன.',
+    educationalSummary:
+      'நிதி கல்வி & சட்டப்பூர்வ வெளிப்படுத்தல்: உள்ளடக்கம் முற்றிலும் தகவல் அல்லது நிலையான ஒழுங்குமுறை மறுப்பு ஆகும், இதில் விளம்பர மோசடிகள் எதுவும் இல்லை.',
+    guaranteedFixedSummary:
+      'இந்தச் செய்தி உங்கள் பணத்திற்குப் போலியான உத்தரவாத வருமானத்தை அளிப்பதாகக் கூறுகிறது. உண்மையான பங்குச் சந்தை முதலீடுகள் ஒருபோதும் நிலையான வருமானத்திற்கு உத்தரவாதம் அளிக்க முடியாது.',
     credentialHarvestingSummary:
       'முக்கிய மோசடி எச்சரிக்கை: "இலவச பணம்" அல்லது பரிசுகளுக்குப் பதிலாக கிரெடிட் கார்டு புகைப்படம், டெபிட் கார்டு விவரங்கள், CVV அல்லது வங்கி ரகசிய விவரங்களைக் கோருவது கடுமையான இணைய நிதி மோசடியாகும். உண்மையான நிதி நிறுவனங்கள் ஒருபோதும் கார்டு புகைப்படங்களையோ ரகசிய குறியீடுகளையோ கேட்பதில்லை. உடனடியாகப் பரிவர்த்தனையைத் தடுக்க (Transaction Block) பரிந்துரைக்கப்படுகிறது.',
     credentialHarvestingExplanation:
@@ -658,6 +680,10 @@ const DICTIONARY: Record<
       'ઉચ્ચ જોખમ ચેતવણી: આ ઓફર અવાસ્તવિક નાણાં ગુણાકારનું વચન આપે છે (દા.ત. થોડી રકમ આપીને અનેક ગણો નફો). આ જામીનગીરી વ્યવહારોમાં ગેરંટીડ રિટર્નનું વચન આપવા પર પ્રતિબંધ મૂકતા સેબીના નિયમોનું ઉલ્લંઘન કરે છે.',
     guaranteedSummary:
       'ચેતવણીના સંકેતો મળ્યા: ખાતરીપૂર્વકના વળતરના વચનો અને દબાણની યુક્તિઓ સેબી અને આરબીઆઈના રોકાણકાર સુરક્ષા નિયમોનું ઉલ્લંઘન કરે છે.',
+    educationalSummary:
+      'નાણાકીય શિક્ષણ અને વૈધાનિક જાહેરાત: આ વિષયવસ્તુ સંપૂર્ણપણે માહિતીપ્રદ અથવા પ્રમાણભૂત નિયમનકારી અસ્વીકરણ છે અને તેમાં કોઈ છેતરપિંડી નથી.',
+    guaranteedFixedSummary:
+      'આ સંદેશ તમારા પૈસા પર ખોટા ગેરંટીડ વળતરનું વચન આપે છે. વાસ્તવિક શેરબજારના રોકાણો ક્યારેય નિશ્ચિત વળતરની ગારંટી આપી શકતા નથી.',
     credentialHarvestingSummary:
       'ગંભીર છેતરપિંડી ચેતવણી: "મફત પૈસા" કે ઇનામના બદલામાં ક્રેડિટ કાર્ડનો ફોટો, ડેબિટ કાર્ડ વિગતો, CVV કે બેંકિંગ ક્રેડેન્શિયલ્સ માંગવા એ અત્યંત ગંભીર સાયબર ફિશિંગ છેતરપિંડી છે. કાયદેસરની નાણાકીય સંસ્થાઓ ક્યારેય કાર્ડનો ફોટો કે ગુપ્ત વિગતો માંગતી નથી. તાત્કાલિક વ્યવહાર રોકવાની (Transaction Block) ભલામણ કરવામાં આવે છે.',
     credentialHarvestingExplanation:
@@ -1476,4 +1502,16 @@ export function evaluatePhoneLocally(
     safety_advisories: dict.phoneSafetyAdvisories,
     privacy_notice: dict.phonePrivacyNotice,
   }
+}
+
+export function getLocalizedStaticString(
+  key: 'educationalSummary' | 'guaranteedFixedSummary',
+  lang?: string,
+): string {
+  const langKey = resolveLang(lang)
+  const dict = DICTIONARY[langKey]
+  if (key === 'educationalSummary') {
+    return dict.educationalSummary
+  }
+  return dict.guaranteedFixedSummary
 }

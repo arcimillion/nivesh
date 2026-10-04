@@ -18,7 +18,7 @@ import {
   evaluateFatalRedLines,
   buildHardRedBlockResult,
 } from './zeroTrustPreScreener.ts'
-import { evaluateLocally } from './localRegulatoryEngine.ts'
+import { evaluateLocally, getLocalizedStaticString } from './localRegulatoryEngine.ts'
 
 export interface PipelineInputPayload {
   message?: string
@@ -265,7 +265,7 @@ export async function executeNiveshShieldPipeline(
 
   // --- SAFE EXEMPTION CHECK: Educational & Statutory Disclaimers ---
   if (isEducationalOrDisclaimer(rawText)) {
-    const fallback = runLocalFallbackRules(rawInput)
+    const fallback = runLocalFallbackRules(analyzeOptions)
     return {
       verdict: '🟢 GREEN',
       scam_detected: false,
@@ -275,13 +275,13 @@ export async function executeNiveshShieldPipeline(
         'Verifiable & Educational: Strictly neutral financial literacy or statutory risk disclosure.',
       ...fallback,
       overall_status: 'no_obvious_warning_signs',
-      summary: fallback.summary || 'Financial Education & Statutory Disclosure: Content is strictly informational or standard regulatory disclaimer without promotional fraud vectors.',
+      summary: getLocalizedStaticString('educationalSummary', selectedLanguage),
     }
   }
 
   // --- UNIVERSAL GUARANTEED RETURN SCAM INTERCEPTOR ---
   if (isUniversalGuaranteedReturnScam(rawText)) {
-    const fallback = runLocalFallbackRules(rawInput)
+    const fallback = runLocalFallbackRules(analyzeOptions)
     return {
       verdict: '🔴 RED',
       scam_detected: true,
@@ -291,7 +291,7 @@ export async function executeNiveshShieldPipeline(
         'Zero-Trust Violation: Promising guaranteed percentage returns in any language or script violates SEBI regulations.',
       ...fallback,
       overall_status: 'warning_signs_found',
-      summary: fallback.summary || 'This message promises fake guaranteed returns on your money. Real stock market investments can never guarantee fixed returns.',
+      summary: getLocalizedStaticString('guaranteedFixedSummary', selectedLanguage),
     }
   }
 
@@ -313,7 +313,7 @@ export async function executeNiveshShieldPipeline(
 
   // Fix TC-11: Detect Injection Attempts Directly
   if (/system\s*override|disregard|set\s*scam_detected/i.test(lowerInput)) {
-    const fallback = runLocalFallbackRules(rawInput)
+    const fallback = runLocalFallbackRules(analyzeOptions)
     return {
       verdict: '🔴 RED',
       scam_detected: true,
@@ -332,7 +332,7 @@ export async function executeNiveshShieldPipeline(
       lowerInput,
     )
   if (isAuthorityImpersonation) {
-    const fallback = runLocalFallbackRules(rawInput)
+    const fallback = runLocalFallbackRules(analyzeOptions)
     return {
       verdict: '🔴 RED',
       scam_detected: true,
@@ -351,7 +351,7 @@ export async function executeNiveshShieldPipeline(
     /(dashboard|account)\s*shows.*(profit|allotment|gains)/i.test(lowerInput) ||
     /₹\s*\d+.*profit/i.test(lowerInput)
   if (isArtificialProfit) {
-    const fallback = runLocalFallbackRules(rawInput)
+    const fallback = runLocalFallbackRules(analyzeOptions)
     return {
       verdict: '🔴 RED',
       scam_detected: true,
@@ -371,7 +371,7 @@ export async function executeNiveshShieldPipeline(
     /(विशेष\s*ऑफर|खास\s*ऑफर)\s*.*\s*(गारंटीड|गारंटी)\s*.*\s*(\d+%\s*मासिक|\d+%\s*रोजाना)/i.test(rawText)
 
   if (isVernacularGuaranteedReturn) {
-    const fallback = runLocalFallbackRules(rawInput)
+    const fallback = runLocalFallbackRules(analyzeOptions)
     return {
       verdict: '🔴 RED',
       scam_detected: true,
@@ -381,7 +381,7 @@ export async function executeNiveshShieldPipeline(
         'Zero-Trust Trigger: Promising guaranteed monthly financial returns in regional languages violates SEBI regulations.',
       ...fallback,
       overall_status: 'warning_signs_found',
-      summary: fallback.summary || 'This message promises fake guaranteed returns on your money. Real stock market investments can never guarantee fixed returns.',
+      summary: getLocalizedStaticString('guaranteedFixedSummary', selectedLanguage),
     }
   }
 
@@ -404,7 +404,7 @@ export async function executeNiveshShieldPipeline(
 
     // --- STAGE 3: Zero-Trust Triage Gate Audit ---
     if (aiResult.scam_detected) {
-      const fallback = runLocalFallbackRules(rawInput)
+      const fallback = runLocalFallbackRules(analyzeOptions)
       return {
         ...fallback,
         ...aiResult,
@@ -420,7 +420,7 @@ export async function executeNiveshShieldPipeline(
 
     // NEW: Clean pass for everyday non-financial chatter (e.g., "hello") or non-investment expenses
     if (aiResult.is_financial_context === false || isNonInvestmentExpense) {
-      const fallback = runLocalFallbackRules(rawInput)
+      const fallback = runLocalFallbackRules(analyzeOptions)
       return {
         ...fallback,
         ...aiResult,
@@ -438,7 +438,7 @@ export async function executeNiveshShieldPipeline(
     }
 
     // Fallback based on deterministic engine assessment
-    const fallback = runLocalFallbackRules(rawInput)
+    const fallback = runLocalFallbackRules(analyzeOptions)
     if (fallback.overall_status === 'no_obvious_warning_signs') {
       return {
         ...fallback,
@@ -472,7 +472,7 @@ export async function executeNiveshShieldPipeline(
     }
   } catch {
     // Stage 2 Failure / Timeout Fallback
-    const fallback = runLocalFallbackRules(rawInput)
+    const fallback = runLocalFallbackRules(analyzeOptions)
     if (fallback.overall_status === 'no_obvious_warning_signs') {
       return {
         ...fallback,
