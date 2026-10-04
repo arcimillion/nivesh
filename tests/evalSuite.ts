@@ -87,7 +87,7 @@ const TEST_CASES: TestCase[] = [
   },
   {
     id: 'TC-04',
-    name: 'Benign Educational Investment Guidance',
+    name: 'Being Educational Investment Guidance',
     category: 'Benign Content',
     modality: 'text',
     language: 'en',

@@ -54,7 +54,7 @@ const res3 = evaluateLocally({
 })
 assert('Informal Telegram group flagged as insufficient_evidence', res3.overall_status === 'insufficient_evidence')
 
-// Test 4: Benign educational text
+// Test 4: Being educational text
 const res4 = evaluateLocally({
   message: 'Index funds and diversified mutual funds invest in broad market indices over long horizon.',
   language: 'en',

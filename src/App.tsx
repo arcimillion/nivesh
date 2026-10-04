@@ -23,8 +23,11 @@ import { ScamIncidentCasebook } from './components/ScamIncidentCasebook'
 import { CommunityIntelligence } from './components/CommunityIntelligence'
 import { CoolingOffCalculator } from './components/CoolingOffCalculator'
 import { SpotTheScamSimulation } from './components/SpotTheScamSimulation'
+import { SafetyCapsuleCard } from './components/SafetyCapsuleCard'
+import { SafetyCapsulesLibrary } from './components/SafetyCapsulesLibrary'
 
 type AdvancedToolTab =
+  | 'capsules'
   | 'demat'
   | 'sebi'
   | 'safety_gate'
@@ -52,6 +55,7 @@ export default function App() {
 
   // Advanced Tools Modal (Preserves all Hackathon features without cluttering homepage)
   const [showToolsModal, setShowToolsModal] = useState(false)
+  const [showCapsulesModal, setShowCapsulesModal] = useState(false)
   const [activeToolTab, setActiveToolTab] = useState<AdvancedToolTab>('demat')
 
   const handleLanguageChange = (newLang: string) => {
@@ -149,6 +153,16 @@ export default function App() {
 
           {/* Right Header: Regional Language Switcher & Hackathon Tools Menu */}
           <div className="flex items-center gap-3">
+            {/* Safety Capsules Button */}
+            <button
+              type="button"
+              onClick={() => setShowCapsulesModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-xs font-bold text-emerald-950 hover:bg-emerald-100 transition shadow-2xs"
+            >
+              <span>🎥</span>
+              <span>{t('capsules.title', 'Safety Capsules')}</span>
+            </button>
+
             {/* Hackathon Badge / Tools Button */}
             <button
               type="button"
@@ -297,6 +311,14 @@ export default function App() {
               showDossier={showDossier}
             />
 
+            {/* Contextual Official Safety Education Capsule */}
+            <div className="w-full animate-fade-in">
+              <SafetyCapsuleCard
+                analysis={analysis}
+                onExploreLibrary={() => setShowCapsulesModal(true)}
+              />
+            </div>
+
             {/* PROGRESSIVE DISCLOSURE ACTION 1: 5-Stage Scam Journey Map */}
             {showJourneyMap && analysis.scam_journey_map && (
               <div className="w-full animate-fade-in">
@@ -397,6 +419,17 @@ export default function App() {
             <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-100">
               <button
                 type="button"
+                onClick={() => setActiveToolTab('capsules')}
+                className={`px-3.5 py-2 text-xs font-black rounded-xl whitespace-nowrap transition ${
+                  activeToolTab === 'capsules'
+                    ? 'bg-emerald-800 text-white shadow-xs'
+                    : 'bg-emerald-50 text-emerald-900 border border-emerald-200 hover:bg-emerald-100'
+                }`}
+              >
+                🎥 Safety Capsules
+              </button>
+              <button
+                type="button"
                 onClick={() => setActiveToolTab('demat')}
                 className={`px-3.5 py-2 text-xs font-black rounded-xl whitespace-nowrap transition ${
                   activeToolTab === 'demat'
@@ -487,6 +520,7 @@ export default function App() {
 
             {/* Modal Tool View Content */}
             <div className="py-2">
+              {activeToolTab === 'capsules' && <SafetyCapsulesLibrary />}
               {activeToolTab === 'demat' && <DematSafetyChecker />}
               {activeToolTab === 'sebi' && <SebiValidator />}
               {activeToolTab === 'safety_gate' && (
@@ -529,6 +563,19 @@ export default function App() {
                 ← Back to Scam Scanner
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Direct Safety Capsules Library Modal */}
+      {showCapsulesModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto animate-fade-in"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-5xl rounded-3xl bg-white p-4 sm:p-7 shadow-2xl relative my-6 border border-slate-200 max-h-[92vh] overflow-y-auto">
+            <SafetyCapsulesLibrary onClose={() => setShowCapsulesModal(false)} />
           </div>
         </div>
       )}

@@ -95,7 +95,7 @@ An automated repeatable test suite (`tests/evalSuite.ts`) tests 13 edge cases ac
 | **TC-01** | Guaranteed Returns Solicitation | Scam Detection | Text (`en`) | **PASS** | Flagged `guaranteed_returns` indicator |
 | **TC-02** | Artificial Urgency & Payment Pressure | Scam Detection | Text (`en`) | **PASS** | Assessed `warning_signs_found` |
 | **TC-03** | Ambiguous Community Scheme | Ambiguity & Uncertainty | Text (`en`) | **PASS** | Captured `insufficient_evidence` |
-| **TC-04** | Benign Educational Guidance | Benign Content | Text (`en`) | **PASS** | Marked `no_obvious_warning_signs` |
+| **TC-04** | Being Educational Guidance | Benign Content | Text (`en`) | **PASS** | Marked `no_obvious_warning_signs` |
 | **TC-05** | Prompt Injection Defense | Safety & Security | Text (`en`) | **PASS** | System prompt override neutralized |
 | **TC-06** | Mixed-Language (Hinglish) | Multilingual NLP | Text (`hi`) | **PASS** | Flagged Hindi + English slang returns |
 | **TC-07** | Tamil Language Evaluation | Multilingual NLP | Text (`ta`) | **PASS** | Evaluated Tamil claim structure |

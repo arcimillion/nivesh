@@ -157,7 +157,7 @@
     "ex2Title": "Ambiguous Scheme",
     "ex2Badge": "Needs Verification",
     "ex2Text": "Our investment program has excellent opportunities. Contact our representative on Telegram to learn more about the available VIP plans.",
-    "ex3Title": "Benign Educational",
+    "ex3Title": "Being Educational",
     "ex3Badge": "Educational",
     "ex3Text": "Investments in securities market are subject to market risks. Read all scheme related documents carefully before investing. Verify registered intermediaries on SEBI website."
   },
@@ -372,5 +372,19 @@
 
   "footer": {
     "platform": "NiveshShield 2.0 — Multimodal AI Investor-Resilience Platform"
+  },
+
+  "capsules": {
+    "title": "Safety Capsules",
+    "contextualBadge": "Contextual Official Safety Education",
+    "subtitle": "Recognize this exact danger next time — verified public education in your language",
+    "watchVideo": "Watch Video",
+    "allTopics": "All Topics →",
+    "stopAudio": "Stop Audio",
+    "videoUnavailableYet": "Official video not available in this language yet.",
+    "searchPlaceholder": "Search by topic (e.g. OTP, UPI, guaranteed returns, digital arrest)...",
+    "categories": {
+      "all": "All Topics"
+    }
   }
 }
