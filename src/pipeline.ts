@@ -70,17 +70,63 @@ export function isEducationalOrDisclaimer(input: string): boolean {
   if (!input) return false
   const lower = input.toLowerCase().trim()
 
-  // 1. Detect pure financial literacy questions (e.g., "What is...", "How does...", "Difference between...")
+  // Added Hinglish/Vernacular question markers (kya, kaise, antar, fark, kaunsa, matlab)
   const isLiteracyQuestion =
-    /^(what|how|why|can|explain|difference|compare)\s+.*(mutual fund|etf|stock|equity|bond|sip|nav|demat)/i.test(
+    /^(what|how|why|can|explain|difference|compare|kya|kaise|kaunsa)\s+.*(mutual fund|etf|stock|equity|bond|sip|nav|demat|invest)/i.test(
       lower,
-    )
+    ) || /(antar|fark|matlab|sahi rahega)/i.test(lower)
 
   // 2. Detect standard statutory disclaimers
   const isStatutoryDisclaimer =
     /disclaimer\s*:.*market risk|read all scheme documents carefully/i.test(lower)
 
   return isLiteracyQuestion || isStatutoryDisclaimer
+}
+
+export function isUniversalGuaranteedReturnScam(input: string): boolean {
+  if (!input) return false
+  const cleanInput = input.toLowerCase()
+
+  // 1. Script & Voice-Agnostic Pattern: Catches actual '%' AND spoken words for "percent"
+  const hasPercentageYield =
+    /([\d\u0966-\u096F]{1,3}|one|two|three|four|five|six|seven|eight|nine|ten|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|chalis|pachas|tis|saath)\s*(%|percent|pratishat|takka|shatake)\s*(return|returns|profit|gains|yield|monthly|daily|per\s*month|मासिक|रोजाना|दरमहा|માસિક|মাসিক|மாதாந்திர|నెలవారీ|ಪ್ರતિ\s*તિંಗಳು|मुनाफा|फायदा|रिटर्न|परतावा|વળતર|નફો|রিটার্ন|মুনাফা|வருமானம்|லாபம்|రిటర్న్|లాభం)/i.test(
+      cleanInput,
+    )
+  // 2. Multilingual Keyword Dictionary (Guaranteed / Return / Profit / Special Offer)
+  // Cleaned up legacy pattern
+
+  // legacy yield regex skipped
+  // legacy unused variables removed
+  /* legacy code start /([\d\u0966-\u096F]{1,3}\s*%\s*(monthly|daily|per\s*month|मासिक|रोजाना|दरमहा|માસિક|মাসিক|மாதாந்திர|నెలవారీ|ಪ್ರತಿ\s*ತಿಂಗಳು))/i.test(
+    cleanInput,
+  ) */
+
+  // 2. Multilingual Keyword Dictionary (Guaranteed / Return / Profit / Special Offer)
+  const multilingualKeywords = [
+    // Devanagari (Hindi / Marathi)
+    /गारंटीड|ग्यारंटी|गारंटी|परतावा|हमी|मासिक\s*रिटर्न|विशेष\s*ऑफर|खास\s*ऑफर/i,
+    // Gujarati
+    /ગેરંટીડ|વળતર|માસિક|વિશેષ\s*ઓફર|નફો/i,
+    // Bengali
+    /গ্যারান্টিযুক্ত|রিটার্ন|মাসিক|বিশেষ\s*অফার|মুনাফা/i,
+    // Tamil
+    /உத்தரவாதம்|வருமானம்|மாதாந்திர|சிறப்பு\s*ஆஃபர்|லாபம்/i,
+    // Telugu
+    /హామీ|రిటర్న్|నెలవారీ|ప్రత్యేక\s*ఆఫర్|లాభం/i,
+    // Phonetic / Voice / Spoken English & Hinglish
+    /guaranteed|guarantee|gwaranti|gyaranti|gwarantee/i,
+  ]
+
+  const hasKeywordMatch = multilingualKeywords.some((regex) => regex.test(cleanInput))
+
+  // Spoken or symbolic percentage check for keyword match
+  const hasPercentSymbolOrWord =
+    /([\d\u0966-\u096F]{1,3}|one|two|three|four|five|six|seven|eight|nine|ten|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|chalis|pachas|tis|saath)\s*(%|percent|pratishat|takka|shatake)/i.test(
+      cleanInput,
+    )
+
+  // If input contains a percentage yield promise AND a regional guarantee/profit word
+  return hasPercentageYield || (hasKeywordMatch && hasPercentSymbolOrWord)
 }
 
 // ----------------------------------------------------
@@ -190,6 +236,23 @@ export async function executeNiveshShieldPipeline(
     }
   }
 
+  // --- UNIVERSAL GUARANTEED RETURN SCAM INTERCEPTOR ---
+  if (isUniversalGuaranteedReturnScam(rawText)) {
+    const fallback = runLocalFallbackRules(rawInput)
+    return {
+      verdict: '🔴 RED',
+      scam_detected: true,
+      scam_stage: 'lure_contact',
+      confidence_score: 0.99,
+      rationale_for_dossier:
+        'Zero-Trust Violation: Promising guaranteed percentage returns in any language or script violates SEBI regulations.',
+      ...fallback,
+      overall_status: 'warning_signs_found',
+      summary:
+        'Zero-Trust Alert: Guaranteed investment returns promised in regional language/script, violating SEBI/RBI regulations.',
+    }
+  }
+
   // Check file/image metadata fast-pass if applicable
   if (typeof rawInput === 'object') {
     const preScreenResult = await runZeroTrustPreScreen(analyzeOptions)
@@ -262,6 +325,27 @@ export async function executeNiveshShieldPipeline(
     }
   }
 
+  // Catch Guaranteed Returns in English, Hindi, and Marathi Devanagari Scripts
+  const isVernacularGuaranteedReturn =
+    /(गारंटीड|ग्यारंटी|गारंटी|गारंटीड)\s*.*\s*(\d{1,3}%|\d+\s*टक्के)\s*.*\s*(रिटर्न|परतावा|मुनाफा|फायदा|उत्पन्न)/i.test(rawText) ||
+    /(विशेष\s*ऑफर|खास\s*ऑफर)\s*.*\s*(गारंटीड|गारंटी)\s*.*\s*(\d+%\s*मासिक|\d+%\s*रोजाना)/i.test(rawText)
+
+  if (isVernacularGuaranteedReturn) {
+    const fallback = runLocalFallbackRules(rawInput)
+    return {
+      verdict: '🔴 RED',
+      scam_detected: true,
+      scam_stage: 'lure_contact',
+      confidence_score: 0.98,
+      rationale_for_dossier:
+        'Zero-Trust Trigger: Promising guaranteed monthly financial returns in regional languages violates SEBI regulations.',
+      ...fallback,
+      overall_status: 'warning_signs_found',
+      summary:
+        'Zero-Trust Alert: Guaranteed investment returns promised in regional language (Devanagari script), violating SEBI/RBI regulations.',
+    }
+  }
+
   // --- STAGE 2: Sanitized Multimodal AI Call ---
   const cleanInput = sanitizeInput(rawText)
   const geminiPayload = `<untrusted_user_input>\n${cleanInput}\n</untrusted_user_input>`
@@ -271,6 +355,7 @@ export async function executeNiveshShieldPipeline(
       text: geminiPayload,
       message: geminiPayload,
       language: selectedLanguage,
+      target_language: selectedLanguage,
       modality: safeModality,
       file_data: fileData,
       file_mime_type: fileMimeType,
@@ -289,8 +374,13 @@ export async function executeNiveshShieldPipeline(
       }
     }
 
-    // NEW: Clean pass for everyday non-financial chatter (e.g., "hello")
-    if (aiResult.is_financial_context === false) {
+    const isNonInvestmentExpense =
+      /(grocery|groceries|movie|ticket|tickets|dinner|lunch|breakfast|food|restaurant|shopping|travel|flight|hotel|uber|ola|cab|rent|electricity|bill)/i.test(
+        lowerInput,
+      )
+
+    // NEW: Clean pass for everyday non-financial chatter (e.g., "hello") or non-investment expenses
+    if (aiResult.is_financial_context === false || isNonInvestmentExpense) {
       const fallback = runLocalFallbackRules(rawInput)
       return {
         ...fallback,
@@ -299,6 +389,7 @@ export async function executeNiveshShieldPipeline(
         scam_detected: false,
         confidence_score: 0.0,
         scam_stage: 'none',
+        is_financial_context: false,
         rationale_for_dossier:
           'Neutral Context: This is everyday conversation, not a financial proposition.',
         overall_status: 'no_obvious_warning_signs',
@@ -330,10 +421,13 @@ export async function executeNiveshShieldPipeline(
       /^(hello|hi|hey|good morning|good evening|good afternoon|how are you|namaste|sup)\b/i.test(
         lowerInput.trim(),
       ) ||
+      /(grocery|groceries|movie|ticket|tickets|dinner|lunch|breakfast|food|restaurant|shopping|travel|flight|hotel|uber|ola|cab|rent|electricity|bill)/i.test(
+        lowerInput,
+      ) ||
       (!/(invest|money|profit|return|stock|fund|share|rupee|inr|usd|crypto|bank|demat|broker|tax|fee|allotment|deposit|account|upi|card|p&l)/i.test(
         lowerInput,
       ) &&
-        lowerInput.length < 50)
+        lowerInput.length < 100)
 
     if (isCasual) {
       return {

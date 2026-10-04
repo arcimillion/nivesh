@@ -55,6 +55,46 @@ export const MultimodalInput: React.FC<Props> = ({
     }
   }, [filePreview])
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items
+    if (!items) return
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith('image/')) {
+        const file = items[i].getAsFile()
+        if (file) {
+          setModality('image')
+          setSelectedFile(file)
+          const objectUrl = URL.createObjectURL(file)
+          setFilePreview(objectUrl)
+          const reader = new FileReader()
+          reader.onloadend = () => {
+            setFileBase64(reader.result as string)
+          }
+          reader.readAsDataURL(file)
+          e.preventDefault()
+          break
+        }
+      }
+    }
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    const files = e.dataTransfer?.files
+    if (files && files.length > 0 && files[0].type.startsWith('image/')) {
+      const file = files[0]
+      setModality('image')
+      setSelectedFile(file)
+      const objectUrl = URL.createObjectURL(file)
+      setFilePreview(objectUrl)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setFileBase64(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -373,9 +413,11 @@ export const MultimodalInput: React.FC<Props> = ({
 
       {/* 2. SCREENSHOT / IMAGE TAB */}
       {modality === 'image' && (
-        <div className="space-y-4">
+        <div className="space-y-4" onPaste={handlePaste}>
           <div
             onClick={() => fileInputRef.current?.click()}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleDrop}
             className="cursor-pointer rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center hover:border-emerald-500 hover:bg-emerald-50/30 transition"
           >
             <input

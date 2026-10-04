@@ -233,7 +233,8 @@ app.post('/api/analyze-stage2', analyzeLimiter, async (req: Request, res: Respon
           : undefined),
       audio_mime_type: req.body.audio_mime_type,
       modality: req.body.modality,
-      language: req.body.language || 'en',
+      language: req.body.language || req.body.target_language || 'en',
+      target_language: req.body.target_language || req.body.language || 'en',
     }
 
     const result = await runStage2SemanticAnalysis(payload)
@@ -375,6 +376,18 @@ MANDATORY HIGH-RISK SEVERE FRAUD TRIGGERS (overall_status MUST BE 'warning_signs
 6. Threat of Account Freeze & Clearance Fee Extortion: Threats that accounts will be frozen by SEBI/authorities in 10 minutes unless a clearance/unlock fee is paid = MUST trigger overall_status: 'warning_signs_found' (Violation: SEBI Impersonation & Extortion).
 7. Illegal Off-Market / Dabba Trading & KYC Bypass: "dabba trading", "bina PAN card", "no KYC required" = MUST trigger overall_status: 'warning_signs_found' (Violation: SEBI Act Section 13/16 and PMLA Act).
 8. Unsolicited private WhatsApp/Telegram VIP trading groups or fake APK installations.
+
+UNIVERSAL SCRIPT & LANGUAGE RULE:
+1. ANY text in ANY script or language (English, Hindi, Marathi, Bengali, Tamil, Telugu, Gujarati, Kannada, Malayalam, Punjabi, Hinglish, etc.) that offers a fixed percentage (%), yield, monthly return, or profit promise MUST BE CLASSIFIED AS:
+   - overall_status: 'warning_signs_found' (scam_detected: true)
+
+2. DO NOT misclassify percentage returns in Indic scripts (e.g., Tamil "40% மாதாந்திர வருமானம்", Gujarati "40% માસિક વળતર", Bengali "40% মাসিক রিটার্ন") as e-commerce store discounts. Promising fixed financial returns is strictly illegal under SEBI regulations regardless of language.
+3. CONTEXT RULE: Differentiate between e-commerce refunds ("100% return policy on items") and financial yields ("100% return on money"). ANY phrase promising a percentage "return" or "profit" without explicit retail context MUST trigger overall_status: 'warning_signs_found' (scam_detected: true).
+
+VOICE TRANSCRIPT DIRECTIVE:
+- User inputs may be raw, unpunctuated speech-to-text transcripts (e.g., "bhai guaranteed chalis percent milega aaj hi paisa daal do").
+- Treat spelled-out numbers ("forty percent", "chalis pratishat", "takka") with the exact same statutory severity as the mathematical "%" symbol.
+- Do not let conversational filler ("um", "ah", "bhai mere dost ne bola") mask underlying financial lures or scam attempts.
 
 FINANCIAL LITERACY EXEMPTION RULE:
 - If the input is purely an educational question (e.g., "What is a Mutual Fund?", "Difference between ETF and Mutual Fund") OR a standard statutory disclaimer, set overall_status: 'no_obvious_warning_signs' (or scam_detected: false).

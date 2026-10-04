@@ -201,6 +201,76 @@ async function runAsyncTests() {
     `Got verdict: ${casualResult.verdict}`,
   )
 
+  // 16. Vernacular Devanagari Guaranteed Return Test
+  const vernacularRedResult = await executeNiveshShieldPipeline('विशेष ऑफर! गारंटीड 40% मासिक रिटर्न')
+  assert(
+    'Pipeline: Vernacular Devanagari guaranteed return routes to 🔴 RED verdict',
+    vernacularRedResult.verdict === '🔴 RED' && vernacularRedResult.scam_detected === true,
+    `Got verdict: ${vernacularRedResult.verdict}`,
+  )
+
+  // 17. Universal Verification Matrix Across All Languages
+  const matrix = [
+    { lang: 'Hindi', text: 'विशेष ऑफर! गारंटीड 40% मासिक रिटर्न' },
+    { lang: 'Marathi', text: 'खास ऑफर! ४०% दरमहा परताव्याची हमी' },
+    { lang: 'Gujarati', text: 'વિશેષ ઓફર! ગેરંટીડ 40% માસિક વળતર' },
+    { lang: 'Bengali', text: 'বিশেষ অফার! গ্যারান্টিযুক্ত 40% মাসিক রিটার্ন' },
+    { lang: 'Tamil', text: 'சிறப்பு ஆஃபர்! உத்தரவாதம் அளிக்கப்பட்ட 40% மாதாந்திர வருமானம்' },
+    { lang: 'Telugu', text: 'ప్రత్యేక ఆఫర్! 40% నెలవారీ రిటర్న్ హామీ' },
+  ]
+
+  for (const item of matrix) {
+    const res = await executeNiveshShieldPipeline(item.text)
+    assert(
+      `Verification Matrix (${item.lang}): routes to 🔴 RED (lure_contact)`,
+      res.verdict === '🔴 RED' && res.scam_detected === true,
+      `Language ${item.lang} got verdict: ${res.verdict}`,
+    )
+  }
+
+  // 18. Hinglish & Vernacular Educational Exemption & Non-Investment Expense Tests
+  assert(
+    'Hinglish Educational Exemption: "Mutual fund aur stock me kya antar hai?" detected as educational',
+    isEducationalOrDisclaimer('Mutual fund aur stock me kya antar hai?'),
+  )
+
+  const nonInvestmentExpenseResult = await executeNiveshShieldPipeline('bought groceries and movie tickets for dinner tonight')
+  assert(
+    'Pipeline: Non-investment personal expense routes to 🟢 GREEN with is_financial_context = false',
+    nonInvestmentExpenseResult.verdict === '🟢 GREEN' && nonInvestmentExpenseResult.scam_detected === false,
+    `Got verdict: ${nonInvestmentExpenseResult.verdict}`,
+  )
+
+  // 19. Audio / Voice Note Intake & Judging Test
+  const voiceNoteResult = await executeNiveshShieldPipeline({
+    message: 'Bhai guaranteed 40% daily profit scheme hai, aaj hi registration fee bhej do.',
+    modality: 'voice',
+    file_data: 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEA...',
+    file_mime_type: 'audio/wav',
+    language: 'hi',
+  })
+  assert(
+    'Pipeline: Voice note intake payload evaluated and routes to 🔴 RED verdict',
+    voiceNoteResult.verdict === '🔴 RED' && voiceNoteResult.scam_detected === true,
+    `Voice note got verdict: ${voiceNoteResult.verdict}`,
+  )
+
+  // 20. Spoken Phonetic Percentage Voice Transcript Test
+  const spokenVoiceTranscriptResult = await executeNiveshShieldPipeline('bhai guaranteed chalis percent milega aaj hi paisa daal do')
+  assert(
+    'Pipeline: Unpunctuated spoken percentage voice transcript routes to 🔴 RED verdict',
+    spokenVoiceTranscriptResult.verdict === '🔴 RED' && spokenVoiceTranscriptResult.scam_detected === true,
+    `Spoken transcript got verdict: ${spokenVoiceTranscriptResult.verdict}`,
+  )
+
+  // 21. Percentage Yield Without Time Frame Requirement Test
+  const percentageReturnNoTimeframeResult = await executeNiveshShieldPipeline('Get 100 percent return on your investment today')
+  assert(
+    'Pipeline: "100 percent return" without time period routes to 🔴 RED verdict',
+    percentageReturnNoTimeframeResult.verdict === '🔴 RED' && percentageReturnNoTimeframeResult.scam_detected === true,
+    `Percentage return without timeframe got verdict: ${percentageReturnNoTimeframeResult.verdict}`,
+  )
+
   console.log('\n===========================================================')
   console.log(`ZERO-TRUST PRE-SCREENER TESTS: ${passed}/${passed + failed} PASSED (${failed} FAILED)`)
   console.log('===========================================================')
