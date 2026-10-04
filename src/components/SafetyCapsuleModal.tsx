@@ -20,8 +20,8 @@ export const SafetyCapsuleModal: React.FC<SafetyCapsuleModalProps> = ({
   onClose,
   initialLanguage,
 }) => {
-  const { i18n } = useTranslation()
-  const activeLang = normalizeLanguageCode(initialLanguage || i18n.language)
+  const { t, i18n } = useTranslation()
+  const activeLang = normalizeLanguageCode(i18n.language || initialLanguage)
 
   const video: SafetyCapsuleVideo | undefined = capsule.videosByLanguage[activeLang]
   const title = capsule.localizedTitle[activeLang] || capsule.localizedTitle.en
@@ -53,7 +53,7 @@ export const SafetyCapsuleModal: React.FC<SafetyCapsuleModalProps> = ({
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-100 text-emerald-950 border border-emerald-300">
-                <span>🏛️ Official Awareness Video</span>
+                <span>🏛️ {t('capsules.officialVideo', 'Official Awareness Video')}</span>
                 <span>•</span>
                 <span>{video?.sourceOrg || capsule.officialOrganization}</span>
                 <span>•</span>
@@ -74,8 +74,8 @@ export const SafetyCapsuleModal: React.FC<SafetyCapsuleModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-900 font-bold text-2xl p-2 rounded-xl hover:bg-slate-100 transition shrink-0"
-            aria-label="Close video dialog"
+            className="text-slate-400 hover:text-slate-900 font-bold text-2xl p-2 rounded-xl hover:bg-slate-100 transition shrink-0 cursor-pointer"
+            aria-label={t('capsules.closeBtn', 'Close')}
           >
             ✕
           </button>
@@ -95,10 +95,10 @@ export const SafetyCapsuleModal: React.FC<SafetyCapsuleModalProps> = ({
             </div>
             <div className="flex items-center justify-between text-xs text-slate-500 px-1">
               <span>
-                Duration: <strong className="text-slate-700">{video.duration}</strong>
+                {t('capsules.duration', 'Duration:')} <strong className="text-slate-700">{video.duration}</strong>
               </span>
               <span className="flex items-center gap-1 text-emerald-800 font-bold">
-                ✓ Verified in {LANGUAGE_LABELS[activeLang]}
+                ✓ {t('capsules.verifiedIn', 'Verified in')} {LANGUAGE_LABELS[activeLang]}
               </span>
             </div>
           </div>
@@ -108,16 +108,15 @@ export const SafetyCapsuleModal: React.FC<SafetyCapsuleModalProps> = ({
             <div className="flex items-center gap-2">
               <span className="text-2xl">⚠️</span>
               <h4 className="font-black text-base sm:text-lg">
-                Official video not available in {LANGUAGE_LABELS[activeLang]} yet.
+                {t('capsules.notAvailableYet', `Official video not available in ${LANGUAGE_LABELS[activeLang]} yet.`, { lang: LANGUAGE_LABELS[activeLang] })}
               </h4>
             </div>
             <p className="text-sm font-medium">
-              We have requested regional translation from {capsule.officialOrganization}. In the
-              meantime, please review the verified NiveshShield explanation and official source page below.
+              {t('capsules.notAvailableDesc', `We have provided verified NiveshShield regulatory guidance and official source page below.`)}
             </p>
             <div className="p-3 bg-white rounded-xl border border-amber-200 text-xs font-semibold">
               <span className="text-slate-500 block uppercase text-[10px] tracking-wider mb-1">
-                NiveshShield explanation ({LANGUAGE_LABELS[activeLang]}):
+                {t('capsules.guidanceExplanation', 'NiveshShield explanation')} ({LANGUAGE_LABELS[activeLang]}):
               </span>
               <span>{capsule.localizedAudioExplanation[activeLang]}</span>
             </div>
@@ -138,7 +137,7 @@ export const SafetyCapsuleModal: React.FC<SafetyCapsuleModalProps> = ({
         {takeaways.length > 0 && (
           <div className="space-y-2 pt-1">
             <h4 className="text-xs font-black uppercase tracking-wider text-slate-600">
-              📌 Key Safety Reminders
+              {t('capsules.keyReminders', '📌 Key Safety Reminders')}
             </h4>
             <ul className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               {takeaways.map((item, index) => (
@@ -157,10 +156,10 @@ export const SafetyCapsuleModal: React.FC<SafetyCapsuleModalProps> = ({
         {/* Footer & Official Transparency Link */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs">
           <div className="text-[11px] text-slate-500 text-center sm:text-left">
-            <span>Source Organization: </span>
+            <span>{t('capsules.sourceOrg', 'Source Organization:')} </span>
             <strong className="text-slate-800">{capsule.officialOrgFullName}</strong>
             <p className="text-[10px] text-slate-400 mt-0.5">
-              NiveshShield surfaces public educational material from official Indian regulatory initiatives and is not the author of this video.
+              {t('capsules.disclaimer', 'NiveshShield surfaces public educational material from official Indian regulatory initiatives and is not the author of this video.')}
             </p>
           </div>
 
@@ -172,16 +171,16 @@ export const SafetyCapsuleModal: React.FC<SafetyCapsuleModalProps> = ({
               className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-xs transition flex items-center gap-1.5"
             >
               <span>🏛️</span>
-              <span>Official Source ({capsule.officialOrganization})</span>
+              <span>{t('capsules.officialSourceBtn', 'Official Source')} ({capsule.officialOrganization})</span>
               <span>↗</span>
             </a>
 
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs transition shadow-xs"
+              className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs transition shadow-xs cursor-pointer"
             >
-              Close
+              {t('capsules.closeBtn', 'Close')}
             </button>
           </div>
         </div>

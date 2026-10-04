@@ -143,5 +143,45 @@
     "skip": "Skip Tour",
     "replay": "🔊 Show me how NiveshShield works",
     "playInstructions": "Play instructions"
+  },
+  "capsules": {
+    "title": "Safety Videos",
+    "subtitle": "Short official awareness videos from RBI, SEBI, and NSE",
+    "categories": {
+      "all": "All Topics",
+      "otp_credentials": "🔐 OTP & Passwords",
+      "upi_payments": "💳 UPI & Payments",
+      "guaranteed_returns": "📈 Guaranteed Returns",
+      "fake_apps": "📱 Fake APKs & Apps",
+      "impersonation": "👮 Digital Arrest"
+    },
+    "watchVideo": "Watch Video",
+    "officialVideo": "Official Awareness Video",
+    "verifiedIn": "Verified in",
+    "duration": "Duration:",
+    "notAvailableYet": "Official video not available in {{lang}} yet.",
+    "notAvailableDesc": "We have provided verified NiveshShield regulatory guidance and official source page below.",
+    "guidanceExplanation": "NiveshShield Guidance",
+    "keyReminders": "📌 Key Safety Reminders",
+    "sourceOrg": "Source Organization:",
+    "disclaimer": "NiveshShield surfaces public educational material from official Indian regulatory initiatives and is not the author of this video.",
+    "officialSourceBtn": "Official Source",
+    "closeBtn": "Close"
+  },
+  "scanner": {
+    "textLabel": "Paste message to check",
+    "uploadTitle": "Tap to Upload WhatsApp Screenshot or Photo",
+    "uploadSubtitle": "Supports PNG, JPG, WEBP. We extract text safely without saving.",
+    "optionalNote": "Add optional note or context (optional)...",
+    "removeImage": "Remove & Re-upload",
+    "clickToChange": "Click to change image",
+    "urlNotice": "Web links are checked through an isolated security sandbox protecting you from phishing and fake broker downloads.",
+    "tapToSpeak": "Tap to Speak",
+    "stopRecording": "Stop",
+    "voicePrompt": "Speak your query or record a voice note in your mother tongue",
+    "voiceNoteReady": "Voice Note Ready",
+    "testSampleVoice": "Or test with a sample voice note ➔",
+    "listeningPrompt": "Listening... Speak in Hindi, Tamil, Marathi, Bengali, Gujarati, or English",
+    "imagePrompt": "Analyze uploaded investment screenshot"
   }
 }

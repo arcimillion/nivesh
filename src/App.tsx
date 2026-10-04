@@ -139,7 +139,7 @@ export default function App() {
               className="flex items-center gap-1.5 px-3 py-2 rounded-2xl border-2 border-emerald-600 bg-emerald-700 text-white font-black text-xs sm:text-sm hover:bg-emerald-800 transition shadow-xs cursor-pointer active:scale-95"
             >
               <span className="text-base">🎥</span>
-              <span>{t('capsulesTitle', 'Safety Videos')}</span>
+              <span>{t('capsules.title', 'Safety Videos')}</span>
             </button>
 
             <VoiceNavigation

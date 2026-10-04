@@ -460,5 +460,45 @@
     "skip": "ટૂર છોડો",
     "replay": "🔊 મને બતાવો NiveshShield કેવી રીતે કામ કરે છે",
     "playInstructions": "માહિતી સાંભળો"
+  },
+  "capsules": {
+    "title": "સુરક્ષા વિડીયો",
+    "subtitle": "RBI, SEBI અને NSE ના સત્તાવાર જાગૃતિ વિડીયો",
+    "categories": {
+      "all": "બધા વિષયો",
+      "otp_credentials": "🔐 OTP અને પાસવર્ડ",
+      "upi_payments": "💳 UPI અને પેમેન્ટ",
+      "guaranteed_returns": "📈 ખાતરીપૂર્વકનું વળતર",
+      "fake_apps": "📱 નકલી એપ્સ અને APK",
+      "impersonation": "👮 ડિજિટલ અરેસ્ટ અને છેતરપિંડી"
+    },
+    "watchVideo": "વિડીયો જુઓ",
+    "officialVideo": "સત્તાવાર જાગૃતિ વિડીયો",
+    "verifiedIn": "ભાષામાં",
+    "duration": "સમય:",
+    "notAvailableYet": "આ ભાષામાં ({{lang}}) સત્તાવાર વિડીયો હજી ઉપલબ્ધ નથી.",
+    "notAvailableDesc": "નીચે પ્રમાણિત સુરક્ષા નિયમ અને સત્તાવાર લિંક આપેલ છે.",
+    "guidanceExplanation": "સુરક્ષા સારાંશ",
+    "keyReminders": "📌 મુખ્ય સુરક્ષા નિયમો",
+    "sourceOrg": "સંસ્થા:",
+    "disclaimer": "આ વિડીયો સરકારી નિયમનકારી સંસ્થાઓ (RBI/SEBI/NSE) દ્વારા જાહેર હિતમાં જારી કરાયેલ છે.",
+    "officialSourceBtn": "સત્તાવાર સ્ત્રોત",
+    "closeBtn": "બંધ કરો"
+  },
+  "scanner": {
+    "textLabel": "તપાસવા માટે મેસેજ અહીં પેસ્ટ કરો",
+    "uploadTitle": "વોટ્સએપ સ્ક્રીનશોટ અથવા ફોટો અહીં અપલોડ કરો",
+    "uploadSubtitle": "PNG, JPG, WEBP સ્વીકાર્ય. ટેક્સ્ટ સુરક્ષિત રીતે તપાસવામાં આવે છે.",
+    "optionalNote": "વધારાની વિગતો અથવા સંદર્ભ ઉમેરો (વૈકલ્પિક)...",
+    "removeImage": "ફોટો બદલો",
+    "clickToChange": "ફોટો બદલવા માટે ક્લિક કરો",
+    "urlNotice": "વેબ લિંક સુરક્ષિત રીતે તપાસવામાં આવે છે જેથી છેતરપિંડીથી બચી શકાય.",
+    "tapToSpeak": "બોલવા માટે ટેપ કરો",
+    "stopRecording": "રોકો",
+    "voicePrompt": "તમારી માતૃભાષામાં બોલો અથવા વોઇસ નોટ રેકોર્ડ કરો",
+    "voiceNoteReady": "વોઇસ નોટ તૈયાર છે",
+    "testSampleVoice": "અથવા નમૂના વોઇસ નોટથી તપાસો ➔",
+    "listeningPrompt": "સાંભળી રહ્યું છે... ગુજરાતી, હિન્દી, મરાઠી, બંગાળી, તમિલ અથવા અંગ્રેજીમાં બોલો",
+    "imagePrompt": "અપલોડ કરેલા સ્ક્રીનશોટની ચકાસણી કરો"
   }
 }

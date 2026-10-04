@@ -21,11 +21,11 @@ export const SafetyCapsulesLibrary: React.FC<SafetyCapsulesLibraryProps> = () =>
 
   const categories = [
     { id: 'all', label: t('capsules.categories.all', 'All Topics') },
-    { id: 'otp_credentials', label: '🔐 OTP & Passwords' },
-    { id: 'upi_payments', label: '💳 UPI & Payments' },
-    { id: 'guaranteed_returns', label: '📈 Guaranteed Returns' },
-    { id: 'fake_apps', label: '📱 Fake APKs' },
-    { id: 'impersonation', label: '👮 Digital Arrest' },
+    { id: 'otp_credentials', label: t('capsules.categories.otp_credentials', '🔐 OTP & Passwords') },
+    { id: 'upi_payments', label: t('capsules.categories.upi_payments', '💳 UPI & Payments') },
+    { id: 'guaranteed_returns', label: t('capsules.categories.guaranteed_returns', '📈 Guaranteed Returns') },
+    { id: 'fake_apps', label: t('capsules.categories.fake_apps', '📱 Fake APKs') },
+    { id: 'impersonation', label: t('capsules.categories.impersonation', '👮 Digital Arrest') },
   ]
 
   const filteredCapsules = allCapsules.filter((capsule) => {

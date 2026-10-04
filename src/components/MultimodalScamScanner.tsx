@@ -325,9 +325,9 @@ export const MultimodalScamScanner: React.FC<MultimodalScamScannerProps> = ({
                       setFilePreview(null)
                       setFileBase64(null)
                     }}
-                    className="text-xs font-semibold text-red-600 hover:underline"
+                    className="text-xs font-semibold text-red-600 hover:underline cursor-pointer"
                   >
-                    Remove & Re-upload
+                    {t('scanner.removeImage', 'Remove & Re-upload')}
                   </button>
                 </div>
               </div>
@@ -372,7 +372,7 @@ export const MultimodalScamScanner: React.FC<MultimodalScamScannerProps> = ({
                 <button
                   type="button"
                   onClick={() => setUrlInput('')}
-                  className="text-xs font-semibold text-slate-400 hover:text-slate-700 bg-slate-100 rounded-full px-2.5 py-1"
+                  className="text-xs font-semibold text-slate-400 hover:text-slate-700 bg-slate-100 rounded-full px-2.5 py-1 cursor-pointer"
                 >
                   ✕
                 </button>
@@ -394,35 +394,35 @@ export const MultimodalScamScanner: React.FC<MultimodalScamScannerProps> = ({
                 <button
                   type="button"
                   onClick={startRecording}
-                  className="flex flex-col items-center justify-center w-24 h-24 rounded-full bg-emerald-700 text-white shadow-lg hover:bg-emerald-800 active:scale-95 transition-all focus:outline-none focus:ring-4 focus:ring-emerald-200"
+                  className="flex flex-col items-center justify-center w-24 h-24 rounded-full bg-emerald-700 text-white shadow-lg hover:bg-emerald-800 active:scale-95 transition-all focus:outline-none focus:ring-4 focus:ring-emerald-200 cursor-pointer"
                   aria-label="Start recording voice note"
                 >
                   <span className="text-3xl">🎙️</span>
-                  <span className="text-[11px] font-bold mt-1">Tap to Speak</span>
+                  <span className="text-[11px] font-bold mt-1">{t('scanner.tapToSpeak', 'Tap to Speak')}</span>
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={stopRecording}
-                  className="flex flex-col items-center justify-center w-24 h-24 rounded-full bg-rose-600 text-white shadow-xl animate-pulse active:scale-95 transition-all focus:outline-none focus:ring-4 focus:ring-rose-200"
+                  className="flex flex-col items-center justify-center w-24 h-24 rounded-full bg-rose-600 text-white shadow-xl animate-pulse active:scale-95 transition-all focus:outline-none focus:ring-4 focus:ring-rose-200 cursor-pointer"
                   aria-label="Stop recording voice note"
                 >
                   <span className="text-3xl">⏹️</span>
-                  <span className="text-[11px] font-bold mt-1">Stop ({recordingTime}s)</span>
+                  <span className="text-[11px] font-bold mt-1">{t('scanner.stopRecording', 'Stop')} ({recordingTime}s)</span>
                 </button>
               )}
             </div>
 
             <p className="text-xs font-semibold text-slate-700">
               {isRecording
-                ? 'Listening... Speak in Hindi, Tamil, Marathi, Bengali, Gujarati, or English'
+                ? t('scanner.listeningPrompt', 'Listening... Speak in Hindi, Tamil, Marathi, Bengali, Gujarati, or English')
                 : t('scanner.voicePrompt', 'Speak your query or record a voice note in your mother tongue')}
             </p>
 
             {filePreview && (
               <div className="max-w-md mx-auto p-3 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-xs font-bold text-emerald-950">
-                  <span>🎙️</span> Voice Note Ready
+                  <span>🎙️</span> {t('scanner.voiceNoteReady', 'Voice Note Ready')}
                 </div>
                 <audio controls src={filePreview} className="h-8 max-w-[200px]" />
                 <button
@@ -432,7 +432,7 @@ export const MultimodalScamScanner: React.FC<MultimodalScamScannerProps> = ({
                     setFilePreview(null)
                     setFileBase64(null)
                   }}
-                  className="text-xs text-emerald-800 hover:underline"
+                  className="text-xs text-emerald-800 hover:underline cursor-pointer"
                 >
                   ✕
                 </button>
@@ -445,9 +445,9 @@ export const MultimodalScamScanner: React.FC<MultimodalScamScannerProps> = ({
                 <button
                   type="button"
                   onClick={handleLoadSampleVoice}
-                  className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-700 rounded-lg hover:bg-emerald-800"
+                  className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-700 rounded-lg hover:bg-emerald-800 cursor-pointer"
                 >
-                  ⚡ Load Demo Voice Note
+                  ⚡ {t('voice.actionLearning', 'Load Demo Voice Note')}
                 </button>
               </div>
             )}
@@ -456,9 +456,9 @@ export const MultimodalScamScanner: React.FC<MultimodalScamScannerProps> = ({
               <button
                 type="button"
                 onClick={handleLoadSampleVoice}
-                className="text-xs text-slate-500 hover:text-slate-800 underline"
+                className="text-xs text-slate-500 hover:text-slate-800 underline cursor-pointer"
               >
-                Or test with a sample voice note ➔
+                {t('scanner.testSampleVoice', 'Or test with a sample voice note ➔')}
               </button>
             )}
           </div>
