@@ -464,20 +464,21 @@ export const MultimodalScamScanner: React.FC<MultimodalScamScannerProps> = ({
           </div>
         )}
 
-        {/* Four Large, Highly Recognizable Tactile Buttons */}
-        <div className="mt-5 pt-5 border-t border-slate-100 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full lg:w-auto">
+        {/* Four Large, Highly Recognizable Mode Tabs & High-Contrast Check Button */}
+        <div className="mt-5 pt-5 border-t border-slate-200 space-y-3.5">
+          {/* Mode Tabs Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 w-full">
             <button
               type="button"
               onClick={() => setModality('text')}
-              className={`flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all border-2 ${
+              className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all border-2 ${
                 modality === 'text'
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-md'
-                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-400 hover:bg-slate-100'
+                  ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-400/20'
+                  : 'bg-white text-slate-800 border-slate-300 hover:border-slate-500 hover:bg-slate-100 shadow-2xs'
               }`}
             >
-              <span className="text-xl">📝</span>
-              <span>{t('tabTextExcerpt', 'Text Excerpt')}</span>
+              <span className="text-xl shrink-0">📝</span>
+              <span className="truncate">{t('tabTextExcerpt', 'Text Message')}</span>
             </button>
 
             <button
@@ -488,41 +489,41 @@ export const MultimodalScamScanner: React.FC<MultimodalScamScannerProps> = ({
                   setTimeout(() => fileInputRef.current?.click(), 50)
                 }
               }}
-              className={`flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all border-2 ${
+              className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all border-2 ${
                 modality === 'image'
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-md'
-                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-400 hover:bg-slate-100'
+                  ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-400/20'
+                  : 'bg-white text-slate-800 border-slate-300 hover:border-slate-500 hover:bg-slate-100 shadow-2xs'
               }`}
             >
-              <span className="text-xl">📷</span>
-              <span>{t('tabImageUpload', 'Image Upload')}</span>
+              <span className="text-xl shrink-0">📷</span>
+              <span className="truncate">{t('tabImageUpload', 'Photo / Screenshot')}</span>
             </button>
 
             <button
               type="button"
               onClick={() => setModality('url')}
-              className={`flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all border-2 ${
+              className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all border-2 ${
                 modality === 'url'
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-md'
-                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-400 hover:bg-slate-100'
+                  ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-400/20'
+                  : 'bg-white text-slate-800 border-slate-300 hover:border-slate-500 hover:bg-slate-100 shadow-2xs'
               }`}
             >
-              <span className="text-xl">🔗</span>
-              <span>{t('tabUrlDrop', 'URL Drop')}</span>
+              <span className="text-xl shrink-0">🔗</span>
+              <span className="truncate">{t('tabUrlDrop', 'Website Link')}</span>
             </button>
 
             <button
               type="button"
               onClick={() => setModality('voice')}
-              className={`flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all border-2 ${
+              className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all border-2 ${
                 modality === 'voice'
                   ? 'bg-emerald-700 text-white border-emerald-700 shadow-md ring-4 ring-emerald-100'
-                  : 'bg-emerald-50 text-emerald-900 border-emerald-300 hover:bg-emerald-100 hover:border-emerald-500'
+                  : 'bg-emerald-50 text-emerald-950 border-emerald-300 hover:bg-emerald-100 hover:border-emerald-500 shadow-2xs'
               }`}
               title="Speak in Hindi, Tamil, Telugu, Marathi, Bengali, Gujarati, or English"
             >
-              <span className="text-xl">🎙️</span>
-              <span>{t('tabMicrophone', 'Microphone')}</span>
+              <span className="text-xl shrink-0">🎙️</span>
+              <span className="truncate">{t('tabMicrophone', 'Speak / Voice')}</span>
             </button>
           </div>
 
@@ -530,10 +531,10 @@ export const MultimodalScamScanner: React.FC<MultimodalScamScannerProps> = ({
           <button
             type="submit"
             disabled={isSubmitDisabled}
-            className="w-full lg:w-auto px-8 py-4 text-base sm:text-lg font-black text-white bg-emerald-700 hover:bg-emerald-800 disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2.5 min-h-[56px]"
+            className="w-full py-4 px-6 text-base sm:text-lg font-black text-white bg-emerald-700 hover:bg-emerald-800 disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2.5 min-h-[56px] border-2 border-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-200 cursor-pointer"
           >
-            <span className="text-xl">🔍</span>
-            <span>{t('checkSafetyButton', 'Check Safety')}</span>
+            <span className="text-2xl shrink-0">🔍</span>
+            <span>{t('checkSafetyButton', 'Check Now — Real or Scam?')}</span>
           </button>
         </div>
       </form>

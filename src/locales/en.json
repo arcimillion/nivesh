@@ -1,390 +1,75 @@
 {
   "labels": {
-    "exactPhrase": "Exact phrase",
-    "officialGuidance": "Official guidance",
-    "openOfficialGuidance": "Open official guidance →",
+    "exactPhrase": "Words found in message",
+    "officialGuidance": "Official safety rule",
+    "openOfficialGuidance": "Read safety rule →",
     "important": "Important:",
-    "findingSingular": "finding",
-    "findingPlural": "findings"
+    "findingSingular": "warning sign",
+    "findingPlural": "warning signs"
   },
 
-  "maxCharacters": "Max 15,000",
+  "maxCharacters": "Max 15,000 words",
 
   "brand": "NiveshShield",
   "appTitle": "NiveshShield",
-  "heroSubtitle": "Verify any investment message, screenshot, or voice note before sending money.",
-  "inputPlaceholder": "Bhai guaranteed 400% daily profit scheme hai...",
+  "heroSubtitle": "Put any message, photo or link — we will tell you if it is real or a scam.",
+  "cyberHelpline": "Cyber Crime Helpline: 1930 (Toll Free)",
+  "inputPlaceholder": "Paste WhatsApp message or offer details here...",
   "clearButton": "Clear",
-  "tabTextExcerpt": "Text Excerpt",
-  "tabImageUpload": "Image Upload",
-  "tabUrlDrop": "URL Drop",
-  "tabMicrophone": "Microphone",
-  "checkSafetyButton": "Check Safety",
+  "tabTextExcerpt": "Text Message",
+  "tabImageUpload": "Photo / Screenshot",
+  "tabUrlDrop": "Website Link",
+  "tabMicrophone": "Speak / Voice",
+  "checkSafetyButton": "Check Now — Real or Scam?",
   "howItWorksTitle": "How it works",
-  "howItWorksContent": "Paste a suspicious message, upload a WhatsApp screenshot, drop a URL, or use the microphone to scan for potential fraud.",
+  "howItWorksContent": "Paste a message, upload a screenshot, or record your voice. Our system instantly tells you if it is safe or a scam.",
+  "capsulesTitle": "Safety Videos",
+  "showDetails": "More Details & Complaint Paper",
+  "breakdownTitle": "How Scammers Trick People (5 Steps)",
+  "complaintPaperTitle": "1930 Police Complaint Paper",
+
   "verdict": {
-    "greenBadge": "PERMISSIBLE",
-    "greenHeadline": "No Obvious Warning Signs",
-    "greenSubhead": "Standard educational or regulated guidance observed. No urgent payment pressure or guaranteed return claims were detected.",
-    "greenRule": "Reminder: All securities investments carry market risk. Always confirm your broker is registered on sebi.gov.in.",
+    "greenBadge": "SAFE",
+    "greenHeadline": "Safe — No Warning Signs Found",
+    "greenSubhead": "This appears to be a normal message. No fake profit promises or urgent payment demands were found.",
+    "greenRule": "Safety Rule: Always verify your broker with official bank or government records before sending money.",
     "listenAloud": "Listen Aloud",
     "stopVoice": "Stop Voice",
-    "checkAnother": "Check Another",
-    "voiceTitle": "Listen to explanation in your language",
-    "redBadge": "HIGH RISK",
-    "redHeadline": "Transaction Block Recommended",
-    "redSubhead": "Do NOT send money, share OTPs, or click app links. This message shows clear signs of financial fraud.",
-    "redRule": "Key Safety Rule: Under SEBI regulations, NO ONE is legally allowed to guarantee fixed profits on investments.",
-    "amberBadge": "NEEDS VERIFICATION",
-    "amberHeadline": "High Caution Advised",
-    "amberSubhead": "This sender or group is not verified on official government directories. Do not transfer funds until their license is verified.",
-    "amberRule": "Key Safety Rule: Never invest through informal WhatsApp, Telegram, or social media groups.",
-    "viewJourneyMap": "View Scam Journey Map (5-Stage Breakdown)",
-    "hideJourneyMap": "Hide Scam Journey Map",
-    "generateDossier": "Generate 1930 Complaint Dossier",
-    "hideDossier": "Hide Complaint Dossier",
-    "suspiciousPhrase": "Suspicious phrase found in message:"
-  },
-  "tagline": "Understand evidence before you trust.",
-  "badge": "INVESTOR RESILIENCE PLATFORM",
-  "multimodalBadge": "Multimodal",
-  "investorResilienceBadge": "🇮🇳 INVESTOR RESILIENCE PLATFORM",
-  "sangyanBadge": "🏛️ IIT (BHU) SANGYAN Hackathon • SEBI & NSDL Investor Protection",
-
-  "nav": {
-    "multimodal": "Multimodal Scanner",
-    "demat": "NSDL Demat Shield",
-    "sebi": "SEBI Validator",
-    "cooling": "Cooling-Off Shield",
-    "sandbox": "Spot-the-Scam Sandbox",
-    "dossier": "1930 / Chakshu Dossier"
+    "checkAnother": "Check Another Message",
+    "voiceTitle": "Listen to the explanation in your language",
+    "redBadge": "DANGER - SCAM!",
+    "redHeadline": "DANGER! This is a Scam — Do NOT Send Money!",
+    "redSubhead": "Do NOT send money, share OTPs, or click any links. This message is trying to trick you and steal your savings.",
+    "redRule": "Official Rule: Under government rules, NO ONE can guarantee fixed returns on your money.",
+    "amberBadge": "BE CAREFUL",
+    "amberHeadline": "CAUTION! Verify Before Sending Any Money",
+    "amberSubhead": "This sender or group is not verified by official government records. Do not transfer any money.",
+    "amberRule": "Safety Rule: Never invest money through unknown WhatsApp or Telegram groups.",
+    "viewJourneyMap": "How Scammers Trick People (5 Steps)",
+    "hideJourneyMap": "Hide 5 Steps",
+    "generateDossier": "Generate Police Complaint Paper (1930)",
+    "hideDossier": "Hide Complaint Paper",
+    "suspiciousPhrase": "Dangerous words found in this message:"
   },
 
-  "demat": {
-    "title": "NSDL & Demat Account Protection Shield",
-    "subtitle": "Verify share transfers, e-DIS OTP alerts, off-market Pre-IPO promises, and Consolidated Account Statement (CAS) notifications against NSDL & SEBI investor protection mandates.",
-    "testSamples": "Test Common Demat Scenarios",
-    "inputLabel": "Paste SMS Alert, WhatsApp Demat Pitch, or CAS Excerpt"
-  },
-
-  "sebiValidator": {
-    "title": "SEBI Intermediary License & Mandate Quick-Validator",
-    "subtitle": "Check whether claimed advisory or broker licenses match official SEBI formats (INA, INH, INZ) and cross-examine whether their actions violate statutory regulatory mandates.",
-    "quickExamples": "Try Sample License Formats"
-  },
-
-  "parivar": {
-    "title": "Nivesh Parivar: Family Warning Card & Vernacular Reader",
-    "subtitle": "Share instant vernacular warning cards with family members on WhatsApp before any savings are transferred. Built for Bharat and regional-language investors."
-  },
-
-  "cooling": {
-    "title": "The 24-Hour Cooling-Off Shield & Reality-Check Math",
-    "subtitle": "Scammers weaponize artificial urgency and mathematical illusions. Use mandatory cooling-off friction and compounding reality calculations to expose the fraud."
-  },
-
-  "sandbox": {
-    "title": "Spot-the-Scam Interactive Sandbox",
-    "subtitle": "Practice detecting subtle regulatory violations in real-world Bharat investor scenarios. Click on the suspicious text elements to uncover the underlying SEBI & NSDL rules."
-  },
-
-  "dossier": {
-    "title": "1-Click Official Complaint Dossier Generator",
-    "subtitle": "Auto-compiles verified evidence into pre-formatted submission dossiers for the National Cybercrime Portal (1930), DoT Sanchar Saathi (Chakshu), and SEBI SCORES 2.0."
-  },
-
-  "hero": {
-    "tag": "Multimodal AI & Official Source Verification",
-    "title": "Verify investment claims with evidence, not assumptions.",
-    "description": "Analyze messages, uploaded screenshots, web links, or voice notes against official SEBI, RBI, and CyberCrime reporting guidelines."
-  },
-
-  "sidebar": {
-    "title": "Core Safety & Principles",
-    "subtitle": "NiveshShield 2.0 evaluates claims against official regulatory standards to protect retail investors from manipulation.",
-    "evidenceGroundingTitle": "Evidence Grounding",
-    "evidenceGroundingText": "Claims are mapped directly to quotes and verified against SEBI & RBI rules.",
-    "scamJourneyTitle": "Scam Journey Tactic Map",
-    "scamJourneyText": "Visualizes observed tactics vs future escalation risks.",
-    "dataMinimizationTitle": "Data Minimization",
-    "dataMinimizationText": "Uploaded screenshots and audio notes are processed in-memory and never stored.",
-    "helpline": "Helpline 1930 • CyberCrime Portal"
-  },
-
-  "checker": {
-    "title": "Check a suspicious message",
-    "subtitle": "Select an input type below: Text message, Screenshot, URL, or Voice note.",
-    "label": "Message to check",
-    "placeholder": "Paste suspicious WhatsApp message, SMS, Telegram post, or email body here...",
-    "button": "Investigate & Verify Claims",
-    "analyzing": "Analyzing content with evidence grounding...",
-    "clearButton": "Clear text",
-    "characters": "{{count}}/15,000 chars",
-    "sandboxActive": "Untrusted data sandbox active",
-    "tabText": "Text",
-    "tabImage": "Screenshot",
-    "tabUrl": "URL Link",
-    "tabVoice": "Voice Note",
-    "uploadTitle": "Upload Screenshot or Trading Post Image",
-    "uploadSubtitle": "Supports PNG, JPG, WEBP. Text will be extracted via multimodal OCR.",
-    "clickToChange": "Click to change image",
-    "optionalContext": "Optional Context or Additional Notes:",
-    "optionalContextPlaceholder": "Add optional notes or message context...",
-    "urlLabel": "Suspicious Website URL / Web Link:",
-    "urlPlaceholder": "https://trade-fast-bonus.com or http://bit.ly/claim-returns",
-    "ssrfProtectedTitle": "SSRF Protected:",
-    "ssrfProtectedText": "Target web pages are fetched through an isolated security proxy that blocks local IP ranges, private subnets, and malicious executable downloads.",
-    "voiceStart": "Start Recording Voice Note",
-    "voiceStop": "Stop Recording ({{time}}s)",
-    "voiceLoadSample": "Load Sample Voice Note",
-    "micNoticeTitle": "Microphone Access Notice",
-    "micNoticeReason": "The AI Studio preview is running inside a secure iframe, where browsers block direct hardware microphone access for safety.",
-    "micNoticeDemoBtn": "⚡ Load Demo Voice Note",
-    "micNoticeTabBtn": "↗️ Open in New Tab for Real Microphone",
-    "voiceReady": "Ready for Analysis:",
-    "voiceRemoveRecord": "✕ Remove & Record Again",
-    "voiceDevicePrompt": "Or choose an audio recording from your device (.mp3, .wav, .m4a, .webm, .ogg):",
-    "voiceContextLabel": "Optional Context / Voice Transcript Review:",
-    "voiceContextPlaceholder": "If you already have a transcript or notes about the voice message, enter it here..."
-  },
+  "tagline": "Know the truth before you trust.",
+  "badge": "Truth Check",
+  "multimodalBadge": "Multilingual",
+  "investorResilienceBadge": "🇮🇳 Citizen Safety Platform",
+  "sangyanBadge": "🏛️ Cyber Helpline 1930",
 
   "demoExamples": {
-    "title": "Try a Demo Case",
-    "subtitle": "Click an example below to test multimodal analysis capability.",
-    "ex1Title": "Guaranteed Returns",
-    "ex1Badge": "High Risk",
-    "ex1Text": "SPECIAL OFFER! Guaranteed 40% monthly returns on crypto trading! Limited spots remaining, act now! Send upfront registration fee of Rs 5000 to UPI ID fast-wealth@upi and download our official app: http://bit.ly/trade-fast-apk",
-    "ex2Title": "Ambiguous Scheme",
-    "ex2Badge": "Needs Verification",
-    "ex2Text": "Our investment program has excellent opportunities. Contact our representative on Telegram to learn more about the available VIP plans.",
-    "ex3Title": "Being Educational",
-    "ex3Badge": "Educational",
-    "ex3Text": "Investments in securities market are subject to market risks. Read all scheme related documents carefully before investing. Verify registered intermediaries on SEBI website."
+    "quickTry": "💡 Try with an example:",
+    "ex1Title": "40% Fixed Profit Scam",
+    "ex2Title": "Unknown WhatsApp Group",
+    "ex3Title": "Normal Bank Notice",
+    "ex1Text": "Deposit Rs.10,000 in our company and get guaranteed 40% monthly returns. SEBI approved. Google Pay now.",
+    "ex2Text": "Join VIP WhatsApp stock group! Get Rs.500 stock for Rs.50. 100% guaranteed profit.",
+    "ex3Text": "Dear customer, keep your bank account safe. Never share your ATM PIN or OTP with anyone."
   },
 
-  "features": {
-    "title": "Understand before you trust",
-    "warningTitle": "Spot warning signs",
-    "warningText": "Identify pressure tactics, guaranteed returns, suspicious requests, and other potential warning signs.",
-    "evidenceTitle": "Understand the evidence",
-    "evidenceText": "See the exact phrases that deserve closer attention and understand why they matter.",
-    "nextTitle": "Know your next steps",
-    "nextText": "Find safer actions and relevant official investor-protection resources."
-  },
-
-  "privacy": {
-    "title": "Privacy, Data Minimization & Security Principles",
-    "short": "Submitted text, screenshots, URLs, and voice recordings are processed in-memory solely for real-time analysis and are never persisted or shared.",
-    "detail1": "Do not enter passwords, OTPs, or banking credentials.",
-    "detail2": "Messages are analyzed in real-time and not stored by NiveshShield.",
-    "detail3": "API keys remain securely on the backend server.",
-    "detail4": "Designed around data minimization and investor safety."
-  },
-
-  "targetMetric": {
-    "title": "Target Evaluation Metric",
-    "text": "Target evaluation metric: ≥90% recall on reviewed synthetic test cases for predefined critical warning indicators, measured separately across all 6 supported languages."
-  },
-
-  "language": "Language",
-
-  "disclaimer": "NiveshShield 2.0 provides educational safety guidance based on official Indian investor protection resources. It does not provide financial advice or definitive legal fraud verdicts.",
-
-  "emptyMessage": "Paste a message before checking it.",
-
-  "analysis": {
-    "title": "Safety check",
-    "assessment": "Analysis Assessment",
-    "highConfidence": "High Confidence Analysis",
-    "moderateUncertainty": "Moderate Uncertainty",
-    "highUncertainty": "High Uncertainty / Limited Evidence",
-    "modalityLabel": "Modality: {{modality}}",
-    "warning": "Warning signs identified",
-    "noWarning": "No obvious warning signs identified",
-    "insufficientEvidence": "More information required",
-    "review": "Review findings below. Always verify entity credentials on official SEBI or RBI directories before acting.",
-    "noWarningNoticeTitle": "No obvious warning signs identified",
-    "noWarningNoticeText": "No specific warning signs were identified from the submitted text. However, this does NOT confirm that the message or investment is safe. Always verify the sender, credentials, and regulatory registration independently.",
-    "evidence": "Evidence from your message",
-    "why": "Why this may matter",
-    "nextSteps": "Safer next steps",
-    "contentAnalyzed": "Content Analyzed",
-    "extractionNote": "Extraction Note: {{notes}}",
-    "specificWarnings": "Specific Warning Indicators Identified",
-    "whatCouldNotBeVerified": "What Could Not Be Verified",
-    "limitationsAndScope": "Analysis Limitations & Scope",
-    "officialGuidanceHeading": "Official Regulatory Guidance & Verification Channels",
-    "errorHeading": "Analysis Error",
-    "guaranteedReturns": "Guaranteed or unusually certain returns",
-    "urgency": "Pressure to act immediately",
-    "upfrontPayment": "Request for an upfront payment",
-    "suspiciousLink": "Suspicious or unofficial link",
-    "impersonation": "Suspicious claim of identity or official affiliation",
-    "unofficialApp": "Request to download an unofficial app or APK",
-    "genericWarning": "This message contains language that deserves additional verification.",
-    "notVerified": "Not independently verified",
-    "unknownsTitle": "What could not be verified from this message",
-    "limitationsTitle": "Limitations of this analysis",
-    "analyzing": "Analyzing message...",
-    "analysisErrorTitle": "Analysis could not be completed",
-    "safetyFirst": "Safety first",
-    "safetyText": "We look for warning signs and supporting evidence — we never recommend investments or predict returns.",
-    "noFindings": "No specific warning signs were identified from the submitted message."
-  },
-
-  "claims": {
-    "sectionTitle": "Evidence-Grounded Claim Investigation",
-    "singular": "Claim Analyzed",
-    "plural": "Claims Analyzed",
-    "claimNumber": "Claim #{{number}}",
-    "badgeSupported": "✓ Claim Supported",
-    "badgeContradicts": "✕ Contradicts Official Rules",
-    "badgeDoesNotProve": "⚠ Content Does Not Prove Claim",
-    "badgeUnverified": "? Unverified / External Verification Needed",
-    "step1": "1. Original Submitted Claim",
-    "step2": "2. What Submitted Content Establishes",
-    "step3": "3. External Regulatory Source Consulted",
-    "step5": "5. What Remains Unknown",
-    "step6": "6. Recommended Verification Action",
-    "noClaims": "No distinct verifiable financial claims were isolated for itemized investigation.",
-    "refDate": "Ref Date: {{date}}"
-  },
-
-  "journey": {
-    "title": "Scam Journey Tactic Map",
-    "subtitle": "Sequenced tactic analysis. Observed stages are backed by direct evidence; unobserved stages indicate possible future escalation risks.",
-    "observedBadge": "{{count}} Observed in Content",
-    "futureBadge": "{{count}} Future Escalation Risks",
-    "observedTactic": "✓ Observed Tactic",
-    "futureTactic": "Possible Future Tactic",
-    "evidencePrefix": "Evidence:",
-    "nextRiskPrefix": "Next risk:",
-    "observedEvidenceExcerpt": "Observed Evidence Excerpt",
-    "tacticExplanation": "Analysis & Tactic Explanation",
-    "howToProtect": "How to Protect Yourself at This Stage:",
-    "protectStep": "If the sender asks for payments, registration fees, or app downloads next, stop immediately and verify with SEBI/RBI.",
-    "stageTitles": {
-      "initial_offer": "1. Unsolicited / Attractive Offer",
-      "urgency_pressure": "2. Artificial Urgency & Pressure",
-      "payment_request": "3. Upfront Fee or Payment Request",
-      "app_or_credential_request": "4. App / APK Installation or Credential Ask",
-      "followup_or_recovery": "5. Follow-up Payment or Recovery Scam"
-    }
-  },
-
-  "voice": {
-    "title": "Multilingual Voice Explanation Readout",
-    "subtitle": "Listen to the summary read aloud in {{lang}} ({{code}})",
-    "pause": "Pause Speech",
-    "readAloud": "Read Findings Aloud",
-    "transcriptTitle": "Readout Speech Transcript:",
-    "unsupported": "Note: Browser text-to-speech engine unavailable. Full text transcript provided above."
-  },
-
-  "incident": {
-    "title": "Personalized Incident Response",
-    "description": "Select your exact situation below for immediate official response steps and reporting channels.",
-
-    "notSent": "I haven't sent money",
-    "notSentDescription": "I received the message or scheme offer but have not transferred any money.",
-
-    "sentMoney": "I already sent money",
-    "sentMoneyDescription": "I have transferred funds or made a payment.",
-
-    "installedApp": "I installed an app / opened a link",
-    "installedAppDescription": "I interacted with an APK, app, or suspicious web link.",
-
-    "notSentTitle": "Stay cautious & verify",
-    "notSentStep1": "Do not send money, OTPs, passwords, or account credentials.",
-    "notSentStep2": "Verify the sender and organization using an independent official source.",
-    "notSentStep3": "Avoid installing apps or opening links until independently verified.",
-
-    "sentMoneyTitle": "Act quickly to report & preserve evidence",
-    "sentMoneyStep1": "Contact your bank or payment provider immediately through its official channel.",
-    "sentMoneyStep2": "Preserve transaction details, chat logs, UPI IDs, and evidence.",
-    "sentMoneyStep3": "Report suspected cyber financial fraud through the official cybercrime reporting portal.",
-
-    "installedAppTitle": "Treat the device interaction cautiously",
-    "installedAppStep1": "Do not enter passwords, OTPs, or banking credentials into the app or website.",
-    "installedAppStep2": "Avoid granting additional permissions to untrusted apps.",
-    "installedAppStep3": "If sensitive information was entered, contact your bank/service provider immediately.",
-    "installedAppStep4": "Report financial loss or cybercrime to the official Cyber Crime Reporting Portal.",
-    "cybercrimePortal": "Open Cyber Crime Reporting Portal (cybercrime.gov.in) →",
-    "reportChakshu": "Report on Sanchar Saathi Chakshu",
-    "scoresDirectory": "SEBI SCORES Directory",
-    "goldenHourNote": "Note: Rapid reporting within 1-2 hours ('Golden Hour') increases the chance of freezing funds in destination bank accounts.",
-    "reportDeviceCompromise": "Report Device Compromise to Cyber Crime →"
-  },
-
-  "phoneInvestigation": {
-    "title": "Contact Number Reputation & Scam Investigation",
-    "subtitle": "Verify WhatsApp numbers, SMS senders, and Telegram contacts against telecom regulations and official cybercrime repositories.",
-    "privacyGuaranteed": "Zero Persistence & Masked Logs",
-    "selectNumberLabel": "Contacts detected from content or manually added:",
-    "noNumbersFound": "No contact phone numbers detected automatically in the submitted content. You can add one below to investigate.",
-    "inputPlaceholder": "Enter phone number (e.g. +91 98765 43210 or 9876543210)...",
-    "addNumberBtn": "+ Add Contact",
-    "investigateBtn": "Investigate Contact Reputation for",
-    "investigatingBtn": "Querying Repositories & Telecom Standards...",
-    "remove": "Remove",
-    "statusReported": "Flagged / Regulatory Warning",
-    "statusNoMatch": "No Reports (Not Proof of Safety)",
-    "statusUnavailable": "Automated Lookup Unavailable",
-    "statusInconclusive": "Inconclusive / Format Unrecognized",
-    "normalizedHeading": "Analyzed Target Number",
-    "evidenceBreakdownHeading": "Evidence Categorization & Verification Breakdown",
-    "category1": "Warning Signs in Content",
-    "category2": "External Reputation Findings",
-    "category3": "Official Regulatory Standards",
-    "category4": "What Remains Unverified",
-    "noDirectMessageWarnings": "No aggressive keywords directly tied to this number in context.",
-    "sourceResultsHeading": "Detailed Source Inspection Records",
-    "officialPortalsHeading": "Official Government Verification & Reporting Direct Links",
-    "officialPortalsDesc": "Government cybercrime portals protect citizen privacy with CAPTCHA and do not permit automated third-party scraping. Use these verified official government portals to check or report suspicious contacts directly:",
-    "safetyRuleLabel": "Safety Rule:",
-    "safetyRuleText": "A clean or unlisted record does not prove safety. Scammers routinely activate fresh SIM cards.",
-    "noticeLabel": "Notice:",
-    "limitationsLabel": "Limitations:",
-    "openPortal": "Open Portal ↗",
-    "helplineLabel": "Helpline:",
-    "call1930": "Call 1930",
-    "helplineDesc": "(National Cyber Financial Fraud)"
-  },
-
-  "officialSources": {
-    "sebi_fake_trading_apps": {
-      "title": "SEBI Investor — Fake Trading App Scams",
-      "description": "Official SEBI guidance on fake trading apps, unrealistic returns, unverified app links and suspicious payment requests."
-    },
-    "sebi_scores": {
-      "title": "SEBI SCORES",
-      "description": "SEBI's online grievance redressal platform for eligible securities-market complaints."
-    },
-    "cybercrime_1930": {
-      "title": "National Cyber Crime Reporting Portal",
-      "description": "Official portal for reporting cybercrime and online financial fraud. The national helpline is 1930."
-    },
-    "chakshu": {
-      "title": "Sanchar Saathi — Chakshu",
-      "description": "Government facility for reporting suspected fraudulent communications."
-    }
-  },
-
-  "footer": {
-    "platform": "NiveshShield 2.0 — Multimodal AI Investor-Resilience Platform"
-  },
-
-  "capsules": {
-    "title": "Safety Capsules",
-    "contextualBadge": "Contextual Official Safety Education",
-    "subtitle": "Recognize this exact danger next time — verified public education in your language",
-    "watchVideo": "Watch Video",
-    "allTopics": "All Topics →",
-    "stopAudio": "Stop Audio",
-    "videoUnavailableYet": "Official video not available in this language yet.",
-    "searchPlaceholder": "Search by topic (e.g. OTP, UPI, guaranteed returns, digital arrest)...",
-    "categories": {
-      "all": "All Topics"
-    }
+  "loading": {
+    "analyzing": "Checking message... please wait",
+    "subtext": "Matching against official safety rules..."
   }
 }

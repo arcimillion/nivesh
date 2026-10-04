@@ -1,4 +1,5 @@
 import dns from 'node:dns/promises'
+import * as cheerio from 'cheerio'
 
 export function isPrivateIP(ip: string): boolean {
   if (!ip) return true
@@ -24,6 +25,87 @@ export function isPrivateIP(ip: string): boolean {
   return false
 }
 
+// 1. URL Validator & SSRF Preventer
+export function isSafePublicUrl(urlString: string): boolean {
+  try {
+    const url = new URL(urlString)
+
+    // Only allow HTTP/HTTPS
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return false
+
+    const hostname = url.hostname
+
+    // Block common private/local IP ranges (SSRF Protection)
+    const privateIpRegex =
+      /^(localhost|127\.0\.0\.1|0\.0\.0\.0|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|169\.254\.\d{1,3}\.\d{1,3})$/i
+
+    if (privateIpRegex.test(hostname)) return false
+
+    return true
+  } catch {
+    return false // Invalid URL format
+  }
+}
+
+// 2. The Text Extractor
+export async function extractTextFromUrl(url: string): Promise<string> {
+  let urlToUse = url.trim()
+  if (!urlToUse.startsWith('http://') && !urlToUse.startsWith('https://')) {
+    urlToUse = 'https://' + urlToUse
+  }
+
+  if (!isSafePublicUrl(urlToUse)) {
+    throw new Error('🔴 RED: Invalid or blocked URL detected.')
+  }
+
+  // Resolve hostname to IP to prevent SSRF DNS pinning / rebinds
+  try {
+    const parsed = new URL(urlToUse)
+    const lookup = await dns.lookup(parsed.hostname, { all: true })
+    for (const entry of lookup) {
+      if (isPrivateIP(entry.address)) {
+        throw new Error('🔴 RED: Invalid or blocked URL detected.')
+      }
+    }
+  } catch (err: unknown) {
+    if (err instanceof Error && err.message.includes('🔴 RED:')) {
+      throw err
+    }
+  }
+
+  try {
+    // Fetch the raw HTML with a timeout to prevent hanging
+    const response = await fetch(urlToUse, {
+      signal: AbortSignal.timeout(5000),
+      headers: {
+        'User-Agent': 'NiveshShield-Security-Analyzer/2.0 (+https://niveshshield.org)',
+        'Accept': 'text/html,application/xhtml+xml,text/plain;q=0.9',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP status ${response.status}`)
+    }
+
+    const html = await response.text()
+
+    // Load HTML and remove scripts/styles
+    const $ = cheerio.load(html)
+    $('script, style, noscript, iframe, img, svg').remove()
+
+    // Extract clean text
+    const cleanText = $('body').text().replace(/\s+/g, ' ').trim()
+
+    // Truncate to avoid blowing up the LLM context window
+    return cleanText.substring(0, 8000)
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message.includes('🔴 RED:')) {
+      throw error
+    }
+    throw new Error('🔴 RED: Unable to access the provided link. Treat with extreme caution.', { cause: error })
+  }
+}
+
 export interface FetchedUrlResult {
   success: boolean
   url: string
@@ -37,107 +119,19 @@ export async function safeFetchUrl(rawUrl: string): Promise<FetchedUrlResult> {
     throw new Error('A valid URL string is required.')
   }
 
-  let trimmedUrl = rawUrl.trim()
-  if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
-    trimmedUrl = 'https://' + trimmedUrl
+  let urlToUse = rawUrl.trim()
+  if (!urlToUse.startsWith('http://') && !urlToUse.startsWith('https://')) {
+    urlToUse = 'https://' + urlToUse
   }
 
-  let parsedUrl: URL
-  try {
-    parsedUrl = new URL(trimmedUrl)
-  } catch {
-    throw new Error('Invalid URL format.')
-  }
+  const cleanText = await extractTextFromUrl(urlToUse)
+  const parsedUrl = new URL(urlToUse)
 
-  if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
-    throw new Error('Only HTTP and HTTPS URLs are allowed.')
-  }
-
-  const hostname = parsedUrl.hostname.toLowerCase()
-
-  // Block localhost and internal names directly
-  if (
-    hostname === 'localhost' ||
-    hostname.endsWith('.local') ||
-    hostname.endsWith('.internal') ||
-    hostname === '127.0.0.1' ||
-    hostname === '::1'
-  ) {
-    throw new Error('Access to local/internal hostnames is blocked for security.')
-  }
-
-  // Resolve hostname to IP to prevent SSRF DNS pinning / rebinds
-  let ipAddresses: string[]
-  try {
-    const lookup = await dns.lookup(hostname, { all: true })
-    ipAddresses = lookup.map((entry) => entry.address)
-  } catch (err) {
-    throw new Error(`Unable to resolve domain: ${hostname}`, { cause: err })
-  }
-
-  for (const ip of ipAddresses) {
-    if (isPrivateIP(ip)) {
-      throw new Error(`Access to private IP range (${ip}) is blocked.`)
-    }
-  }
-
-  // Fetch using fetch API with AbortController timeout & max size limit
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 6000)
-
-  try {
-    const response = await fetch(parsedUrl.toString(), {
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'NiveshShield-Security-Analyzer/2.0 (+https://niveshshield.org)',
-        'Accept': 'text/html,application/xhtml+xml,text/plain;q=0.9',
-      },
-      redirect: 'follow',
-    })
-
-    clearTimeout(timeoutId)
-
-    if (!response.ok) {
-      throw new Error(`Target web page responded with HTTP status ${response.status}`)
-    }
-
-    const contentType = response.headers.get('content-type') || ''
-    if (
-      !contentType.includes('text/html') &&
-      !contentType.includes('text/plain') &&
-      !contentType.includes('json')
-    ) {
-      throw new Error('Target URL did not return text content.')
-    }
-
-    const rawText = await response.text()
-    // Truncate to 50KB to prevent memory exhaustion
-    const truncatedText = rawText.slice(0, 50000)
-
-    // Basic HTML text extraction
-    const titleMatch = truncatedText.match(/<title[^>]*>([^<]+)<\/title>/i)
-    const title = titleMatch ? titleMatch[1].trim() : hostname
-
-    // Strip HTML scripts, styles, and tags
-    const cleanedText = truncatedText
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
-      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-
-    return {
-      success: true,
-      url: parsedUrl.toString(),
-      domain: hostname,
-      title,
-      extracted_text: `URL: ${parsedUrl.toString()}\nDomain: ${hostname}\nPage Title: ${title}\nContent Excerpt: ${cleanedText.slice(0, 4000)}`,
-    }
-  } catch (error: unknown) {
-    clearTimeout(timeoutId)
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error('URL fetch request timed out after 6 seconds.', { cause: error })
-    }
-    throw error
+  return {
+    success: true,
+    url: urlToUse,
+    domain: parsedUrl.hostname,
+    title: parsedUrl.hostname,
+    extracted_text: `URL: ${parsedUrl.toString()}\nDomain: ${parsedUrl.hostname}\nPage Content: ${cleanText}`,
   }
 }

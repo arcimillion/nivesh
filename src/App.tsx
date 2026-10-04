@@ -13,34 +13,13 @@ import { ComplaintDossierGenerator } from './components/ComplaintDossierGenerato
 import { HowItWorksModal } from './components/HowItWorksModal'
 import { NiveshParivarCard } from './components/NiveshParivarCard'
 import { PhoneNumberReputation } from './components/PhoneNumberReputation'
-
-// Advanced Tools Modal imports (accessible via discreet header link)
-import { DematSafetyChecker } from './components/DematSafetyChecker'
-import { SebiValidator } from './components/SebiValidator'
-import { PreTransactionSafetyGate } from './components/PreTransactionSafetyGate'
-import { EvidenceGraph } from './components/EvidenceGraph'
-import { ScamIncidentCasebook } from './components/ScamIncidentCasebook'
-import { CommunityIntelligence } from './components/CommunityIntelligence'
-import { CoolingOffCalculator } from './components/CoolingOffCalculator'
-import { SpotTheScamSimulation } from './components/SpotTheScamSimulation'
 import { SafetyCapsuleCard } from './components/SafetyCapsuleCard'
 import { SafetyCapsulesLibrary } from './components/SafetyCapsulesLibrary'
-
-type AdvancedToolTab =
-  | 'capsules'
-  | 'demat'
-  | 'sebi'
-  | 'safety_gate'
-  | 'graph'
-  | 'casebook'
-  | 'community'
-  | 'cooling'
-  | 'sandbox'
 
 export default function App() {
   const { t, i18n } = useTranslation()
 
-  // Core State for Google-Search Style Minimalist UX
+  // Core State
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -48,15 +27,10 @@ export default function App() {
   const [activeDemoKey, setActiveDemoKey] = useState<'ex1Text' | 'ex2Text' | 'ex3Text' | null>(null)
   const [lastAnalyzeOptions, setLastAnalyzeOptions] = useState<AnalyzeOptions | null>(null)
 
-  // Progressive Disclosure states under the Verdict Card
-  const [showJourneyMap, setShowJourneyMap] = useState(false)
-  const [showDossier, setShowDossier] = useState(false)
+  // Abstraction & Collapsible states for village-first UX
   const [showHowItWorks, setShowHowItWorks] = useState(false)
-
-  // Advanced Tools Modal (Preserves all Hackathon features without cluttering homepage)
-  const [showToolsModal, setShowToolsModal] = useState(false)
   const [showCapsulesModal, setShowCapsulesModal] = useState(false)
-  const [activeToolTab, setActiveToolTab] = useState<AdvancedToolTab>('demat')
+  const [showDetailsAccordion, setShowDetailsAccordion] = useState(false)
 
   const handleLanguageChange = (newLang: string) => {
     i18n.changeLanguage(newLang)
@@ -84,8 +58,7 @@ export default function App() {
     setLoading(true)
     setError('')
     setAnalysis(null)
-    setShowJourneyMap(false)
-    setShowDossier(false)
+    setShowDetailsAccordion(false)
     setLastAnalyzeOptions(options)
 
     try {
@@ -96,7 +69,7 @@ export default function App() {
       setError(
         err instanceof Error
           ? err.message
-          : t('analysis.analysisErrorTitle', 'Analysis could not be completed'),
+          : t('analysis.analysisErrorTitle', 'जाँच पूरी नहीं हो सकी / Could not complete check'),
       )
     } finally {
       setLoading(false)
@@ -109,7 +82,6 @@ export default function App() {
     setDemoText(text)
     setError('')
 
-    // Immediately trigger analysis on demo click for lightning-fast testing
     handleAnalyze({
       message: text,
       modality: 'text',
@@ -122,73 +94,59 @@ export default function App() {
     setDemoText('')
     setActiveDemoKey(null)
     setError('')
-    setShowJourneyMap(false)
-    setShowDossier(false)
+    setShowDetailsAccordion(false)
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col justify-between font-sans selection:bg-emerald-100">
-      {/* Minimal Header */}
-      <header className="w-full border-b border-slate-100 bg-white/95 backdrop-blur-xs py-3 px-4 sm:px-8">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between font-sans selection:bg-emerald-100">
+      {/* Super Simple Clean Header */}
+      <header className="w-full border-b border-slate-200 bg-white shadow-2xs py-3 px-4 sm:px-8">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
           {/* Logo / Brand */}
           <button
             type="button"
             onClick={handleReset}
-            className="flex items-center gap-2.5 text-left focus:outline-none group"
-            title="Reset to home"
+            className="flex items-center gap-3 text-left focus:outline-none group cursor-pointer"
+            title="मुख्य पृष्ठ पर जाएँ / Return to Home"
           >
-            <div className="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-lg shadow-xs group-hover:bg-emerald-800 transition">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-700 text-white flex items-center justify-center text-xl shadow-md group-hover:bg-emerald-800 transition shrink-0">
               🛡️
             </div>
             <div>
-              <span className="text-lg font-black tracking-tight text-slate-900 block leading-none">
-                {t('appTitle', 'NiveshShield 2.0')}
+              <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 block leading-none">
+                NiveshShield
               </span>
-              <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">
-                {t('badge', 'Investor Protection')}
+              <span className="text-xs font-bold text-emerald-800 tracking-wide block mt-0.5">
+                {t('badge', 'Truth Check')}
               </span>
             </div>
           </button>
 
-          {/* Right Header: Regional Language Switcher & Hackathon Tools Menu */}
-          <div className="flex items-center gap-3">
-            {/* Safety Capsules Button */}
+          {/* Right Header: Safety Video Library & Vernacular Selector */}
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={() => setShowCapsulesModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-xs font-bold text-emerald-950 hover:bg-emerald-100 transition shadow-2xs"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-2xl border-2 border-emerald-600 bg-emerald-700 text-white font-black text-xs sm:text-sm hover:bg-emerald-800 transition shadow-xs cursor-pointer active:scale-95"
             >
-              <span>🎥</span>
-              <span>{t('capsules.title', 'Safety Capsules')}</span>
+              <span className="text-base">🎥</span>
+              <span>{t('capsulesTitle', 'Safety Videos')}</span>
             </button>
 
-            {/* Hackathon Badge / Tools Button */}
-            <button
-              type="button"
-              onClick={() => setShowToolsModal(true)}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-700 hover:bg-slate-100 transition shadow-2xs"
-            >
-              <span>🏛️</span>
-              <span>SEBI & NSDL Tools</span>
-              <span className="text-slate-400">▾</span>
-            </button>
-
-            {/* Vernacular Language Selector */}
-            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1">
-              <span className="text-sm select-none" aria-hidden="true">🌐</span>
+            <div className="flex items-center gap-1 bg-slate-100 border-2 border-slate-300 rounded-2xl px-2.5 py-1.5 shadow-2xs">
+              <span className="text-base select-none" aria-hidden="true">🌐</span>
               <select
                 value={i18n.language}
                 onChange={(e) => handleLanguageChange(e.target.value)}
-                className="bg-transparent text-xs sm:text-sm font-bold text-slate-800 outline-none cursor-pointer pr-1"
-                aria-label={t('language', 'Language')}
+                className="bg-transparent text-xs sm:text-sm font-black text-slate-900 outline-none cursor-pointer pr-1"
+                aria-label={t('language', 'भाषा चुनें / Select Language')}
               >
-                <option value="en">English</option>
                 <option value="hi">हिन्दी</option>
+                <option value="en">English</option>
                 <option value="mr">मराठी</option>
+                <option value="gu">ગુજરાતી</option>
                 <option value="bn">বাংলা</option>
                 <option value="ta">தமிழ்</option>
-                <option value="gu">ગુજરાતી</option>
               </select>
             </div>
           </div>
@@ -196,27 +154,26 @@ export default function App() {
       </header>
 
       {/* Main Screen: Center Hero Area */}
-      <main className="flex-1 flex flex-col justify-center items-center px-4 py-8 sm:py-12 max-w-5xl mx-auto w-full">
-        {/* STATE 1: DEFAULT STATE (Google Search Minimalist Hero) */}
+      <main className="flex-1 flex flex-col justify-center items-center px-4 py-6 sm:py-10 max-w-4xl mx-auto w-full">
+        {/* STATE 1: DEFAULT STATE (Ultra Simple Input Hero) */}
         {!loading && !analysis && (
-          <div className="w-full max-w-3xl flex flex-col items-center justify-center animate-fade-in text-center my-auto">
-            {/* Brand Title Area */}
-            <div className="mb-6 sm:mb-8 flex flex-col items-center">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-emerald-700 text-white flex items-center justify-center text-4xl sm:text-5xl shadow-xl ring-4 ring-emerald-100 mb-4 select-none">
+          <div className="w-full flex flex-col items-center justify-center animate-fade-in text-center my-auto">
+            <div className="mb-6 flex flex-col items-center space-y-2">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-emerald-700 text-white flex items-center justify-center text-3xl sm:text-4xl shadow-xl ring-4 ring-emerald-100 select-none">
                 🛡️
               </div>
-              <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
-                {t('appTitle', 'NiveshShield 2.0')}
+              <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                {t('appTitle', 'NiveshShield')}
               </h1>
-              <p className="mt-2 text-sm sm:text-lg font-semibold text-slate-600 max-w-xl">
+              <p className="text-base sm:text-xl font-bold text-slate-700 max-w-xl leading-relaxed">
                 {t(
                   'heroSubtitle',
-                  'Verify any investment message, screenshot, or voice note before sending money.',
+                  'कोई भी मैसेज, फोटो या लिंक डालें — हम बताएँगे कि यह असली है या धोखा।',
                 )}
               </p>
             </div>
 
-            {/* Central Omnibox Multimodal Scam Scanner */}
+            {/* Central Multimodal Scam Scanner */}
             <div className="w-full">
               <MultimodalScamScanner
                 onAnalyze={handleAnalyze}
@@ -227,154 +184,180 @@ export default function App() {
 
             {/* Error display if any */}
             {error && (
-              <div className="mt-4 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-950 text-sm font-semibold w-full text-left">
+              <div className="mt-4 p-4 rounded-2xl bg-rose-50 border-2 border-rose-300 text-rose-950 text-base font-bold w-full text-left shadow-2xs">
                 ⚠️ {error}
               </div>
             )}
 
-            {/* Tactile 1-Click Demo Shortcut Chips */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm">
-              <span className="font-bold text-slate-500 mr-1 select-none">
-                {t('demoExamples.quickTry', '💡 Or test with a demo:')}
+            {/* Simple Demo Buttons */}
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-2 w-full text-xs sm:text-sm">
+              <span className="font-bold text-slate-600 text-sm select-none">
+                {t('demoExamples.quickTry', '💡 उदाहरण देखें:')}
               </span>
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('ex1Text')}
-                className="px-3.5 py-1.5 rounded-full bg-slate-50 border border-rose-300 text-rose-950 hover:bg-rose-50 font-bold shadow-2xs transition active:scale-95 flex items-center gap-1.5"
-              >
-                <span>🛑</span>
-                <span>{t('demoExamples.ex1Title', 'Guaranteed 40% Returns')}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('ex2Text')}
-                className="px-3.5 py-1.5 rounded-full bg-slate-50 border border-amber-300 text-amber-950 hover:bg-amber-50 font-bold shadow-2xs transition active:scale-95 flex items-center gap-1.5"
-              >
-                <span>⚠️</span>
-                <span>{t('demoExamples.ex2Title', 'VIP IPO WhatsApp Group')}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('ex3Text')}
-                className="px-3.5 py-1.5 rounded-full bg-slate-50 border border-emerald-300 text-emerald-950 hover:bg-emerald-50 font-bold shadow-2xs transition active:scale-95 flex items-center gap-1.5"
-              >
-                <span>✅</span>
-                <span>{t('demoExamples.ex3Title', 'Educational Guide')}</span>
-              </button>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleDemoSelect('ex1Text')}
+                  className="px-4 py-2 rounded-xl bg-white border-2 border-rose-400 text-rose-950 hover:bg-rose-50 font-black shadow-2xs transition active:scale-95 flex items-center gap-1.5 cursor-pointer text-xs sm:text-sm"
+                >
+                  <span>🛑</span>
+                  <span>{t('demoExamples.ex1Title', '40% पक्का मुनाफा मैसेज')}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDemoSelect('ex2Text')}
+                  className="px-4 py-2 rounded-xl bg-white border-2 border-amber-400 text-amber-950 hover:bg-amber-50 font-black shadow-2xs transition active:scale-95 flex items-center gap-1.5 cursor-pointer text-xs sm:text-sm"
+                >
+                  <span>⚠️</span>
+                  <span>{t('demoExamples.ex2Title', 'अंजान वॉट्सऐप ग्रुप')}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDemoSelect('ex3Text')}
+                  className="px-4 py-2 rounded-xl bg-white border-2 border-emerald-400 text-emerald-950 hover:bg-emerald-50 font-black shadow-2xs transition active:scale-95 flex items-center gap-1.5 cursor-pointer text-xs sm:text-sm"
+                >
+                  <span>✅</span>
+                  <span>{t('demoExamples.ex3Title', 'बैंक का सही मैसेज')}</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
 
-        {/* STATE 2: LOADING STATE (Simple, high-contrast, tactile animation) */}
+        {/* STATE 2: LOADING STATE */}
         {loading && (
           <div
-            className="flex flex-col items-center justify-center py-20 px-4 text-center animate-fade-in space-y-6 my-auto"
+            className="flex flex-col items-center justify-center py-16 px-4 text-center animate-fade-in space-y-6 my-auto"
             role="status"
             aria-live="polite"
           >
             <div className="relative flex items-center justify-center">
-              <div className="w-28 h-28 rounded-full bg-emerald-100 animate-ping opacity-60 absolute" />
-              <div className="w-24 h-24 rounded-full bg-emerald-50 border-4 border-emerald-600 flex items-center justify-center text-4xl shadow-xl relative z-10 animate-pulse">
+              <div className="w-28 h-28 rounded-full bg-emerald-200 animate-ping opacity-60 absolute" />
+              <div className="w-24 h-24 rounded-full bg-white border-4 border-emerald-700 flex items-center justify-center text-5xl shadow-xl relative z-10 animate-pulse">
                 🛡️
               </div>
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                {t('loading.analyzing', 'Analyzing evidence...')}
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                {t('loading.analyzing', 'जाँच जारी है... थोड़ा इंतज़ार करें')}
               </h2>
-              <p className="text-sm sm:text-base text-slate-600 max-w-md font-medium mx-auto">
+              <p className="text-base sm:text-lg text-slate-700 max-w-md font-bold mx-auto">
                 {t(
                   'loading.subtext',
-                  'Checking evidence against SEBI & RBI rules, statutory red flags, and licensed advisor registries...',
+                  'सरकारी नियमों और फर्जी दावों से मिलान किया जा रहा है...',
                 )}
               </p>
             </div>
 
-            {/* Accessible Progress Indicator */}
-            <div className="w-56 h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
-              <div className="h-full bg-emerald-600 rounded-full animate-pulse w-3/4" />
+            <div className="w-64 h-3 bg-slate-200 rounded-full overflow-hidden border border-slate-300">
+              <div className="h-full bg-emerald-700 rounded-full animate-pulse w-4/5" />
             </div>
           </div>
         )}
 
-        {/* STATE 3: RESULT STATE (The Verdict Card & Progressive Actions) */}
+        {/* STATE 3: RESULT STATE (Abstracted Village-First UX) */}
         {!loading && analysis && (
-          <div className="w-full max-w-3xl flex flex-col items-center justify-center animate-fade-in space-y-6 my-auto">
-            {/* Massive High-Contrast Verdict Card */}
+          <div className="w-full max-w-3xl flex flex-col items-center justify-center animate-fade-in space-y-5 my-auto">
+            {/* 1. Main High-Contrast Verdict Card */}
             <VerdictCard
               analysis={analysis}
               onReset={handleReset}
-              onToggleJourneyMap={() => setShowJourneyMap((prev) => !prev)}
-              onToggleDossier={() => setShowDossier((prev) => !prev)}
-              showJourneyMap={showJourneyMap}
-              showDossier={showDossier}
+              onToggleJourneyMap={() => setShowDetailsAccordion(true)}
+              onToggleDossier={() => setShowDetailsAccordion(true)}
+              showJourneyMap={showDetailsAccordion}
+              showDossier={showDetailsAccordion}
             />
 
-            {/* Contextual Official Safety Education Capsule */}
-            <div className="w-full animate-fade-in">
-              <SafetyCapsuleCard
+            {/* 2. Primary 1-Click Action Buttons for Villagers */}
+            <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <NiveshParivarCard
                 analysis={analysis}
-                onExploreLibrary={() => setShowCapsulesModal(true)}
+                extractedText={lastAnalyzeOptions?.message || demoText}
               />
+
+              <a
+                href="tel:1930"
+                className="py-4 px-6 rounded-2xl bg-rose-700 hover:bg-rose-800 text-white font-black text-base sm:text-lg shadow-md transition flex items-center justify-center gap-3 border-2 border-rose-800 active:scale-98"
+              >
+                <span className="text-2xl shrink-0">📞</span>
+                <span>{t('cyberHelpline', 'National Cyber Crime Helpline: 1930 (Toll Free)')}</span>
+              </a>
             </div>
 
-            {/* PROGRESSIVE DISCLOSURE ACTION 1: 5-Stage Scam Journey Map */}
-            {showJourneyMap && analysis.scam_journey_map && (
-              <div className="w-full animate-fade-in">
-                <ScamJourneyMap stages={analysis.scam_journey_map} />
-              </div>
-            )}
+            {/* 3. Single Contextual 1-Min Safety Video Callout */}
+            <SafetyCapsuleCard
+              analysis={analysis}
+              onExploreLibrary={() => setShowCapsulesModal(true)}
+            />
 
-            {/* PROGRESSIVE DISCLOSURE ACTION 2: 1930 / Chakshu Complaint Dossier */}
-            {showDossier && (
-              <div className="w-full animate-fade-in">
-                <ComplaintDossierGenerator
-                  analysis={analysis}
-                  extractedText={lastAnalyzeOptions?.message || demoText}
-                />
-              </div>
-            )}
+            {/* 4. Abstracted / Collapsible Details Accordion */}
+            <div className="w-full border-t-2 border-slate-200 pt-3">
+              <button
+                type="button"
+                onClick={() => setShowDetailsAccordion((prev) => !prev)}
+                className="w-full py-3.5 px-5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-sm sm:text-base transition flex items-center justify-between cursor-pointer border border-slate-300"
+              >
+                <span className="flex items-center gap-2">
+                  <span>{showDetailsAccordion ? '🔼' : '🔽'}</span>
+                  <span>{t('showDetails', 'More Details & Complaint Paper')}</span>
+                </span>
+                <span className="text-xs text-slate-500 font-bold">{showDetailsAccordion ? 'Hide' : 'Show'}</span>
+              </button>
 
-            {/* Family Protection Warning Card (If High Risk) */}
-            {analysis.overall_status === 'warning_signs_found' && (
-              <div className="w-full animate-fade-in">
-                <NiveshParivarCard
-                  analysis={analysis}
-                  extractedText={lastAnalyzeOptions?.message || demoText}
-                />
-              </div>
-            )}
+              {showDetailsAccordion && (
+                <div className="mt-4 space-y-4 animate-fade-in p-4 sm:p-6 bg-white rounded-3xl border border-slate-200 shadow-2xs text-left">
+                  {/* 5-Step Scam Breakdown */}
+                  {analysis.scam_journey_map && (
+                    <div className="w-full space-y-2">
+                      <h4 className="font-black text-slate-900 text-base">🗺️ {t('breakdownTitle', 'How Scammers Trick People (5 Steps)')}:</h4>
+                      <ScamJourneyMap stages={analysis.scam_journey_map} />
+                    </div>
+                  )}
 
-            {/* Phone Reputation Card (If contact number detected in message) */}
-            {analysis.extracted_phones && analysis.extracted_phones.length > 0 && (
-              <div className="w-full animate-fade-in">
-                <PhoneNumberReputation
-                  extractedPhones={analysis.extracted_phones}
-                  originalText={lastAnalyzeOptions?.message || demoText}
-                />
-              </div>
-            )}
+                  {/* Complaint Paper Generator */}
+                  <div className="w-full space-y-2 pt-2 border-t border-slate-100">
+                    <h4 className="font-black text-slate-900 text-base">📋 {t('complaintPaperTitle', '1930 Police Complaint Paper')}:</h4>
+                    <ComplaintDossierGenerator
+                      analysis={analysis}
+                      extractedText={lastAnalyzeOptions?.message || demoText}
+                    />
+                  </div>
+
+                  {/* Phone Number Reputation */}
+                  {analysis.extracted_phones && analysis.extracted_phones.length > 0 && (
+                    <div className="w-full space-y-2 pt-2 border-t border-slate-100">
+                      <PhoneNumberReputation
+                        extractedPhones={analysis.extracted_phones}
+                        originalText={lastAnalyzeOptions?.message || demoText}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </main>
 
-      {/* Subtle Bottom Footer: 'How it works' link and official helpline notice */}
-      <footer className="w-full py-5 px-4 text-center border-t border-slate-100 bg-white">
-        <div className="max-w-xl mx-auto flex flex-col items-center gap-2">
-          {/* Subtle 'How it works' link */}
+      {/* Simple Footer */}
+      <footer className="w-full py-4 px-4 text-center border-t border-slate-200 bg-white">
+        <div className="max-w-xl mx-auto flex flex-col items-center gap-3">
+          <a
+            href="tel:1930"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-rose-700 hover:bg-rose-800 text-white font-black text-sm shadow-md transition active:scale-95"
+          >
+            <span>📞</span>
+            <span>{t('cyberHelpline', 'National Cyber Crime Helpline: 1930 (Toll Free)')}</span>
+          </a>
+
           <button
             type="button"
             onClick={() => setShowHowItWorks(true)}
-            className="text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-900 transition hover:underline py-1 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
+            className="text-sm font-bold text-slate-600 hover:text-slate-900 transition underline py-1 px-3 focus:outline-none cursor-pointer"
           >
-            {t('howItWorksTitle', 'How it works')}
+            {t('howItWorksTitle', 'यह कैसे काम करता है? (How it works)')}
           </button>
-
-          {/* Official Footnote */}
-          <p className="text-[11px] text-slate-400 font-medium">
-            National Cybercrime Helpline: <strong className="text-slate-700 font-bold">1930</strong> • IIT (BHU) SANGYAN Hackathon • SEBI & NSDL Investor Protection
-          </p>
         </div>
       </footer>
 
@@ -384,197 +367,30 @@ export default function App() {
         onClose={() => setShowHowItWorks(false)}
       />
 
-      {/* Full Hackathon Advanced Tools Modal */}
-      {showToolsModal && (
+      {/* Safety Capsules Library Modal */}
+      {showCapsulesModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto animate-fade-in"
           role="dialog"
           aria-modal="true"
         >
-          <div className="w-full max-w-5xl rounded-3xl bg-white p-5 sm:p-8 shadow-2xl space-y-6 relative my-8 border border-slate-200 max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <div className="flex items-center gap-2.5">
-                <span className="text-2xl">🏛️</span>
-                <div>
-                  <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                    SEBI & NSDL Investor Resilience Suite
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    SANGYAN Hackathon Specialized Investor Protection Tools
-                  </p>
-                </div>
+          <div className="w-full max-w-4xl rounded-3xl bg-white p-4 sm:p-6 shadow-2xl space-y-4 relative my-6 border-2 border-slate-200 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">🎥</span>
+                <h3 className="text-lg sm:text-xl font-black text-slate-900">
+                  {t('capsules.title', 'सुरक्षा वीडियो / Safety Videos')}
+                </h3>
               </div>
               <button
                 type="button"
-                onClick={() => setShowToolsModal(false)}
-                className="text-slate-400 hover:text-slate-900 font-bold text-xl p-2 rounded-xl hover:bg-slate-100 transition"
-                aria-label="Close dialog"
+                onClick={() => setShowCapsulesModal(false)}
+                className="text-slate-500 hover:text-slate-900 font-black text-2xl p-1 cursor-pointer"
+                aria-label="Close"
               >
                 ✕
               </button>
             </div>
-
-            {/* Modal Tabs */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-100">
-              <button
-                type="button"
-                onClick={() => setActiveToolTab('capsules')}
-                className={`px-3.5 py-2 text-xs font-black rounded-xl whitespace-nowrap transition ${
-                  activeToolTab === 'capsules'
-                    ? 'bg-emerald-800 text-white shadow-xs'
-                    : 'bg-emerald-50 text-emerald-900 border border-emerald-200 hover:bg-emerald-100'
-                }`}
-              >
-                🎥 Safety Capsules
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveToolTab('demat')}
-                className={`px-3.5 py-2 text-xs font-black rounded-xl whitespace-nowrap transition ${
-                  activeToolTab === 'demat'
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                🏛️ NSDL Demat Shield
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveToolTab('sebi')}
-                className={`px-3.5 py-2 text-xs font-black rounded-xl whitespace-nowrap transition ${
-                  activeToolTab === 'sebi'
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                📜 SEBI Entity Validator
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveToolTab('safety_gate')}
-                className={`px-3.5 py-2 text-xs font-black rounded-xl whitespace-nowrap transition ${
-                  activeToolTab === 'safety_gate'
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                🛑 Safety Gate
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveToolTab('graph')}
-                className={`px-3.5 py-2 text-xs font-black rounded-xl whitespace-nowrap transition ${
-                  activeToolTab === 'graph'
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                🕸️ Evidence Graph
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveToolTab('casebook')}
-                className={`px-3.5 py-2 text-xs font-black rounded-xl whitespace-nowrap transition ${
-                  activeToolTab === 'casebook'
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                📁 Incident Casebook
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveToolTab('community')}
-                className={`px-3.5 py-2 text-xs font-black rounded-xl whitespace-nowrap transition ${
-                  activeToolTab === 'community'
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                🌐 Community Intel
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveToolTab('cooling')}
-                className={`px-3.5 py-2 text-xs font-black rounded-xl whitespace-nowrap transition ${
-                  activeToolTab === 'cooling'
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                ⏱️ Cooling-Off Shield
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveToolTab('sandbox')}
-                className={`px-3.5 py-2 text-xs font-black rounded-xl whitespace-nowrap transition ${
-                  activeToolTab === 'sandbox'
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                🎯 Spot-the-Scam Sandbox
-              </button>
-            </div>
-
-            {/* Modal Tool View Content */}
-            <div className="py-2">
-              {activeToolTab === 'capsules' && <SafetyCapsulesLibrary />}
-              {activeToolTab === 'demat' && <DematSafetyChecker />}
-              {activeToolTab === 'sebi' && <SebiValidator />}
-              {activeToolTab === 'safety_gate' && (
-                <PreTransactionSafetyGate
-                  analysis={analysis}
-                  onOpenEvidenceGraph={() => setActiveToolTab('graph')}
-                  onOpenCasebook={() => setActiveToolTab('casebook')}
-                />
-              )}
-              {activeToolTab === 'graph' && (
-                <EvidenceGraph
-                  analysis={analysis}
-                  submittedText={demoText}
-                  onOpenSafetyGate={() => setActiveToolTab('safety_gate')}
-                  onOpenCasebook={() => setActiveToolTab('casebook')}
-                />
-              )}
-              {activeToolTab === 'casebook' && (
-                <ScamIncidentCasebook
-                  analysis={analysis}
-                  extractedText={demoText}
-                />
-              )}
-              {activeToolTab === 'community' && (
-                <CommunityIntelligence
-                  analysis={analysis}
-                  extractedText={demoText}
-                />
-              )}
-              {activeToolTab === 'cooling' && <CoolingOffCalculator />}
-              {activeToolTab === 'sandbox' && <SpotTheScamSimulation />}
-            </div>
-
-            <div className="flex justify-end pt-3 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setShowToolsModal(false)}
-                className="px-6 py-2.5 rounded-xl bg-slate-900 text-white font-extrabold text-xs hover:bg-slate-800 transition"
-              >
-                ← Back to Scam Scanner
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Direct Safety Capsules Library Modal */}
-      {showCapsulesModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto animate-fade-in"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="w-full max-w-5xl rounded-3xl bg-white p-4 sm:p-7 shadow-2xl relative my-6 border border-slate-200 max-h-[92vh] overflow-y-auto">
             <SafetyCapsulesLibrary onClose={() => setShowCapsulesModal(false)} />
           </div>
         </div>

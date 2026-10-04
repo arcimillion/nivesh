@@ -15,11 +15,11 @@ const STAGE_ICONS: Record<string, string> = {
 }
 
 const STAGE_TITLES: Record<string, string> = {
-  initial_offer: '1. Unsolicited / Attractive Offer',
-  urgency_pressure: '2. Artificial Urgency & Pressure',
-  payment_request: '3. Upfront Fee or Payment Request',
-  app_or_credential_request: '4. App / APK Installation or Credential Ask',
-  followup_or_recovery: '5. Follow-up Payment or Recovery Scam',
+  initial_offer: '1. Fake Offer & Big Profit Trap',
+  urgency_pressure: '2. Rushing You to Pay Fast',
+  payment_request: '3. Demanding Upfront Fee or UPI Transfer',
+  app_or_credential_request: '4. Asking to Download Fake App or Share Password',
+  followup_or_recovery: '5. Demanding More Money to Withdraw Profits',
 }
 
 export const ScamJourneyMap: React.FC<Props> = ({ stages }) => {
@@ -33,31 +33,31 @@ export const ScamJourneyMap: React.FC<Props> = ({ stages }) => {
   const observedCount = stages.filter((s) => s.observed).length
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-4 mb-5">
+    <div className="rounded-3xl border-2 border-slate-200 bg-white p-5 sm:p-7 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 pb-4 mb-5">
         <div>
-          <h4 className="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-            <span>🗺️</span> {t('journey.title', 'Scam Journey Tactic Map')}
+          <h4 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+            <span>🗺️</span> {t('journey.title', 'How Scammers Trick People (5 Steps)')}
           </h4>
-          <p className="mt-0.5 text-xs text-slate-500">
+          <p className="mt-1 text-xs sm:text-sm font-bold text-slate-600">
             {t(
               'journey.subtitle',
-              'Sequenced tactic analysis. Observed stages are backed by direct evidence; unobserved stages indicate possible future escalation risks.',
+              'Scammers follow these 5 steps to trick people and steal money. Here is how they operate:',
             )}
           </p>
         </div>
 
         <div className="shrink-0 flex items-center gap-2">
-          <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900 border border-amber-200">
+          <span className="rounded-full bg-rose-100 px-3.5 py-1 text-xs sm:text-sm font-black text-rose-900 border border-rose-300">
             {t('journey.observedBadge', {
               count: observedCount,
-              defaultValue: `${observedCount} Observed in Content`,
+              defaultValue: `${observedCount} Traps Found in Message`,
             })}
           </span>
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 border border-slate-200">
+          <span className="rounded-full bg-amber-100 px-3.5 py-1 text-xs sm:text-sm font-black text-amber-900 border border-amber-300">
             {t('journey.futureBadge', {
               count: stages.length - observedCount,
-              defaultValue: `${stages.length - observedCount} Future Escalation Risks`,
+              defaultValue: `${stages.length - observedCount} Next Possible Risk`,
             })}
           </span>
         </div>
@@ -74,23 +74,23 @@ export const ScamJourneyMap: React.FC<Props> = ({ stages }) => {
           return (
             <div
               key={stg.stage}
-              className={`rounded-xl border transition ${
+              className={`rounded-2xl border-2 transition-all ${
                 stg.observed
-                  ? 'border-amber-300 bg-amber-50/50 shadow-2xs'
-                  : 'border-slate-200 bg-slate-50/40 opacity-90'
+                  ? 'border-rose-300 bg-rose-50/60 shadow-2xs'
+                  : 'border-slate-200 bg-slate-50/60'
               }`}
             >
               <button
                 type="button"
                 onClick={() => setExpandedStage(isExpanded ? null : stg.stage)}
-                className="w-full flex items-center justify-between p-4 text-left focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-xl"
+                className="w-full flex items-center justify-between p-4 text-left focus:outline-none rounded-2xl cursor-pointer"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3.5">
                   <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg font-bold shadow-2xs ${
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-xl font-black shadow-2xs ${
                       stg.observed
-                        ? 'bg-amber-500 text-white'
-                        : 'bg-slate-200 text-slate-700'
+                        ? 'bg-rose-600 text-white'
+                        : 'bg-slate-300 text-slate-800'
                     }`}
                   >
                     {icon}
@@ -98,66 +98,66 @@ export const ScamJourneyMap: React.FC<Props> = ({ stages }) => {
 
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-bold text-slate-900">
+                      <span className="text-sm sm:text-base font-black text-slate-900">
                         {defaultTitle}
                       </span>
                       {stg.observed ? (
-                        <span className="rounded-full bg-amber-200 px-2.5 py-0.5 text-[10px] font-extrabold text-amber-950 uppercase tracking-wide">
-                          {t('journey.observedTactic', '✓ Observed Tactic')}
+                        <span className="rounded-full bg-rose-200 px-2.5 py-0.5 text-xs font-black text-rose-950 uppercase tracking-wide">
+                          {t('journey.observedTactic', 'Found in this message')}
                         </span>
                       ) : (
-                        <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600 uppercase tracking-wide">
-                          {t('journey.futureTactic', 'Possible Future Tactic')}
+                        <span className="rounded-full bg-amber-200 px-2.5 py-0.5 text-xs font-black text-amber-950 uppercase tracking-wide">
+                          {t('journey.futureTactic', 'Next possible risk')}
                         </span>
                       )}
                     </div>
-                    <p className="mt-0.5 text-xs text-slate-600 line-clamp-1">
+                    <p className="mt-1 text-xs sm:text-sm font-bold text-slate-700 leading-snug">
                       {stg.observed
                         ? stg.evidence
-                          ? `${t('journey.evidencePrefix', 'Evidence:')} "${stg.evidence}"`
+                          ? `${t('journey.evidencePrefix', 'Found words:')} "${stg.evidence}"`
                           : stg.explanation
                         : `${t('journey.nextRiskPrefix', 'Next risk:')} ${stg.explanation}`}
                     </p>
                   </div>
                 </div>
 
-                <div className="ml-2 text-slate-400 font-bold text-sm">
+                <div className="ml-2 text-slate-500 font-black text-base shrink-0">
                   {isExpanded ? '▲' : '▼'}
                 </div>
               </button>
 
               {/* Expandable Evidence & Details */}
               {isExpanded && (
-                <div className="border-t border-slate-200/80 p-4 bg-white rounded-b-xl space-y-3 text-xs">
+                <div className="border-t-2 border-slate-200 p-4 bg-white rounded-b-2xl space-y-3 text-xs sm:text-sm">
                   {stg.observed && stg.evidence && (
-                    <div className="rounded-lg bg-amber-50 p-3 border border-amber-200">
-                      <p className="font-bold text-amber-900 uppercase text-[10px] tracking-wider">
-                        {t('journey.observedEvidenceExcerpt', 'Observed Evidence Excerpt')}
+                    <div className="rounded-xl bg-rose-50 p-3 border border-rose-200">
+                      <p className="font-black text-rose-900 uppercase text-xs tracking-wider">
+                        {t('journey.observedEvidenceExcerpt', 'Words found in your message')}
                       </p>
-                      <p className="mt-1 font-mono text-slate-900 font-semibold">
+                      <p className="mt-1 font-extrabold text-rose-950">
                         “{stg.evidence}”
                       </p>
                     </div>
                   )}
 
                   <div>
-                    <p className="font-bold text-slate-700 uppercase text-[10px] tracking-wider">
-                      {t('journey.tacticExplanation', 'Analysis & Tactic Explanation')}
+                    <p className="font-black text-slate-800 uppercase text-xs tracking-wider">
+                      {t('journey.tacticExplanation', 'Why this is a trap')}
                     </p>
-                    <p className="mt-1 leading-relaxed text-slate-700 font-medium">
+                    <p className="mt-1 leading-relaxed text-slate-800 font-bold">
                       {stg.explanation}
                     </p>
                   </div>
 
                   {!stg.observed && (
-                    <div className="rounded-lg bg-slate-50 p-3 border border-slate-200 text-slate-600">
-                      <p className="font-bold text-slate-800 flex items-center gap-1.5">
-                        <span>💡</span> {t('journey.howToProtect', 'How to Protect Yourself at This Stage:')}
+                    <div className="rounded-xl bg-amber-50 p-3 border border-amber-200 text-amber-950 font-bold">
+                      <p className="font-black flex items-center gap-1.5 text-xs uppercase">
+                        <span>💡</span> {t('journey.howToProtect', 'How to Protect Yourself:')}
                       </p>
-                      <p className="mt-1 leading-relaxed">
+                      <p className="mt-1 leading-relaxed text-xs sm:text-sm">
                         {t(
                           'journey.protectStep',
-                          'If the sender asks for payments, registration fees, or app downloads next, stop immediately and verify with SEBI/RBI.',
+                          'If the sender asks for payments, registration fees, or app downloads next, stop immediately and ask local police or call 1930.',
                         )}
                       </p>
                     </div>

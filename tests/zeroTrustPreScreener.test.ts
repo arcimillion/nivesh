@@ -271,6 +271,24 @@ async function runAsyncTests() {
     `Percentage return without timeframe got verdict: ${percentageReturnNoTimeframeResult.verdict}`,
   )
 
+  // 22. SSRF Guardrail Security & URL Sanitization Tests
+  const { isSafePublicUrl } = await import('../src/pipeline.ts')
+  assert('SSRF Guard: localhost is blocked', !isSafePublicUrl('http://localhost:3000'))
+  assert('SSRF Guard: 127.0.0.1 is blocked', !isSafePublicUrl('http://127.0.0.1/admin'))
+  assert('SSRF Guard: AWS Metadata endpoint 169.254.169.254 is blocked', !isSafePublicUrl('http://169.254.169.254/latest/meta-data/'))
+  assert('SSRF Guard: Internal IP 10.0.0.1 is blocked', !isSafePublicUrl('http://10.0.0.1/secret'))
+  assert('SSRF Guard: Public HTTPS URL is allowed', isSafePublicUrl('https://sebi.gov.in'))
+
+  const ssrfPipelineResult = await executeNiveshShieldPipeline({
+    url: 'http://127.0.0.1/admin',
+    modality: 'url',
+  })
+  assert(
+    'Pipeline: SSRF attempt to 127.0.0.1 hard blocks with 🔴 RED verdict',
+    ssrfPipelineResult.verdict === '🔴 RED' && ssrfPipelineResult.scam_detected === true,
+    `SSRF got verdict: ${ssrfPipelineResult.verdict}`,
+  )
+
   console.log('\n===========================================================')
   console.log(`ZERO-TRUST PRE-SCREENER TESTS: ${passed}/${passed + failed} PASSED (${failed} FAILED)`)
   console.log('===========================================================')

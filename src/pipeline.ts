@@ -66,6 +66,28 @@ export const sanitizeUserInput = sanitizeInput
 // ----------------------------------------------------
 // SAFE EXEMPTION CHECK: Educational & Disclaimers
 // ----------------------------------------------------
+// URL Validator & SSRF Preventer
+export function isSafePublicUrl(urlString: string): boolean {
+  try {
+    const url = new URL(urlString)
+
+    // Only allow HTTP/HTTPS
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return false
+
+    const hostname = url.hostname
+
+    // Block common private/local IP ranges (SSRF Protection)
+    const privateIpRegex =
+      /^(localhost|127\.0\.0\.1|0\.0\.0\.0|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|169\.254\.\d{1,3}\.\d{1,3})$/i
+
+    if (privateIpRegex.test(hostname)) return false
+
+    return true
+  } catch {
+    return false // Invalid URL format
+  }
+}
+
 export function isEducationalOrDisclaimer(input: string): boolean {
   if (!input) return false
   const lower = input.toLowerCase().trim()
@@ -197,6 +219,23 @@ export async function executeNiveshShieldPipeline(
     url: targetUrlStr,
   }
 
+  // --- SSRF URL GUARD (0ms Deterministic Interception) ---
+  if (safeModality === 'url' || targetUrlStr || (typeof rawInput === 'string' && /^https?:\/\//i.test(rawInput))) {
+    const urlString = targetUrlStr || rawText
+    if (urlString && !isSafePublicUrl(urlString)) {
+      return {
+        verdict: '🔴 RED',
+        scam_detected: true,
+        reason: '🔴 RED: Invalid or blocked URL detected.',
+        scam_stage: 'lure_contact',
+        confidence_score: 1.0,
+        rationale_for_dossier: 'Zero-Trust Hard Block: Attempted SSRF or blocked URL range access.',
+        overall_status: 'warning_signs_found',
+        summary: 'Security Violation: Attempted SSRF or invalid URL blocked by NiveshShield guardrail.',
+      }
+    }
+  }
+
   // --- STAGE 1: Deterministic Pre-Screener ---
   if (runDeterministicPreScreen(rawText)) {
     const fatalMatch = evaluateFatalRedLines(rawText) || {
@@ -249,7 +288,7 @@ export async function executeNiveshShieldPipeline(
       ...fallback,
       overall_status: 'warning_signs_found',
       summary:
-        'Zero-Trust Alert: Guaranteed investment returns promised in regional language/script, violating SEBI/RBI regulations.',
+        'This message promises fake guaranteed returns on your money. Real stock market investments can never guarantee fixed returns.',
     }
   }
 
@@ -301,7 +340,7 @@ export async function executeNiveshShieldPipeline(
       ...fallback,
       overall_status: 'warning_signs_found',
       summary:
-        'Zero-Trust Alert: Impersonation of financial institution executives or regulators detected.',
+        'This message pretends to be from a bank or company manager. Real officials never ask for money or account transfers on personal WhatsApp.',
     }
   }
 
@@ -321,7 +360,7 @@ export async function executeNiveshShieldPipeline(
       ...fallback,
       overall_status: 'warning_signs_found',
       summary:
-        'Zero-Trust Alert: Fabricated investment gains and unauthorized IPO allotment claims detected.',
+        'This message shows fake profit numbers or fake share allotments to trick you into transferring money.',
     }
   }
 
@@ -342,7 +381,7 @@ export async function executeNiveshShieldPipeline(
       ...fallback,
       overall_status: 'warning_signs_found',
       summary:
-        'Zero-Trust Alert: Guaranteed investment returns promised in regional language (Devanagari script), violating SEBI/RBI regulations.',
+        'This message promises fake guaranteed returns on your money. Real stock market investments can never guarantee fixed returns.',
     }
   }
 

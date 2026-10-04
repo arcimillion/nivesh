@@ -139,62 +139,62 @@ const DICTIONARY: Record<
 > = {
   en: {
     multiplierSummary:
-      'High Risk Alert: The solicitation promises unrealistic money multiplication (e.g. giving a small amount to receive an exponential return). This violates SEBI regulations prohibiting guaranteed return promises in securities transactions.',
+      'DANGER! This message promises fake money multiplication. Real investments can never double or multiply your money overnight.',
     guaranteedSummary:
-      'Warning Signs Found: Assured return promises and pressure tactics violate statutory SEBI and RBI investor protection regulations.',
+      'DANGER! This message promises fake guaranteed returns on your money. Do NOT send any money or click any link.',
     credentialHarvestingSummary:
-      'CRITICAL FRAUD WARNING: Requests for credit card photos, debit card details, CVV, or confidential banking credentials in exchange for "free money" or rewards are severe phishing and identity-theft scams. Legitimate financial institutions and regulators NEVER ask for card photos or private credentials. Immediate transaction block recommended.',
+      'CRITICAL FRAUD WARNING: Requests for credit card photos, debit card details, CVV, or confidential bank details in exchange for "free money" are severe scams. Real banks and government officers NEVER ask for card photos or PINs.',
     credentialHarvestingExplanation:
-      'Sharing a photo of your credit card reveals the 16-digit card number, expiry date, and CVV, enabling fraudsters to make unauthorized online transactions and drain your funds. Reserve Bank of India (RBI) directives strictly prohibit sharing card photos or confidential credentials.',
+      'Sharing a photo of your payment card exposes your 16-digit card number, expiry date, and CVV, allowing thieves to drain your bank account. Never share photos of your card.',
     credentialHarvestingWhatRemainsUnknown:
-      'Identity of the solicitor, legitimate business registration, and authorization under RBI / Cyber laws.',
+      'Real identity of the sender and business registration.',
     credentialHarvestingVerificationStep:
-      'NEVER share photos of credit/debit cards. If already shared, call your bank immediately to block/hotlist the card and dial 1930 (National Cyber Crime Helpline).',
+      'NEVER share photos of credit/debit cards. If already shared, call your bank immediately to block the card and dial 1930 (National Cyber Crime Helpline).',
     ambiguousSummary:
-      'Caution: Solicitations via informal channels (WhatsApp/Telegram groups) require rigorous independent verification. Unregistered advisory services violate SEBI regulations.',
+      'Caution: This sender or WhatsApp group is not verified by the government. Do not transfer any money until you verify them.',
     benignSummary:
-      'No obvious warning signs (such as guaranteed returns, exponential multiplier promises, or urgent payment demands) detected in this text.',
+      'No obvious warning signs detected in this text. This appears to be normal educational information.',
     guaranteedReturnsExplanation:
-      'SEBI regulations explicitly prohibit any intermediary, broker, or financial advisor from guaranteeing or promising fixed profits on investments.',
+      'Real stock market investments can never guarantee fixed monthly profits. Anyone promising guaranteed profits is lying to steal your money.',
     urgencyExplanation:
-      'Artificial deadlines and limited seat pressure are common tactics used in investment scams to induce impulsive financial commitments before proper verification.',
+      'Scammers create fake urgency like "limited seats left" or "act in 10 minutes" to rush you into paying before you can ask family or check with police.',
     upfrontExplanation:
-      'Demanding upfront registration, margin, or processing fees into personal accounts or unverified UPI IDs is a characteristic indicator of fraudulent solicitations.',
+      'Asking for upfront registration fees, processing charges, or transfers to personal UPI IDs is a clear sign of fraud.',
     suspiciousLinkExplanation:
-      'Unsolicited invitation to private advisory channels without statutory SEBI Research Analyst registration disclosures.',
+      'Unsolicited invitation to private WhatsApp or Telegram groups without government registration.',
     highRiskContentEstablishes:
-      'The solicitation offers exponential or assured financial returns without verifiable SEBI registration credentials.',
+      'The message offers fake guaranteed returns without any official government license.',
     ambiguousContentEstablishes:
-      'Message invites participation in informal advisory channel without mandatory statutory risk disclaimers.',
+      'Message invites you to an unverified private trading group.',
     benignContentEstablishes:
-      'Text describes standard financial or educational concepts without guaranteed returns or advance payment demands.',
+      'Text describes standard financial or educational information without asking for money.',
     highRiskWhatRemainsUnknown:
-      'Legal identity of sender, SEBI registration number, and official corporate registration on MCA portal.',
+      'Real identity of sender and official government registration.',
     ambiguousWhatRemainsUnknown:
-      'Research Analyst Registration Number and SEBI authorization.',
+      'Official broker license and registration number.',
     benignWhatRemainsUnknown:
-      'Specific execution platform or intermediary used.',
+      'Specific trading platform used.',
     highRiskVerificationStep:
-      'Search entity or advisor name on official SEBI registered intermediaries database at https://www.sebi.gov.in.',
+      'Search entity or advisor name on official SEBI registered database at https://www.sebi.gov.in or call 1930.',
     ambiguousVerificationStep:
-      'Request SEBI RA registration number and check on sebi.gov.in.',
+      'Ask for government license number and verify before paying.',
     benignVerificationStep:
-      'Always verify that any broker, mutual fund distributor, or advisor is licensed with SEBI and AMFI.',
-    journeyInitialOfferTitle: 'Unsolicited High Return Scheme',
+      'Always verify that any broker or fund manager is licensed before investing.',
+    journeyInitialOfferTitle: '1. Fake Offer & Big Profit Trap',
     journeyInitialOfferExplanation:
-      'Solicitation promises assured high payouts or quick multiplication of capital.',
-    journeyUrgencyTitle: 'Artificial Time Pressure',
+      'The scammer promises huge payouts or quick money multiplication to attract your attention.',
+    journeyUrgencyTitle: '2. Rushing You to Pay Fast',
     journeyUrgencyExplanation:
-      'Perpetrators create fake urgency or exclusivity to bypass the victim’s critical evaluation.',
-    journeyPaymentTitle: 'Transfer to Personal UPI or Private Account',
+      'They create fake urgency ("limited seats", "act in 10 mins") so you don\'t have time to ask your family.',
+    journeyPaymentTitle: '3. Demanding Upfront Fee or UPI Transfer',
     journeyPaymentExplanation:
-      'Common next step: asking target to transfer initial sum to individual UPI handles or mule accounts.',
-    journeyAppTitle: 'Custom APK / Unofficial Platform Link',
+      'They ask you to transfer registration fees or advance deposits to a personal UPI handle or bank account.',
+    journeyAppTitle: '4. Asking to Download Fake App or Share Password',
     journeyAppExplanation:
-      'Victims are directed to unofficial apps showing fabricated gains on dashboard.',
-    journeyRecoveryTitle: 'Withdrawal Block & Bogus Tax Demands',
+      'They send links to download unknown APK apps or ask for OTPs, bank details, or passwords.',
+    journeyRecoveryTitle: '5. Demanding More Money to Withdraw Profits',
     journeyRecoveryExplanation:
-      'When attempting withdrawal, victims are told to pay extra "taxes" or "release fees", losing additional funds.',
+      'When you try to withdraw your profits, they demand extra "clearance fees" or "tax", stealing even more money.',
     highRiskUnknowns: [
       'SEBI registration ID not verifiable from submitted content alone.',
       'Official company PAN / CIN and registered domain remain undisclosed.',

@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from '@google/genai'
 import { z } from 'zod'
+import { isSafePublicUrl, extractTextFromUrl } from './urlFetcher.ts'
 
 // ----------------------------------------------------
 // 1. SCHEMAS & TYPES FOR STAGE 2 MULTIMODAL AI
@@ -38,6 +39,8 @@ export type Stage2AnalysisResult = z.infer<typeof Stage2AnalysisResultSchema>
 export interface Stage2AnalysisPayload {
   text?: string
   message?: string
+  url?: string
+  type?: string
   image_base64?: string
   file_data?: string
   file_mime_type?: string
@@ -490,7 +493,54 @@ FORENSIC FRAUD DETECTION RULES:
 `
 
   const apiKey = process.env.GEMINI_API_KEY || ''
-  const inputText = String(payload.text || payload.message || '').trim()
+  let inputText = String(payload.text || payload.message || '').trim()
+
+  // URL extraction & SSRF guardrail
+  if (
+    payload.modality === 'url' ||
+    (payload as { type?: string }).type === 'url' ||
+    (payload.url && payload.url.trim()) ||
+    /^https?:\/\//i.test(inputText)
+  ) {
+    const targetUrl = (payload.url || inputText).trim()
+    if (targetUrl) {
+      if (!isSafePublicUrl(targetUrl)) {
+        return {
+          scam_detected: true,
+          confidence_score: 1.0,
+          scam_stage: 'lure_contact',
+          is_financial_context: true,
+          evidence: {
+            original_excerpt: targetUrl.slice(0, 100),
+            detected_tactics: ['Blocked or malicious URL'],
+            regulatory_violations: ['Zero-Trust URL Security Guardrail Block'],
+          },
+          rationale_for_dossier: '🔴 RED: Invalid or blocked URL detected.',
+        }
+      }
+
+      try {
+        inputText = await extractTextFromUrl(targetUrl)
+      } catch (urlErr: unknown) {
+        const msg =
+          urlErr instanceof Error
+            ? urlErr.message
+            : '🔴 RED: Unable to access the provided link. Treat with extreme caution.'
+        return {
+          scam_detected: true,
+          confidence_score: 1.0,
+          scam_stage: 'lure_contact',
+          is_financial_context: true,
+          evidence: {
+            original_excerpt: targetUrl.slice(0, 100),
+            detected_tactics: ['Unreachable or suspicious link'],
+            regulatory_violations: ['Unverified Third-Party Link Access'],
+          },
+          rationale_for_dossier: msg,
+        }
+      }
+    }
+  }
   const rawImage =
     (payload as { imageBase64?: string }).imageBase64 ||
     payload.image_base64 ||
